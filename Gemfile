@@ -7,8 +7,10 @@ gem 'rails', '~> 6.0.0'
 gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.11'
 
-gem 'blueprinter'
-gem 'kaminari'
+# gem 'blueprinter'
+# gem 'kaminari'
+gem 'jsonapi.rb'
+
 
 # gem 'redis', '~> 4.0'
 
@@ -18,7 +20,9 @@ gem 'rack-cors'
 group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'
-  gem 'rspec-json_expectations'
+  # gem 'rspec-json_expectations'
+  # gem 'jsonapi-matchers', github: 'PopularPays/jsonapi-matchers'
+  gem 'jsonapi-rspec'
   gem 'factory_bot_rails'
 end
 
