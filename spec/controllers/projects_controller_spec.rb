@@ -33,7 +33,7 @@ RSpec.describe ProjectsController, type: :controller do
         get :index, params: { filter: { slug_cont_any: "two" } }
         expect(response).to have_http_status(:ok)
         expect(json_data.size).to eq(1)
-        expect(json_data.first).to have_id(another_project.id.to_s)
+        expect(json_data.first).to have_id(another_project.id)
       end
     end
   end
