@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :project do
-    slug { "username/project-name" }
+    sequence(:slug){ |n| "user_#{ n }/project_#{ n }" }
   end
 end

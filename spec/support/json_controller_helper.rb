@@ -1,4 +1,7 @@
 def json_response
-  expect(response.body).not_to eq("")
-  JSON.parse(response.body)
+  JSON.parse(response.body).with_indifferent_access
+end
+
+def json_data
+  JSON.parse(response.body)["data"]
 end
