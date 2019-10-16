@@ -18,10 +18,10 @@ gem 'jsonapi.rb'
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'rack-cors'
 
+
 group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'
-  gem 'jsonapi-rspec'
   gem 'factory_bot_rails'
 end
 
