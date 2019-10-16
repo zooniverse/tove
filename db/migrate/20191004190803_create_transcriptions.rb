@@ -6,7 +6,7 @@ class CreateTranscriptions < ActiveRecord::Migration[6.0]
       t.string :group_id, null: false
       t.jsonb :text, null: false
       t.integer :status, null: false
-      t.integer :flagged
+      t.boolean :flagged, null: false, default: false
 
       t.timestamps
     end
