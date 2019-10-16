@@ -52,17 +52,31 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#update' do
     let!(:transcription) { create(:transcription) }
-    let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "id": transcription.id, "attributes": { "flagged": true } } } }
+    let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }
 
     it 'updates the resource' do
       patch :update, params: update_params
       expect(transcription.reload.flagged).to be_truthy
     end
 
-    it 'validates the input' do
-      busted_params = { id: transcription.id, "data": { "type": "garbage" } }
-      patch :update, params: busted_params
-      expect(response).to have_http_status(:unprocessable_entity)
+    context 'validates the input' do
+      it 'is not valid JSON:API' do
+        busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
+        patch :update, params: busted_params
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not exist' do
+        busted_params = { id: 9999, "data": { "type": "transcriptions", "attributes": { "flagged": true } } }
+        patch :update, params: busted_params
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'is the wrong type' do
+        busted_params = { id: transcription.id, "data": { "type": "projects", "attributes": { "flagged": true } } }
+        patch :update, params: busted_params
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 end

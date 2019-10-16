@@ -9,6 +9,7 @@ class TranscriptionsController < ApplicationController
 
   def update
     @transcription = Transcription.find(params[:id])
+    raise ActionController::UnpermittedParameters if type_invalid?
     @transcription.update(update_attrs)
     render jsonapi: @transcription
   end
@@ -19,6 +20,10 @@ class TranscriptionsController < ApplicationController
     params.require(:data)
           .require(:attributes)
           .permit(:text, :flagged, :status)
+  end
+
+  def type_invalid?
+    params[:data][:type] != "transcriptions"
   end
 
   def allowed_filters
