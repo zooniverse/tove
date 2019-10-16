@@ -5,7 +5,6 @@ require 'database_cleaner'
 RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
-  # config.include JSONAPI::RSpec
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
   # rspec-expectations config goes here. You can use an alternate
