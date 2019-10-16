@@ -49,4 +49,20 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
     end
   end
+
+  describe '#update' do
+    let!(:transcription) { create(:transcription) }
+    let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "id": transcription.id, "attributes": { "flagged": true } } } }
+
+    it 'updates the resource' do
+      patch :update, params: update_params
+      expect(transcription.reload.flagged).to be_truthy
+    end
+
+    it 'validates the input' do
+      busted_params = { id: transcription.id, "data": { "type": "garbage" } }
+      patch :update, params: busted_params
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
 end
