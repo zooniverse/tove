@@ -15,4 +15,4 @@ before_script:
   - psql -c 'create database tove_test;' -U postgres
   - scripts/no_focus.sh
 
-script: "rspec"
+script: "bin/rspec"
