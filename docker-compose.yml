@@ -1,0 +1,24 @@
+postgres:
+  image: postgres
+  environment:
+    - "POSTGRES_USER=tove"
+    - "POSTGRES_PASSWORD=tove"
+  ports:
+    - "5432:5432"
+
+tove:
+  dockerfile: Dockerfile
+  build: ./
+  environment:
+    - "RAILS_ENV=docker_development"
+    - "RACK_ENV=docker_development"
+  links:
+    - postgres:pg
+
+nginx:
+  dockerfile: Dockerfile.nginx
+  build: ./
+  ports:
+    - "3000:80"
+  links:
+    - tove:tove
