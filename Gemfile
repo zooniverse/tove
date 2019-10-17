@@ -23,6 +23,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'
   gem 'factory_bot_rails'
+  gem 'jsonapi-rspec', require: false
 end
 
 group :development do
