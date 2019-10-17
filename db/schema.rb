@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2019_10_14_194626) do
     t.string "group_id", null: false
     t.jsonb "text", null: false
     t.integer "status", null: false
-    t.integer "flagged"
+    t.boolean "flagged", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

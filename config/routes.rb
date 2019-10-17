@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :projects
-  resources :workflows
-  resources :transcriptions
+  resources :projects, only: [:index]
+  resources :workflows, only: [:index]
+  resources :transcriptions, only: [:index, :update]
 end
