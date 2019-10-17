@@ -1,5 +1,4 @@
 class TranscriptionsController < ApplicationController
-  include JSONAPI::Errors
   include JSONAPI::Deserialization
 
   def index
@@ -9,7 +8,7 @@ class TranscriptionsController < ApplicationController
 
   def update
     @transcription = Transcription.find(params[:id])
-    raise ActionController::UnpermittedParameters if type_invalid?
+    raise ActionController::BadRequest if type_invalid?
     @transcription.update(update_attrs)
     render jsonapi: @transcription
   end
