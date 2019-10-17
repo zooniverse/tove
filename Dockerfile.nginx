@@ -1,8 +1,0 @@
-FROM zooniverse/apps-nginx
-
-ARG RAILS_ENV
-COPY ./docker/nginx.${RAILS_ENV:-staging}.conf /etc/nginx-sites/tove.conf
-
-EXPOSE 80
-
-ENTRYPOINT /start.sh
