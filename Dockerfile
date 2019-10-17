@@ -1,7 +1,7 @@
-FROM ruby:2.6.4
+FROM ruby:2.6.4-stretch
 WORKDIR /app
 ENV PORT=80
-ARG RAILS_ENV=production
+ARG RAILS_ENV
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y git curl libpq-dev libjemalloc1 && \
@@ -20,7 +20,6 @@ ADD ./ /app
 
 RUN (cd /app && git log --format="%H" -n 1 > commit_id.txt)
 RUN (cd /app && mkdir -p tmp/pids)
-RUN (cd /app && SECRET_KEY_BASE=1 bundle exec rails assets:precompile)
 
 RUN mkdir -p log && \
     ln -sf /dev/stdout log/production.log && \
