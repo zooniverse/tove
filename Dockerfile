@@ -1,35 +1,31 @@
 FROM ruby:2.6.4
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-
-ARG RAILS_ENV
-
-WORKDIR /rails_app
+WORKDIR /app
+ENV PORT=80
+ARG RAILS_ENV=production
 
 RUN apt-get update && \
-  apt-get upgrade -y && \
-  apt-get install -y supervisor libpq-dev python-dev && \
-  apt-get clean
+    apt-get install --no-install-recommends -y git curl libpq-dev libjemalloc1 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.1
 
-COPY ./Gemfile /rails_app/
-COPY ./Gemfile.lock /rails_app/
+RUN mkdir config && curl "https://ip-ranges.amazonaws.com/ip-ranges.json" > config/aws_ips.json
 
-RUN cd /rails_app && \
-  bundle install --without test development
+ADD ./Gemfile /app/
+ADD ./Gemfile.lock /app/
 
-COPY ./ /rails_app
+RUN if [ "$RAILS_ENV" = "development" ]; then bundle install; else bundle install --without development test; fi
 
-RUN (cd /rails_app && git log --format="%H" -n 1 > revision.txt)
+ADD ./ /app
 
-COPY docker/supervisor.conf /etc/supervisor/conf.d/tove.conf
+RUN (cd /app && git log --format="%H" -n 1 > commit_id.txt)
+RUN (cd /app && mkdir -p tmp/pids)
+RUN (cd /app && SECRET_KEY_BASE=1 bundle exec rails assets:precompile)
 
-ENV RAILS_ENV $RAILS_ENV
-ENV RACK_ENV $RAILS_ENV
+RUN mkdir -p log && \
+    ln -sf /dev/stdout log/production.log && \
+    ln -sf /dev/stdout log/staging.log
 
-EXPOSE 81
+EXPOSE 80
 
-ENTRYPOINT /usr/bin/supervisord
+CMD ["/app/docker/start-puma.sh"]

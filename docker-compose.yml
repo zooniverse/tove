@@ -1,24 +1,22 @@
-postgres:
-  image: postgres
-  environment:
-    - "POSTGRES_USER=tove"
-    - "POSTGRES_PASSWORD=tove"
-  ports:
-    - "5432:5432"
+services:
+  postgres:
+    image: postgres:9.4
+    environment:
+      - "POSTGRES_USER=tove"
+      - "POSTGRES_PASSWORD=tove"
 
-tove:
-  dockerfile: Dockerfile
-  build: ./
-  environment:
-    - "RAILS_ENV=docker_development"
-    - "RACK_ENV=docker_development"
-  links:
-    - postgres:pg
-
-nginx:
-  dockerfile: Dockerfile.nginx
-  build: ./
-  ports:
-    - "3000:80"
-  links:
-    - tove:tove
+  app:
+    build:
+      context: .
+      args:
+        RAILS_ENV: development
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:80"
+    environment:
+      - "RAILS_ENV=development"
+      - "DATABASE_URL=postgresql://tove:tove@postgres/tove_development"
+      - "DATABASE_URL_TEST=postgresql://tove:tove@postgres/tove_test"
+    links:
+      - postgres:postgres
