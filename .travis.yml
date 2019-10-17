@@ -15,7 +15,4 @@ before_script:
   - psql -c 'create database tove_test;' -U postgres
   - scripts/no_focus.sh
 
-script: "bin/rspec"
-
-after_success:
-  - "BUNDLE_GEMFILE=$PWD/docs/Gemfile bundle install"
+script: "rspec"
