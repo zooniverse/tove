@@ -1,0 +1,26 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: tove_development
+
+test:
+  <<: *default
+  url: <%= ENV['DATABASE_URL_TEST'] %>
+  database: tove_test
+
+staging:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
+  database: tove_production
+  username: tove
+  password: <%= ENV['TOVE_DATABASE_PASSWORD'] %>
