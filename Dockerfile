@@ -9,8 +9,6 @@ RUN apt-get update && \
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.1
 
-RUN mkdir config && curl "https://ip-ranges.amazonaws.com/ip-ranges.json" > config/aws_ips.json
-
 ADD ./Gemfile /app/
 ADD ./Gemfile.lock /app/
 
