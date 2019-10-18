@@ -1,0 +1,23 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.4
+    environment:
+      - "POSTGRES_USER=tove"
+      - "POSTGRES_PASSWORD=tove"
+
+  app:
+    build:
+      context: .
+      args:
+        RAILS_ENV: development
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:80"
+    environment:
+      - "RAILS_ENV=development"
+      - "DATABASE_URL=postgresql://tove:tove@postgres/tove_development"
+      - "DATABASE_URL_TEST=postgresql://tove:tove@postgres/tove_test"
+    links:
+      - postgres:postgres

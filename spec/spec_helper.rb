@@ -1,5 +1,4 @@
 require 'factory_bot'
-require 'database_cleaner'
 require "jsonapi/rspec"
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
@@ -40,11 +39,6 @@ RSpec.configure do |config|
 
 # The settings below are suggested to provide a good initial experience
 # with RSpec, but feel free to customize to your heart's content.
-  # This allows you to limit a spec run to individual examples or groups
-  # you care about by tagging them with `:focus` metadata. When nothing
-  # is tagged with `:focus`, all examples get run. RSpec also provides
-  # aliases for `it`, `describe`, and `context` that include `:focus`
-  # metadata: `fit`, `fdescribe` and `fcontext`, respectively.
   config.filter_run_when_matching :focus
 
   # Allows RSpec to persist some state between runs in order to support
@@ -87,14 +81,4 @@ RSpec.configure do |config|
   Kernel.srand config.seed
   config.order = :random
 
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with :truncation
-  end
-
-  config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  end
 end

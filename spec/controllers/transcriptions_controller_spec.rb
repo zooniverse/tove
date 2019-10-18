@@ -63,7 +63,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
         patch :update, params: busted_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'does not exist' do
@@ -75,7 +75,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'is the wrong type' do
         busted_params = { id: transcription.id, "data": { "type": "projects", "attributes": { "flagged": true } } }
         patch :update, params: busted_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
