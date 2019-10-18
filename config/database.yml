@@ -22,5 +22,3 @@ production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
   database: tove_production
-  username: tove
-  password: <%= ENV['TOVE_DATABASE_PASSWORD'] %>
