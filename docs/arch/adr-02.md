@@ -14,15 +14,13 @@ Rails apps need access to environment-based credentials (API keys, db URLs and p
 * Rails internal credential storage solution
 * Kubernetes mounted dotenv volume
 
-## Pros and Cons of the Options <!-- optional -->
-
 ### Option 1: Kubernetes encoded env variables
 
 A list of environment variables are base64-encoded and piped into a k8s secret. Loaded by being added individually to the templates.
 
 Pros:
 * Our current standard (Caesar, PRNAPI)--or as close to one as we have.
-* Each var exists in template, so the contents are
+* Each var exists in template, so the contents are clearly defined.
 
 Cons:
 * Whole base64 encoding thing makes reading/editing credentials a chore
@@ -30,7 +28,7 @@ Cons:
 
 ### Option 2: Rails internal credentials
 
-As of Rails 5.1, Rails supports storing its own credentials. Rails 6 includes support for this feature across multiple environments. A `config/[environment].yml.enc` file is encrpyted with a `config/[environment].key`. The latter is stored as a k8s secret and mounted in `/config`. The encrypted yml file can then theoretically be included in version control, but could also be stored in the same volume mount if that makes people nervous. Development key+creds can be kept in git and are used by default (via RAILS_ENV).
+As of Rails 5.1, Rails supports storing its own credentials. Rails 6 includes support for this feature across multiple environments. A `config/[environment].yml.enc` file is encrpyted with a `config/[environment].key`. The latter is stored as a k8s secret and mounted in `/config`. The encrypted yml file can then theoretically be included in version control, but could also be stored in the same volume mount if that makes people nervous. Development key+creds can be kept in git and are used by default (via `RAILS_ENV`).
 
 Syntax for the Rails helpers is as follows:
 `rails edit:credentials --environment staging`
@@ -45,7 +43,7 @@ Pros:
 Cons:
 * Rails 6 only (for multiple envs). Our other apps will need upgrade all the way to use the same functionality.
 * Different. This already an issue with our various other Rails apps, so it would be yet another strategy, but a fairly self-documenting one.
-* Rails 6 is released and stable, but this feature isn't
+* Rails 6 is released and stable, but this feature is kind of new. 5.1 was a while ago, though.
 
 
 ### Option 3: k8s Mounted secrets volumes
