@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tove-staging-app
+  labels:
+    app: tove-staging-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tove-staging-app
+  template:
+    metadata:
+      labels:
+        app: tove-staging-app
+    spec:
+      containers:
+        - name: tove-staging-app
+          image: zooniverse/tove:__IMAGE_TAG__
+          env:
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: RAILS_ENV
+              value: staging
+            - name: RAILS_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tove-staging
+                  key: rails-master-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tove-staging-app
+spec:
+  selector:
+    app: tove-staging-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
