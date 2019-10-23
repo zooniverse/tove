@@ -1,2 +1,3 @@
-config/staging.key
-config/production.key
+config/credentials/staging.key
+config/credentials/production.key
+/config/master.key
