@@ -18,6 +18,7 @@ pipeline {
 
           if (BRANCH_NAME == 'master') {
             stage('Update latest tag') {
+              newImage.push()
               newImage.push('latest')
             }
           }
