@@ -38,7 +38,7 @@ pipeline {
   post {
     success {
       script {
-        if (BRANCH_NAME == 'master' || TAG_NAME == 'production-release') {
+        if (BRANCH_NAME == 'master' || env.TAG_NAME == 'production-release') {
           slackSend (
             color: '#00FF00',
             message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
@@ -50,7 +50,7 @@ pipeline {
 
     failure {
       script {
-        if (BRANCH_NAME == 'master' || TAG_NAME == 'production-release') {
+        if (BRANCH_NAME == 'master' || env.TAG_NAME == 'production-release') {
           slackSend (
             color: '#FF0000',
             message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
