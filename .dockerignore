@@ -1,0 +1,3 @@
+config/credentials/staging.key
+config/credentials/production.key
+/config/master.key

@@ -18,7 +18,9 @@
 !/storage/.keep
 .byebug_history
 
-# Ignore master key for decrypting credentials and more.
+# Ignore credentials
+/config/credentials/production.key
+/config/credentials/staging.key
 /config/master.key
 
 /.rvmrc

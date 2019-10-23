@@ -16,9 +16,8 @@ test:
 
 staging:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
+  url: <%= Rails.application.credentials.db_url %>
 
 production:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
   database: tove_production
