@@ -9,7 +9,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'has an authorization header' do
       let(:token) { 'Bearer test' }
-      it 'is nil' do
+      it 'exists' do
         expect(controller.auth_token).to eql('test')
       end
     end
