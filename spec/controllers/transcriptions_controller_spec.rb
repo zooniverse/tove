@@ -1,4 +1,5 @@
 RSpec.describe TranscriptionsController, type: :controller do
+  include_examples 'authenticates'
 
   describe '#index' do
     let!(:transcription) { create(:transcription) }
