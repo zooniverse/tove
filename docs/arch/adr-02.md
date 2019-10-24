@@ -1,6 +1,6 @@
 # ADR 02: Credential Storage
 
-* Status: proposed
+* Status: accepted
 * Interested parties: @zwolf, @camallen, @adammcmaster
 * Date: October 21, 2019
 
@@ -51,7 +51,7 @@ Used by old Rails apps deployed to k8s (eduapi, for instance). Roughly the same 
 
 ## Decision Outcome
 
-TBD.
+Decided to go with Option 2, Rails credentials. It's the most forward-looking option and isn't terribly different from existing setups. There's even a precedent in the graphql stats API. Also, as it's already being done in the aforementioned API, we're going to store encoded credentials in the repo.
 
 ### Links
 * rails docs: https://edgeguides.rubyonrails.org/security.html#custom-credentials
