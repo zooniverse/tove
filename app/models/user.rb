@@ -6,7 +6,7 @@ class User < ApplicationRecord
     id, login = data.values_at 'id', 'login'
     raise ArgumentError.new("Unable to parse JWT") if [id, login].include? nil
 
-    User.where(id: id, login: login).first_or_create do |user|
+    User.where(id: id, login: login).first_or_create.tap do |user|
       user.display_name = data['dname']
 
       # Explicitly set user admin accessor if encoded in JWT
