@@ -51,6 +51,20 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
   end
 
+  describe '#show' do
+    let!(:transcription) { create(:transcription) }
+
+    it 'returns successfully' do
+      get :show, params: { id: transcription.id }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'renders the requested transcription' do
+      get :show, params: { id: transcription.id }
+      expect(json_data).to have_id(transcription.id.to_s)
+    end
+  end
+
   describe '#update' do
     let!(:transcription) { create(:transcription) }
     let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }

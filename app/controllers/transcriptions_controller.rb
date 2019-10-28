@@ -13,6 +13,11 @@ class TranscriptionsController < ApplicationController
     render jsonapi: @transcription
   end
 
+  def show
+    @transcription = Transcription.find(params[:id])
+    render jsonapi: @transcription
+  end
+
   private
 
   def update_attrs
