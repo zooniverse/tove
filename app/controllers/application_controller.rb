@@ -20,7 +20,11 @@ class ApplicationController < ActionController::Base
   end
 
   def set_user
-    @current_user = User.from_jwt Authenticator.from_token auth_token
+    @current_user = if auth_token.present?
+        User.from_jwt(Authenticator.from_token(auth_token))
+      else
+        nil
+      end
   end
 
   def set_roles

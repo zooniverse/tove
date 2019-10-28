@@ -13,5 +13,12 @@ RSpec.describe Subject, type: :model do
       }.to change {User.count}.by(1)
       expect(User.find(9999)).to be_valid
     end
+
+    it 'has an invalid JWT' do
+      data = { }
+      expect {
+        User.from_jwt(data)
+      }.to raise_error ArgumentError
+    end
   end
 end
