@@ -5,6 +5,8 @@ gem 'rails', '~> 6.0.0'
 gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.11'
 
+gem 'panoptes-client'
+
 # jsonapi.rb is a bundle that incorporates fast_jsonapi (serialization),
 # ransack (filtration), and some RSpec matchers along with some
 # boilerplate for pagination and error handling
@@ -16,7 +18,6 @@ gem 'jsonapi.rb'
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'rack-cors'
 gem "sentry-raven"
-
 
 group :development, :test do
   gem 'pry-byebug'

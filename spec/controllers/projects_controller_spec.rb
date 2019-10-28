@@ -1,4 +1,5 @@
 RSpec.describe ProjectsController, type: :controller do
+  include_examples 'authenticates'
 
   describe '#index' do
     let!(:project) { create(:project, slug: "userone/projectone") }
