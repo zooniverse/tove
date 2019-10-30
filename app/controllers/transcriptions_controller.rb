@@ -9,7 +9,7 @@ class TranscriptionsController < ApplicationController
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
-    @transcription.update(update_attrs)
+    @transcription.update!(update_attrs)
     render jsonapi: @transcription
   end
 
@@ -23,7 +23,7 @@ class TranscriptionsController < ApplicationController
   def update_attrs
     params.require(:data)
           .require(:attributes)
-          .permit(:text, :flagged, :status)
+          .permit(:flagged, :status, text: {})
   end
 
   def type_invalid?
