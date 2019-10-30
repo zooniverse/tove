@@ -51,15 +51,14 @@ RSpec.describe TranscriptionsController, type: :controller do
 
       describe 'filters by id' do
         it 'filters by single id' do
-          get :index, params: { filter: { id_eq: 1 } }
+          get :index, params: { filter: { id_eq: transcription.id } }
           expect(json_data.size).to eq(1)
-          expect(json_data.first).to have_id(separate_transcription.id.to_s)
+          expect(json_data.first).to have_id(transcription.id.to_s)
         end
 
         it 'filters by multiple ids' do
-          get :index, params: { filter: { flagged_true: 1 } }
-          expect(json_data.size).to eq(1)
-          expect(json_data.first).to have_id(separate_transcription.id.to_s)
+          get :index, params: { filter: { id_in: "#{transcription.id},#{another_transcription.id}" } }
+          expect(json_data.size).to eq(2)
         end
       end
     end
