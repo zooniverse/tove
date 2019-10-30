@@ -26,7 +26,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
       it 'respects page number' do
         get :index, params: { page: { number: 2, size: 1 } }
-        expect(json_data.first["id"]).to eql(another_transcription.id.to_s)
+        expect(json_data.first).to have_id(another_transcription.id.to_s)
       end
     end
 
@@ -47,6 +47,20 @@ RSpec.describe TranscriptionsController, type: :controller do
         get :index, params: { filter: { flagged_true: 1 } }
         expect(json_data.size).to eq(1)
         expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      describe 'filters by id' do
+        it 'filters by single id' do
+          get :index, params: { filter: { id_eq: 1 } }
+          expect(json_data.size).to eq(1)
+          expect(json_data.first).to have_id(separate_transcription.id.to_s)
+        end
+
+        it 'filters by multiple ids' do
+          get :index, params: { filter: { flagged_true: 1 } }
+          expect(json_data.size).to eq(1)
+          expect(json_data.first).to have_id(separate_transcription.id.to_s)
+        end
       end
     end
   end
