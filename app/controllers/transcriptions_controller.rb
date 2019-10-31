@@ -21,9 +21,7 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
-    params.require(:data)
-          .require(:attributes)
-          .permit(:flagged, :status, text: {})
+    jsonapi_deserialize(params)
   end
 
   def type_invalid?
