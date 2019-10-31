@@ -18,6 +18,12 @@ RSpec.describe WorkflowsController, type: :controller do
       expect(json_data.first["id"]).to eql(workflow.id.to_s)
     end
 
+    it 'serialized transcription groups' do
+      allow_any_instance_of(Workflow).to receive(:groups).and_return({"FIRST" => 2, "SECOND" => 1})
+      get :index
+      expect(json_data.first["attributes"]["groups"]).to eq({"FIRST" => 2, "SECOND" => 1})
+    end
+
     describe "pagination" do
       it 'respects page size' do
         get :index, params: { page: { size: 1 } }

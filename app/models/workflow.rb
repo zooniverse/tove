@@ -4,4 +4,8 @@ class Workflow < ApplicationRecord
   has_many :transcriptions
 
   validates :display_name, presence: true
+
+  def groups
+    transcriptions.group(:group_id).count
+  end
 end
