@@ -1,6 +1,6 @@
 class WorkflowsController < ApplicationController
   def index
-    @workflows= Workflow.all
+    @workflows = Workflow.all
     jsonapi_render(@workflows, allowed_filters)
   end
 
