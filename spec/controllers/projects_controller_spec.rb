@@ -38,4 +38,18 @@ RSpec.describe ProjectsController, type: :controller do
       end
     end
   end
+
+  describe '#show' do
+    let!(:project) { create(:project, slug: "userone/projectone") }
+
+    it 'returns successfully' do
+      get :show, params: { id: project.id }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'renders the requested transcription' do
+      get :show, params: { id: project.id }
+      expect(json_data).to have_id(project.id.to_s)
+    end
+  end
 end
