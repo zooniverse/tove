@@ -9,4 +9,9 @@ class ProjectsController < ApplicationController
   def allowed_filters
     [:slug]
   end
+
+  def jsonapi_meta(resources)
+    pagination = jsonapi_pagination_meta(resources)
+    { pagination: pagination } if pagination.present?
+  end
 end

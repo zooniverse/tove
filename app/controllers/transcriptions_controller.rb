@@ -31,4 +31,9 @@ class TranscriptionsController < ApplicationController
   def allowed_filters
     [:id, :subject_id, :workflow_id, :group_id, :flagged]
   end
+
+  def jsonapi_meta(resources)
+    pagination = jsonapi_pagination_meta(resources)
+    { pagination: pagination } if pagination.present?
+  end
 end
