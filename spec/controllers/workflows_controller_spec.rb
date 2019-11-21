@@ -59,7 +59,7 @@ RSpec.describe WorkflowsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'renders the requested transcription' do
+    it 'renders the requested workflow' do
       get :show, params: { id: workflow.id }
       expect(json_data).to have_id(workflow.id.to_s)
     end

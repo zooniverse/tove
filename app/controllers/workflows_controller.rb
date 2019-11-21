@@ -1,6 +1,4 @@
 class WorkflowsController < ApplicationController
-  include JSONAPI::Deserialization
-
   def index
     @workflows = Workflow.all
     jsonapi_render(@workflows, allowed_filters)

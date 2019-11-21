@@ -47,7 +47,7 @@ RSpec.describe ProjectsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'renders the requested transcription' do
+    it 'renders the requested project' do
       get :show, params: { id: project.id }
       expect(json_data).to have_id(project.id.to_s)
     end
