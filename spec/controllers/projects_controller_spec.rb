@@ -5,6 +5,8 @@ RSpec.describe ProjectsController, type: :controller do
     let!(:project) { create(:project, slug: "userone/projectone") }
     let!(:another_project) { create(:project, slug: "usertwo/projecttwo") }
 
+    it_behaves_like "meta pagination"
+
     it "returns http success" do
       get :index
       expect(response).to have_http_status(:ok)

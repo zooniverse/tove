@@ -6,6 +6,8 @@ RSpec.describe TranscriptionsController, type: :controller do
     let!(:another_transcription) { create(:transcription, workflow: transcription.workflow ) }
     let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true) }
 
+    it_behaves_like "meta pagination"
+
     it "returns http success" do
       get :index
       expect(response).to have_http_status(:ok)

@@ -6,6 +6,8 @@ RSpec.describe WorkflowsController, type: :controller do
     let!(:another_workflow) { create(:workflow, display_name: "honkhonk") }
     let(:project_two) { another_workflow.project }
 
+    it_behaves_like "meta pagination"
+
     it "returns http success" do
       get :index
       expect(response).to have_http_status(:ok)
