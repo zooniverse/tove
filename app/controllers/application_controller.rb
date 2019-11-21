@@ -41,4 +41,11 @@ class ApplicationController < ActionController::Base
     authorization = request.headers['Authorization']
     @auth_token = authorization.sub(/^Bearer /, '') if authorization.present?
   end
+
+  private
+
+  def jsonapi_meta(resources)
+    pagination = jsonapi_pagination_meta(resources)
+    { pagination: pagination } if pagination.present?
+  end
 end
