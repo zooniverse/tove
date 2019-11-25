@@ -4,6 +4,8 @@ require "jsonapi/rspec"
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
 
+  config.alias_it_should_behave_like_to :it_has_behavior, 'has behavior:'
+
   config.include FactoryBot::Syntax::Methods
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
