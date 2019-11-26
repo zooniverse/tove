@@ -6,6 +6,10 @@ RSpec.describe WorkflowsController, type: :controller do
     let!(:another_workflow) { create(:workflow, display_name: "honkhonk") }
     let(:project_two) { another_workflow.project }
 
+    it_has_behavior "pagination" do
+      let(:another) { another_workflow }
+    end
+
     it "returns http success" do
       get :index
       expect(response).to have_http_status(:ok)
@@ -22,18 +26,6 @@ RSpec.describe WorkflowsController, type: :controller do
       allow_any_instance_of(Workflow).to receive(:groups).and_return({"FIRST" => 2, "SECOND" => 1})
       get :index
       expect(json_data.first["attributes"]["groups"]).to eq({"FIRST" => 2, "SECOND" => 1})
-    end
-
-    describe "pagination" do
-      it 'respects page size' do
-        get :index, params: { page: { size: 1 } }
-        expect(json_data.size).to eql(1)
-      end
-
-      it 'respects page number' do
-        get :index, params: { page: { number: 2, size: 1 } }
-        expect(json_data.first["id"]).to eql(another_workflow.id.to_s)
-      end
     end
 
     describe "filtration" do
