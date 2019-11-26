@@ -50,4 +50,18 @@ RSpec.describe WorkflowsController, type: :controller do
       end
     end
   end
+
+  describe '#show' do
+    let!(:workflow) { create(:workflow) }
+
+    it 'returns successfully' do
+      get :show, params: { id: workflow.id }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'renders the requested workflow' do
+      get :show, params: { id: workflow.id }
+      expect(json_data).to have_id(workflow.id.to_s)
+    end
+  end
 end

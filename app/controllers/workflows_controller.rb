@@ -4,6 +4,11 @@ class WorkflowsController < ApplicationController
     jsonapi_render(@workflows, allowed_filters)
   end
 
+  def show
+    @workflow = Workflow.find(params[:id])
+    render jsonapi: @workflow
+  end
+
   private
 
   def allowed_filters
