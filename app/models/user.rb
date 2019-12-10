@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   attr_accessor :display_name, :admin, :roles
-  validates :login, presence: true
+  validates :login, presence: true, uniqueness: true
 
   def self.from_jwt(data)
     id, login = data.values_at 'id', 'login'
