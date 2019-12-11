@@ -17,13 +17,14 @@ gem 'jsonapi.rb'
 
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'rack-cors'
-gem "sentry-raven"
+gem 'sentry-raven'
 
 group :development, :test do
-  gem 'pry-byebug'
-  gem 'rspec-rails'
+  gem 'coveralls', require: false
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
+  gem 'pry-byebug'
+  gem 'rspec-rails'
 end
 
 group :development do
