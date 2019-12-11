@@ -129,7 +129,7 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
-    panoptes-client (0.4.0)
+    panoptes-client (1.0.0.pre1)
       deprecate
       faraday
       faraday-panoptes (~> 0.3.0)
