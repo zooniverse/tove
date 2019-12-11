@@ -2,9 +2,9 @@ RSpec.describe TranscriptionsController, type: :controller do
   include_examples 'authenticates'
 
   describe '#index' do
-    let!(:transcription) { create(:transcription) }
-    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow ) }
-    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true) }
+    let!(:transcription) { create(:transcription, status: 1) }
+    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0) }
+    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2) }
 
     it_has_behavior "pagination" do
       let(:another) { another_transcription }
@@ -50,6 +50,19 @@ RSpec.describe TranscriptionsController, type: :controller do
 
         it 'filters by multiple ids' do
           get :index, params: { filter: { id_in: "#{transcription.id},#{another_transcription.id}" } }
+          expect(json_data.size).to eq(2)
+        end
+      end
+
+      describe 'filters by status' do
+        it 'filters by single status' do
+          get :index, params: { filter: { status_eq: another_transcription.status_before_type_cast } }
+          expect(json_data.size).to eq(1)
+          expect(json_data.first["attributes"]["status"]).to eq(another_transcription.status)
+        end
+
+        it 'filters by multiple statuses' do
+          get :index, params: { filter: { status_in: "#{another_transcription.status_before_type_cast},#{separate_transcription.status_before_type_cast}" } }
           expect(json_data.size).to eq(2)
         end
       end
