@@ -1,15 +1,15 @@
 require './spec/fixtures/project_roles.rb'
 require './spec/fixtures/project.rb'
 
-RSpec.describe PanoptesClient, type: :lib do
+RSpec.describe PanoptesApi, type: :lib do
   include_context 'role parsing'
   include_context 'project parsing'
 
-  let(:panoptes_client) { described_class.new(123) }
+  let(:panoptes_api) { described_class.new(123) }
   let(:client_double) { double }
 
   before do
-    allow(panoptes_client).to receive(:client).and_return(client_double)
+    allow(panoptes_api).to receive(:client).and_return(client_double)
   end
 
   describe '#roles' do
@@ -17,7 +17,7 @@ RSpec.describe PanoptesClient, type: :lib do
 
     it 'should return a hash' do
       allow(client_double).to receive(:paginate).and_return(raw_roles.with_indifferent_access)
-      expect(panoptes_client.roles(123)).to eq(parsed_roles)
+      expect(panoptes_api.roles(123)).to eq(parsed_roles)
     end
   end
 
@@ -26,7 +26,7 @@ RSpec.describe PanoptesClient, type: :lib do
 
     it 'should return a hash' do
       allow(client_double).to receive(:get).and_return(raw_project.with_indifferent_access)
-      expect(panoptes_client.project('slug')).to eq(parsed_project)
+      expect(panoptes_api.project('slug')).to eq(parsed_project)
     end
   end
 

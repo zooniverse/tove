@@ -23,7 +23,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   describe '#set_roles' do
     let(:user){ create :user }
-    let(:client_double){ double roles: { 'foo' => ['bar'] } }
+    let(:api_double){ double roles: { 'foo' => ['bar'] } }
 
     context 'with a user' do
       before(:each) do
@@ -31,13 +31,13 @@ RSpec.describe ApplicationController, type: :controller do
       end
 
       it 'should fetch roles' do
-        expect(PanoptesClient).to receive(:new).and_return client_double
-        expect(client_double).to receive :roles
+        expect(PanoptesApi).to receive(:new).and_return api_double
+        expect(api_double).to receive :roles
         controller.set_roles
       end
 
       it 'should set the current user roles' do
-        allow(PanoptesClient).to receive(:new).and_return client_double
+        allow(PanoptesApi).to receive(:new).and_return api_double
         controller.set_roles
         expect(controller.current_user.roles).to eql 'foo' => ['bar']
       end
@@ -45,7 +45,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'without a user' do
       it 'should not fetch roles' do
-        expect(PanoptesClient).to_not receive(:new)
+        expect(PanoptesApi).to_not receive(:new)
         controller.set_roles
       end
     end

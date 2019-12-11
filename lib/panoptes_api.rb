@@ -1,7 +1,7 @@
 require 'authenticator'
 require 'panoptes/client'
 
-class PanoptesClient
+class PanoptesApi
   attr_accessor :client
 
   def initialize(token)
@@ -32,7 +32,6 @@ class PanoptesClient
   def client
     @client ||= Panoptes::Client.new({
       env: env,
-      public_key_path: Authenticator.key_path,
       auth: { token: @token }
     }).panoptes
   end
