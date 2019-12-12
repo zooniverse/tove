@@ -1,9 +1,8 @@
 require 'factory_bot'
-require "jsonapi/rspec"
+require 'jsonapi/rspec'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
-
   config.alias_it_should_behave_like_to :it_has_behavior, 'has behavior:'
 
   config.include FactoryBot::Syntax::Methods
@@ -82,5 +81,4 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
   config.order = :random
-
 end
