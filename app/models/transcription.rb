@@ -9,6 +9,7 @@ class Transcription < ApplicationRecord
   enum status: {
     unseen: 0,
     ready: 1,
-    approved: 2
+    approved: 2,
+    in_progress: 3
   }
 end
