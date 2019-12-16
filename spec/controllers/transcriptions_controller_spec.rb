@@ -62,7 +62,8 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
 
         it 'filters by multiple statuses' do
-          get :index, params: { filter: { status_in: "#{another_transcription.status_before_type_cast},#{separate_transcription.status_before_type_cast}" } }
+          status_filter = "#{another_transcription.status_before_type_cast},#{separate_transcription.status_before_type_cast}"
+          get :index, params: { filter: { status_in: status_filter } }
           expect(json_data.size).to eq(2)
         end
       end
