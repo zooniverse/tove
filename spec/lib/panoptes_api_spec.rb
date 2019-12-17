@@ -9,7 +9,7 @@ RSpec.describe PanoptesApi, type: :lib do
   let(:client_double) { double }
 
   before do
-    allow(panoptes_api).to receive(:client).and_return(client_double)
+    allow(panoptes_api).to receive(:api).and_return(client_double)
   end
 
   describe '#roles' do

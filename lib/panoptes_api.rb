@@ -1,4 +1,3 @@
-require 'authenticator'
 require 'panoptes/client'
 
 class PanoptesApi
@@ -21,7 +20,7 @@ class PanoptesApi
   end
 
   def project(slug)
-    response = client.get('projects', { slug: slug, cards: true })['projects'].first
+    response = api.get('projects', { slug: slug, cards: true })['projects'].first
     { id: response['id'].to_i, slug: response['slug'] }
   end
 
@@ -33,10 +32,14 @@ class PanoptesApi
     @client ||= Panoptes::Client.new({
       env: env,
       auth: { token: @token }
-    }).panoptes
+    })
+  end
+
+  def api
+    client.panoptes
   end
 
   def get_roles(user_id)
-    client.paginate('project_roles', { user_id: user_id, page_size: 100 })
+    api.paginate('project_roles', { user_id: user_id, page_size: 100 })
   end
 end
