@@ -9,13 +9,17 @@ RSpec.describe PanoptesApi, type: :lib do
   let(:client_double) { double }
 
   before do
-    allow(panoptes_api).to receive(:api).and_return(client_double)
+  end
+
+  it 'aliases the API endpoint' do
+    expect(panoptes_api.api).to be_a Panoptes::Endpoints::JsonApiEndpoint
   end
 
   describe '#roles' do
     let(:parsed_roles) { { 1 => ["collaborator"], 2 => ["owner"], 3 => ["researcher"] } }
 
-    it 'should return a hash' do
+    it 'returns a hash' do
+      allow(panoptes_api).to receive(:api).and_return(client_double)
       allow(client_double).to receive(:paginate).and_return(raw_roles.with_indifferent_access)
       expect(panoptes_api.roles(123)).to eq(parsed_roles)
     end
@@ -24,7 +28,8 @@ RSpec.describe PanoptesApi, type: :lib do
   describe '#project' do
     let(:parsed_project) { { :id => 1715, :slug => "zwolf/ztest"} }
 
-    it 'should return a hash' do
+    it 'returns a hash' do
+      allow(panoptes_api).to receive(:api).and_return(client_double)
       allow(client_double).to receive(:get).and_return(raw_project.with_indifferent_access)
       expect(panoptes_api.project('slug')).to eq(parsed_project)
     end
