@@ -1,7 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery unless: -> { request.format.json? }
 
-  require 'authenticator'
   require 'panoptes_api'
 
   attr_reader :current_user, :auth_token
@@ -21,7 +20,13 @@ class ApplicationController < ActionController::Base
 
   def set_user
     @current_user = if auth_token.present?
-        User.from_jwt(Authenticator.from_token(auth_token))
+        parsed_jwt = panoptes_api.client.token_contents
+        User.where(id: parsed_jwt["id"], login: parsed_jwt["login"]).first_or_create.tap do |user|
+          user.display_name = parsed_jwt['dname']
+
+          # Explicitly set user admin accessor if encoded in JWT
+          user.admin = parsed_jwt['admin'] == true
+        end
       else
         nil
       end
