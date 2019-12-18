@@ -24,18 +24,22 @@ class ApplicationController < ActionController::Base
     @current_user = User.where(
                       id: client.authenticated_user_id,
                       login: client.authenticated_user_login
-                    ).first_or_create.tap do |user|
+                    ).first_or_create do |user|
                       user.display_name = client.authenticated_user_display_name
 
                       # Explicitly set user admin accessor if encoded in JWT
                       user.admin = client.authenticated_admin?
                     end
+
+    if needs_roles_refresh?
+      set_roles
+    end
   end
 
   def set_roles
     return unless current_user
 
-    current_user.roles = panoptes.roles current_user.id
+    current_user.update(roles: panoptes.roles(current_user.id), roles_refreshed_at: Time.now)
   end
 
   def panoptes
@@ -51,6 +55,14 @@ class ApplicationController < ActionController::Base
 
     authorization = request.headers['Authorization']
     @auth_token = authorization.sub(/^Bearer /, '') if authorization.present?
+  end
+
+  def needs_roles_refresh?
+    current_user.roles.nil? || current_user.roles_refreshed_at < token_created_at
+  end
+
+  def token_created_at
+   client.token_expiry - 2.hours
   end
 
   private
