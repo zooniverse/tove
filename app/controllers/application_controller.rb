@@ -19,27 +19,31 @@ class ApplicationController < ActionController::Base
   end
 
   def set_user
-    @current_user = if auth_token.present?
-        parsed_jwt = panoptes_api.client.token_contents
-        User.where(id: parsed_jwt["id"], login: parsed_jwt["login"]).first_or_create.tap do |user|
-          user.display_name = parsed_jwt['dname']
+    return nil unless auth_token.present?
 
-          # Explicitly set user admin accessor if encoded in JWT
-          user.admin = parsed_jwt['admin'] == true
-        end
-      else
-        nil
-      end
+    @current_user = User.where(
+                      id: client.authenticated_user_id,
+                      login: client.authenticated_user_login
+                    ).first_or_create.tap do |user|
+                      user.display_name = client.authenticated_user_display_name
+
+                      # Explicitly set user admin accessor if encoded in JWT
+                      user.admin = client.authenticated_admin?
+                    end
   end
 
   def set_roles
     return unless current_user
 
-    current_user.roles = panoptes_api.roles current_user.id
+    current_user.roles = panoptes.roles current_user.id
   end
 
-  def panoptes_api
+  def panoptes
     @panoptes_api ||= PanoptesApi.new auth_token
+  end
+
+  def client
+    panoptes.client
   end
 
   def auth_token
