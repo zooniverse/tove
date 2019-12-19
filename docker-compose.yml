@@ -1,7 +1,7 @@
-version: '2'
+version: '3'
 services:
   postgres:
-    image: postgres:9.4
+    image: postgres:9.5
     environment:
       - "POSTGRES_USER=tove"
       - "POSTGRES_PASSWORD=tove"
@@ -9,10 +9,12 @@ services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         RAILS_ENV: development
     volumes:
       - ./:/app
+      - gem_cache:/usr/local/bundle
     ports:
       - "3000:80"
     environment:
@@ -21,3 +23,6 @@ services:
       - "DATABASE_URL_TEST=postgresql://tove:tove@postgres/tove_test"
     links:
       - postgres:postgres
+
+volumes:
+  gem_cache:
