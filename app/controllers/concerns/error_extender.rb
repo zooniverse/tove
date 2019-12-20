@@ -5,7 +5,6 @@ module ErrorExtender
   included do
     rescue_from ActionController::BadRequest, with: :render_jsonapi_bad_request
     rescue_from ActiveModel::UnknownAttributeError, with: :render_jsonapi_unknown_attribute
-    rescue_from StandardError, with: :report_to_sentry
   end
 
   def report_to_sentry(exception)
@@ -17,9 +16,14 @@ module ErrorExtender
 
       )
     end
-
     Raven.capture_exception(exception)
-    render_jsonapi_internal_server_error(exception)
+  end
+
+  # Overriding this JSONAPI::Errors method to add Sentry reporting
+  def render_jsonapi_internal_server_error(exception)
+    report_to_sentry(exception)
+    error = { status: '500', title: Rack::Utils::HTTP_STATUS_CODES[500] }
+    render jsonapi_errors: [error], status: :internal_server_error
   end
 
   def render_jsonapi_bad_request(exception)
