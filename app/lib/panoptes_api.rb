@@ -35,6 +35,10 @@ class PanoptesApi
     })
   end
 
+  def token_created_at
+    client.token_expiry - ENV.fetch(TOKEN_VALIDITY_TIME, 2.hours)
+  end
+
   def api
     client.panoptes
   end

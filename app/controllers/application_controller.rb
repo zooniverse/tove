@@ -1,8 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery unless: -> { request.format.json? }
 
-  require 'panoptes_api'
-
   attr_reader :current_user, :auth_token
   before_action :set_user
 
@@ -22,13 +20,13 @@ class ApplicationController < ActionController::Base
     return nil unless auth_token.present?
 
     @current_user = User.where(
-                      id: client.authenticated_user_id,
-                      login: client.authenticated_user_login
+                      id: panoptes.client.authenticated_user_id,
+                      login: panoptes.client.authenticated_user_login
                     ).first_or_create.tap do |user|
-                      user.display_name = client.authenticated_user_display_name
+                      user.display_name = panoptes.client.authenticated_user_display_name
 
                       # Explicitly set user admin accessor if encoded in JWT
-                      user.admin = client.authenticated_admin?
+                      user.admin = panoptes.client.authenticated_admin?
                     end
 
     if needs_roles_refresh?
@@ -46,10 +44,6 @@ class ApplicationController < ActionController::Base
     @panoptes_api ||= PanoptesApi.new auth_token
   end
 
-  def client
-    panoptes.client
-  end
-
   def auth_token
     return @auth_token if @auth_token
 
@@ -58,11 +52,7 @@ class ApplicationController < ActionController::Base
   end
 
   def needs_roles_refresh?
-    current_user.roles.nil? || current_user.roles_refreshed_at < token_created_at
-  end
-
-  def token_created_at
-   client.token_expiry - 2.hours
+    current_user.roles.nil? || current_user.roles_refreshed_at < panoptes.token_created_at
   end
 
   private

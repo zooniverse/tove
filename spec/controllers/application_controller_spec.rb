@@ -50,7 +50,7 @@ RSpec.describe ApplicationController, type: :controller do
 
       before do
         allow(controller).to receive(:current_user).and_return user
-        allow(client).to receive(:token_expiry).and_return(Time.now + 1.hour)
+        allow(api_double).to receive(:token_created_at).and_return(Time.now - 1.hour)
       end
 
       it 'is true when the roles are nil' do
@@ -58,12 +58,12 @@ RSpec.describe ApplicationController, type: :controller do
         expect(controller.needs_roles_refresh?).to be true
       end
 
-      it 'is true when the token is old' do
+      it 'is true when the roles are old' do
         user.roles_refreshed_at = Time.now - 2.days
         expect(controller.needs_roles_refresh?).to be true
       end
 
-      it 'is false when the token is new' do
+      it 'is false when the roles are fresh' do
         user.roles_refreshed_at = Time.now - 2.seconds
         expect(controller.needs_roles_refresh?).to be false
       end
