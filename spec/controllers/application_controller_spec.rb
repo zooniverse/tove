@@ -1,4 +1,5 @@
 RSpec.describe ApplicationController, type: :controller do
+  let(:user){ create :user }
 
   describe 'error handling' do
     controller do
@@ -8,6 +9,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'sends StandardErrors to Sentry' do
+      allow(controller).to receive(:current_user).and_return user
       expect(controller).to receive(:report_to_sentry).and_call_original
       get :index
       expect(response).to have_http_status(500)

@@ -12,8 +12,7 @@ module ErrorExtender
       Raven.user_context(
         id: current_user.id,
         username: current_user.login,
-        roles: current_user.roles,
-
+        roles: current_user.roles
       )
     end
     Raven.capture_exception(exception)
