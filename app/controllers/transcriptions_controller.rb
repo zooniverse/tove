@@ -29,6 +29,6 @@ class TranscriptionsController < ApplicationController
   end
 
   def allowed_filters
-    [:id, :subject_id, :workflow_id, :group_id, :flagged, :status]
+    [:id, :subject_id, :workflow_id, :group_id, :flagged]
   end
 end
