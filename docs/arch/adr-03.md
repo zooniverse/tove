@@ -11,7 +11,8 @@ The goal is to investigate Azure’s storage options (specifically Blob Storage 
 
 ### Factors to consider:
 
-* How easy is it to share a file to the end user? What is the process for this? -Ease of use, how complicated is it to set up, maintain, edit
+* How easy is it to share a file to the end user? What is the process for this?
+* Ease of use, how complicated is it to set up, maintain, edit
 * access permission features
 * Speed of accessing and iterating through files (e.g. getting all files in a given directory)
 
