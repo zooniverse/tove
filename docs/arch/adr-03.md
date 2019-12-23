@@ -46,7 +46,7 @@ Pros:
 - Greater maximum storage size than file storage (2PiB: 1 PiB = 2^50 bytes)
 
 Cons: 
-- Azure Active Directory (Microsoft's access management service) permission can only be granted in account level or container level. See [here](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas) for details. Ultimately, this means that we should only lean choose to use Blob Storage if we expect that clicking on the “data export” option will trigger a download of the zipped file, rather than exposing a link to the file. Triggering a download would make sense if we expect the file retrieval and zipping process to be quick, but at the moment we have no evidence for how long it will take.  
+- shared access signature permissions can only be granted in account level or container level. See [here](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas) for details. This means that if we want to provide a link to the file, we will need to create a new blob container for the user so that the user isn't granted access to all transcription data. This may not turn out to be a real "downside" if it turns out there's no overhead involved in creating/deleting containers on demand.
 
 ### Option 2: Azure File Service
 
@@ -54,9 +54,9 @@ Cons:
 Target throughput for a single file share: up to 300 MiB/sec for certain regions, Up to 60 MiB/sec for all regions
 
 Pros: 
-- allows for specifying read-only or write-only permissions on folders within the share using a shared access signature
+- allows for specifying read-only or write-only permissions on folders within the share using a shared access signature (SAS): this would give us more control in how we want to organize/store the generated zip files
+- can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access
 - File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine, which is not possible with a blob container
-- Portability: With Blob Storage, if you decide to migrate to a different platform in future, you may have to change your application code. With File storage you can migrate your app to any other platform that supports SMB
 - Greater potential throughput
 
 Cons:
@@ -65,7 +65,13 @@ Cons:
 
 ## Decision
 
-The deciding factor ultimately came down to the fact that Azure File Services gives you the option to give a user access to a specific folder rather than the entire file share. Since we do not know for sure that the process of retrieving and zipping the files will happen quickly enough to allow for a direct download of the zip file, we will need to account for the fact that we may need to share the file via a link (which will necessitate setting permissions to access only one specific folder). 
+While Azure File Service does offer the enticing option of granting folder specific permissions, we don't appear to have any need for the remainder of the additional functionality that comes with File Service, which makes me reluctant to want to use it. In addition, the number of articles and resources available on communicating with Blob Storage to set up file zipping is much greater than what's available for File Service. My initial analysis has not given me any reason to think that setting up user-specific containers would be problematic, but this is an open question worth thinking about for reviewers. Hypothetically, this user-specific container could be deleted after a short time window to avoid organizational clutter and unnecessary additional costs.
+
+Ultimately, my choice is to go with Blob Storage: the more basic, simple storage tool that gives us what we need and nothing more. That being said, I'd still like to keep the option of using Azure File Service on the table, in case it turns out that we *would* benefit from the additional functionality that it offers.
+
+Final questions:
+- Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service
+- Is there any reason why we might not want to create a new container every time a user wants to download a set of files? It doesn't seem organizationally ideal to me since this would mean that the Tove production storage account would end up cluttered with user-specific folders on the top level of its blob storage, but if we delete them after giving the user a window of time to download, it probably would not get out of hand.
 
 ### Links and Articles:
 1. [Microsoft: Deciding when to use Azure Blobs, Azure Files, or Azure Disks](https://docs.microsoft.com/en-us/azure/storage/common/storage-decide-blobs-files-disks)
