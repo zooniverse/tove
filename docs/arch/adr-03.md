@@ -47,6 +47,7 @@ Pros:
 - Greater maximum storage size than file storage (2PiB: 1 PiB = 2^50 bytes)
 
 Cons: 
+- Directory hierarchy system within blob storage is purely virtual - that is, a directory is merely an abstraction over the `/`-delimited names of the underlying container/blob hierarchy. In other words, a virtual directory is a prefix that you apply to a file (blob) name.
 - shared access signature permissions can only be granted in account level or container level. See [here](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas) for details. This means that if we want to provide a link to the file, we will need to create a new blob container for the user so that the user isn't granted access to all transcription data. This may not turn out to be a real "downside" if it turns out there's no overhead involved in creating/deleting containers on demand.
 
 ### Option 2: Azure File Service
@@ -71,6 +72,7 @@ While Azure File Service does offer the enticing option of granting folder speci
 Ultimately, my choice is to go with Blob Storage: the more basic, simple storage tool that gives us what we need and nothing more. That being said, I'd still like to keep the option of using Azure File Service on the table, in case it turns out that we *would* benefit from the additional functionality that it offers.
 
 Final questions:
+- Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
 - Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service
 - Is there any reason why we might not want to create a new container every time a user wants to download a set of files? It doesn't seem organizationally ideal to me since this would mean that the Tove production storage account would end up cluttered with user-specific folders on the top level of its blob storage, but if we delete them after giving the user a window of time to download, it probably would not get out of hand.
 
