@@ -19,6 +19,8 @@ The goal is to investigate Azure’s storage options (specifically Blob Storage 
 ### Terminology:
 
 **Blob:** acronym for “Binary Large Object”
+**Container:** synonym for ”S3 Bucket”
+**Shared Access Signature:** similar functionality as “S3 Presigned URLs”
 
 ## Considered Options
 
