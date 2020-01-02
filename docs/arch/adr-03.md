@@ -60,7 +60,7 @@ Target throughput for a single file share: up to 300 MiB/sec for certain regions
 Pros: 
 - allows for specifying read-only or write-only permissions on folders within the share using a shared access signature (SAS): this would give us more control in how we want to organize/store the generated zip files
 - can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access
-- File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine, which is not possible with a blob container
+- File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine. Note that a blob container can also be mounted as a file system using the [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) tool.
 - Greater potential throughput
 
 Cons:
@@ -86,3 +86,4 @@ Final questions:
 5. [Microsoft: Azure Storage scalability and performance targets for storage accounts](https://docs.microsoft.com/en-us/azure/storage/common/storage-scalability-targets)
 6. [Azure Blob Overview](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview)
 7. [Azure Blob Introduction](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction)
+8. [How to mount Blob storage as a file system with blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux)
