@@ -69,14 +69,16 @@ Cons:
 
 ## Decision
 
-We don't appear to have any need for most of the additional functionality that comes with File Service, which makes me reluctant to want to use it. In addition, the number of articles and resources available on communicating with Blob Storage to set up file zipping is much greater than what's available for File Service. My initial analysis has not given me any reason to think that setting up user-specific containers would be problematic, but this is an open question worth thinking about for reviewers. Hypothetically, this user-specific container could be deleted after a short time window to avoid organizational clutter and unnecessary additional costs.
+We don't appear to have any need for most of the additional functionality that comes with File Service, which makes me reluctant to want to use it. In addition, the number of articles and resources available on communicating with Blob Storage to set up file zipping is much greater than what's available for File Service. My initial understanding of Blob Storage led me to believe that permissions could only be set at the container level, but this turned out to be wrong. With the ability to set blob-specific permissions, we will be able to use a single container to store the transcription-specific files, and the user-requested zip files.
 
 Ultimately, my choice is to go with Blob Storage: the more basic, simple storage tool that gives us what we need and nothing more. That being said, I'd still like to keep the option of using Azure File Service on the table, in case it turns out that we *would* benefit from the additional functionality that it offers.
 
 Final questions:
-- Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
-- Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service
-- Is there any reason why we might not want to create a new container every time a user wants to download a set of files? It doesn't seem organizationally ideal to me since this would mean that the Tove production storage account would end up cluttered with user-specific folders on the top level of its blob storage, but if we delete them after giving the user a window of time to download, it probably would not get out of hand.
+1. **Q:** Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
+**A:** Retrieving files from a file system with virtual directories shouldn't be any different than retrieving files from a normal file system. As long as blob prefixes are constructed in a way that reflects the organizational system used within the application/database, there should be no trouble. File retrieval may be helped by append blobs - final decision on blob type is still TBD.
+
+- **Q:** Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service
+
 
 ### Links and Articles:
 1. [Microsoft: Deciding when to use Azure Blobs, Azure Files, or Azure Disks](https://docs.microsoft.com/en-us/azure/storage/common/storage-decide-blobs-files-disks)
