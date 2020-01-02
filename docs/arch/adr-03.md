@@ -33,6 +33,8 @@ The goal is to investigate Azure’s storage options (specifically Blob Storage 
 >
 > Azure Files is specifically a file system. Azure Files has all the file abstracts that you know and love from years of working with on-premises operating systems. Like Azure Blob Storage, Azure Files offers a REST interface and REST-based client libraries. Unlike Azure Blob Storage, Azure Files offers SMB access to Azure file shares. By using SMB, you can mount an Azure file share directly on Windows, Linux, or macOS, either on-premises or in cloud VMs, without writing any code or attaching any special drivers to the file system. You also can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access, close to where the data is used.
 
+Both options allow for specifying read-only or write-only permissions on folders or files using [Shared Access Signatures](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas).
+
 ### Option 1: Azure Blob Storage
 
 **Summary:** 
@@ -43,14 +45,13 @@ Target throughput for a single blob is up to 60 MiB per second
 
 Pros:
 - Blob Storage has been around for longer (appears to have shipped with the original launch of Azure Web Services in 2010), which means there will be more existing conversation around it (e.g. on stack overflow) and more tools/plugins for working with it
-- User reviews present Blob Storage as the go-to option, with File Services being an alternative that is employed for use cases that require specific additional functionality provided by File Services (e.g. mounting onto an existing file server, setting folder-specific permissions)
+- User reviews present Blob Storage as the go-to option, with File Services being an alternative that is employed for use cases that require specific additional functionality provided by File Services (e.g. lifting and shifting an existing file system)
 - Offers a simpler, more basic solution
 - Blob Storage is much cheaper than file storage (approximately 1/5 of the cost per unit of data)
 - Greater maximum storage size than file storage (2PiB: 1 PiB = 2^50 bytes)
 
 Cons: 
 - Directory hierarchy system within blob storage is purely virtual - that is, a directory is merely an abstraction over the `/`-delimited names of the underlying container/blob hierarchy. In other words, a virtual directory is a prefix that you apply to a file (blob) name.
-- shared access signature permissions can only be granted in account level or container level. See [here](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas) for details. This means that if we want to provide a link to the file, we will need to create a new blob container for the user so that the user isn't granted access to all transcription data. This may not turn out to be a real "downside" if it turns out there's no overhead involved in creating/deleting containers on demand.
 
 ### Option 2: Azure File Service
 
@@ -58,9 +59,8 @@ Cons:
 Target throughput for a single file share: up to 300 MiB/sec for certain regions, Up to 60 MiB/sec for all regions
 
 Pros: 
-- allows for specifying read-only or write-only permissions on folders within the share using a shared access signature (SAS): this would give us more control in how we want to organize/store the generated zip files
 - can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access
-- File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine. Note that a blob container can also be mounted as a file system using the [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) tool.
+- File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine. Note that a blob container can also be mounted as a file system using the [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) tool, so this is not an actual advantage over Blob Storage.
 - Greater potential throughput
 
 Cons:
@@ -69,7 +69,7 @@ Cons:
 
 ## Decision
 
-While Azure File Service does offer the enticing option of granting folder specific permissions, we don't appear to have any need for the remainder of the additional functionality that comes with File Service, which makes me reluctant to want to use it. In addition, the number of articles and resources available on communicating with Blob Storage to set up file zipping is much greater than what's available for File Service. My initial analysis has not given me any reason to think that setting up user-specific containers would be problematic, but this is an open question worth thinking about for reviewers. Hypothetically, this user-specific container could be deleted after a short time window to avoid organizational clutter and unnecessary additional costs.
+We don't appear to have any need for most of the additional functionality that comes with File Service, which makes me reluctant to want to use it. In addition, the number of articles and resources available on communicating with Blob Storage to set up file zipping is much greater than what's available for File Service. My initial analysis has not given me any reason to think that setting up user-specific containers would be problematic, but this is an open question worth thinking about for reviewers. Hypothetically, this user-specific container could be deleted after a short time window to avoid organizational clutter and unnecessary additional costs.
 
 Ultimately, my choice is to go with Blob Storage: the more basic, simple storage tool that gives us what we need and nothing more. That being said, I'd still like to keep the option of using Azure File Service on the table, in case it turns out that we *would* benefit from the additional functionality that it offers.
 
