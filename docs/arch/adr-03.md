@@ -40,8 +40,7 @@ Both options allow for specifying read-only or write-only permissions on folders
 __**Summary**__  
 Blob Storage is optimized for storing unstructured data: e.g. information that doesn't reside in a traditional row-column database. Blobs come in three different types: block blobs, append blobs, and page blobs.
 
-**Block Blobs**  
-A block blob consists of one or more blocks, each each of which is identified by a block ID. 
+__Block Blobs:__ A block blob consists of one or more blocks, each each of which is identified by a block ID. 
 
 By default, storage clients limit block size to 128 MB, such that when a block blob upload is more than 128 MB, the file will be broken into several blocks. This maximum block size can be updated via the SingleBlobUploadThresholdInBytes property. 
 
@@ -49,10 +48,9 @@ When uploading additional blocks to a blob, the additional blocks are associated
 
 We should note that the Azure Blob Storage gem only exposes the functionality for working with block blobs - to work with any other type of blob, we would have to construct HTTP requests by hand.
 
-**Append Blobs**
-An append blob also consists of one or more blocks, but is optimized for appending additional blocks onto the blob. Blocks can only be added to the end of an append blob, and block IDs are not exposed.
+__Append Blobs:__ An append blob also consists of one or more blocks, but is optimized for appending additional blocks onto the blob. Blocks can only be added to the end of an append blob, and block IDs are not exposed.
 
-**Page Blobs**
+__Page Blobs:__ 
 >Page blobs are a collection of 512-byte pages optimized for random read and write operations.
 
 Page blobs are initialized with a maximum data size, and updated by by specifying an offset and a range that match up with the 512-byte page boundaries.
