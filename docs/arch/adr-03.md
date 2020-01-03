@@ -68,7 +68,7 @@ Target throughput for a single blob is up to 60 MiB per second
 - Greater maximum storage size than file storage (2PiB: 1 PiB = 2^50 bytes)
 
 #### Cons: 
-- Directory hierarchy system within blob storage is purely virtual - that is, a directory is merely an abstraction over the `/`-delimited names of the underlying container/blob hierarchy. In other words, a virtual directory is a prefix that you apply to a file (blob) name.
+- Directory hierarchy system within blob storage is purely virtual - that is, a directory is merely an abstraction over the `/`-delimited names of the underlying container/blob hierarchy. In other words, a virtual directory is a prefix that you apply to a file (blob) name. We should note that AWS S3 service works the same, i.e. there is a storage account, there are buckets (containers), and then stores objects (blobs) using a prefix notation just like you would in blob storage.
 
 ### Option 2: Azure File Service
 
