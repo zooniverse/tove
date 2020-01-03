@@ -18,8 +18,8 @@ The goal is to investigate Azure’s storage options (specifically Blob Storage 
 
 ### Terminology:
 
-**Blob:** acronym for “Binary Large Object”
-**Container:** synonym for ”S3 Bucket”
+**Blob:** acronym for “Binary Large Object”  
+**Container:** synonym for ”S3 Bucket”  
 **Shared Access Signature:** similar functionality as “S3 Presigned URLs”
 
 ## Considered Options
@@ -37,12 +37,30 @@ Both options allow for specifying read-only or write-only permissions on folders
 
 ### Option 1: Azure Blob Storage
 
-**Summary:** 
-Blob Storage is optimized for storing unstructured data: e.g. information that doesn't reside in a traditional row-column database.
+__**Summary**__  
+Blob Storage is optimized for storing unstructured data: e.g. information that doesn't reside in a traditional row-column database. Blobs come in three different types: block blobs, append blobs, and page blobs.
 
-**Specs:**
+**Block Blobs**  
+A block blob consists of one or more blocks, each each of which is identified by a block ID. 
+
+By default, storage clients limit block size to 128 MB, such that when a block blob upload is more than 128 MB, the file will be broken into several blocks. This maximum block size can be updated via the SingleBlobUploadThresholdInBytes property. 
+
+When uploading additional blocks to a blob, the additional blocks are associated with the specified blob, but do not become part of the blob until you commit a list of block IDs that include the newly uploaded blocks.
+
+We should note that the Azure Blob Storage gem only exposes the functionality for working with block blobs - to work with any other type of blob, we would have to construct HTTP requests by hand.
+
+**Append Blobs**
+An append blob also consists of one or more blocks, but is optimized for appending additional blocks onto the blob. Blocks can only be added to the end of an append blob, and block IDs are not exposed.
+
+**Page Blobs**
+>Page blobs are a collection of 512-byte pages optimized for random read and write operations.
+
+Page blobs are initialized with a maximum data size, and updated by by specifying an offset and a range that match up with the 512-byte page boundaries.
+
+__**Specs**__  
 Target throughput for a single blob is up to 60 MiB per second
 
+__**Comparison**__
 Pros:
 - Blob Storage has been around for longer (appears to have shipped with the original launch of Azure Web Services in 2010), which means there will be more existing conversation around it (e.g. on stack overflow) and more tools/plugins for working with it
 - User reviews present Blob Storage as the go-to option, with File Services being an alternative that is employed for use cases that require specific additional functionality provided by File Services (e.g. lifting and shifting an existing file system)
@@ -55,9 +73,10 @@ Cons:
 
 ### Option 2: Azure File Service
 
-**Specs:**
+__**Specs**__  
 Target throughput for a single file share: up to 300 MiB/sec for certain regions, Up to 60 MiB/sec for all regions
 
+__**Comparison**__  
 Pros: 
 - can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access
 - File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine. Note that a blob container can also be mounted as a file system using the [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) tool, so this is not an actual advantage over Blob Storage.
@@ -73,11 +92,13 @@ We don't appear to have any need for most of the additional functionality that c
 
 Ultimately, my choice is to go with Blob Storage: the more basic, simple storage tool that gives us what we need and nothing more. That being said, I'd still like to keep the option of using Azure File Service on the table, in case it turns out that we *would* benefit from the additional functionality that it offers.
 
-Final questions:
-1. **Q:** Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
-**A:** Retrieving files from a file system with virtual directories shouldn't be any different than retrieving files from a normal file system. As long as blob prefixes are constructed in a way that reflects the organizational system used within the application/database, there should be no trouble. File retrieval may be helped by append blobs - final decision on blob type is still TBD.
+As for what type of blob we will use, my choice would be to store each data file in its own block blob. If we were to choose to store multiple files within a single blob (and have each file be associated with a block ID on that blob), we would lose the ability to name each individual file. Hypothetically, it would be possible to create a database table with columns “block ID” and “name”, to emulate a naming functionality, but this seems far more complicated than its worth. In addition, the (azure-storage-blob)[] gem gives us a simple interface for working with block blobs and saves us the trouble of having to write HTTP requests ourselves.
 
-- **Q:** Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service
+Final questions:
+1. Q: Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
+A: Retrieving files from a file system with virtual directories shouldn't be any different than retrieving files from a normal file system. As long as blob prefixes are constructed in a way that reflects the organizational system used within the application/database, there should be no trouble. File retrieval may be helped by append blobs - final decision on blob type is still TBD.
+
+2. Q: Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service.
 
 
 ### Links and Articles:
