@@ -1,6 +1,6 @@
 class StatusController < ApplicationController
   def show
     @status = ApplicationStatus.new
-    render jsonapi: @status
+    render json: @status
   end
 end
