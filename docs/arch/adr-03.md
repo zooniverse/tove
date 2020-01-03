@@ -60,15 +60,14 @@ Page blobs are initialized with a maximum data size, and updated by by specifyin
 #### Specs
 Target throughput for a single blob is up to 60 MiB per second
 
-#### Comparison
-Pros:
+#### Pros:
 - Blob Storage has been around for longer (appears to have shipped with the original launch of Azure Web Services in 2010), which means there will be more existing conversation around it (e.g. on stack overflow) and more tools/plugins for working with it
 - User reviews present Blob Storage as the go-to option, with File Services being an alternative that is employed for use cases that require specific additional functionality provided by File Services (e.g. lifting and shifting an existing file system)
 - Offers a simpler, more basic solution
 - Blob Storage is much cheaper than file storage (approximately 1/5 of the cost per unit of data)
 - Greater maximum storage size than file storage (2PiB: 1 PiB = 2^50 bytes)
 
-Cons: 
+#### Cons: 
 - Directory hierarchy system within blob storage is purely virtual - that is, a directory is merely an abstraction over the `/`-delimited names of the underlying container/blob hierarchy. In other words, a virtual directory is a prefix that you apply to a file (blob) name.
 
 ### Option 2: Azure File Service
@@ -76,13 +75,12 @@ Cons:
 #### Specs
 Target throughput for a single file share: up to 300 MiB/sec for certain regions, Up to 60 MiB/sec for all regions
 
-#### Comparison 
-Pros: 
+#### Pros: 
 - can cache Azure file shares on on-premises file servers by using Azure File Sync for quick access
 - File Services uses the SMB protocol, which is the same protocol used on file directories on Mac and Windows machines. Therefore a file share can be mapped onto a drive on your machine. Note that a blob container can also be mounted as a file system using the [blobfuse](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-how-to-mount-container-linux) tool, so this is not an actual advantage over Blob Storage.
 - Greater potential throughput
 
-Cons:
+#### Cons:
 - Launched in Sept 2015, hasn't been around for as long as Blob Storage.
 - Smaller max size (100 TiB: 1 TiB = 2^40 bytes). We are not expecting to come close to this size, so this isn’t much of a concern
 
@@ -95,7 +93,7 @@ Ultimately, my choice is to go with Blob Storage: the more basic, simple storage
 As for what type of blob we will use, my choice would be to store each data file in its own block blob. If we were to choose to store multiple files within a single blob (and have each file be associated with a block ID on that blob), we would lose the ability to name each individual file. Hypothetically, it would be possible to create a database table with columns “block ID” and “name”, to emulate a naming functionality, but this seems far more complicated than its worth. In addition, the [azure-storage-blob](https://github.com/azure/azure-storage-ruby/tree/master/blob) gem gives us a simple interface for working with block blobs and saves us the trouble of having to write HTTP requests ourselves.
 
 Final questions:
-1. Q: Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?
+1. Q: Blob Storage doesn't have any concrete hierarchy beyond Storage Account/Blob Container - within a container, directories are virtual, demarcated by prefixes in the file name. Will this end up being problematic for us? Will it complicate file retrieval?  
 A: Retrieving files from a file system with virtual directories shouldn't be any different than retrieving files from a normal file system. As long as blob prefixes are constructed in a way that reflects the organizational system used within the application/database, there should be no trouble. File retrieval may be helped by append blobs - final decision on blob type is still TBD.
 
 2. Q: Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service.
