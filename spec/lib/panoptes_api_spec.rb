@@ -8,11 +8,27 @@ RSpec.describe PanoptesApi, type: :lib do
   let(:panoptes_api) { described_class.new(123) }
   let(:client_double) { double }
 
-  before do
-  end
-
   it 'aliases the API endpoint' do
     expect(panoptes_api.api).to be_a Panoptes::Endpoints::JsonApiEndpoint
+  end
+
+  describe '#token_created_at' do
+    let(:party_time) { Time.parse('1999-01-01') }
+
+    before do
+      allow(panoptes_api).to receive(:token_expiry).and_return(party_time)
+    end
+
+    it 'returns two hours before the token expires' do
+      ENV["TOKEN_VALIDITY_TIME"] = nil
+      expect(panoptes_api.token_created_at).to eq(party_time - 2.hours)
+    end
+
+    it 'uses the expiration time env var if present' do
+      ENV["TOKEN_VALIDITY_TIME"] = "24"
+      expect(panoptes_api.token_created_at).to eq(party_time - 24.hours)
+
+    end
   end
 
   describe '#roles' do

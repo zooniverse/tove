@@ -20,24 +20,32 @@ class ApplicationController < ActionController::Base
     return nil unless auth_token.present?
 
     @current_user = User.where(
-                      id: panoptes.client.authenticated_user_id,
-                      login: panoptes.client.authenticated_user_login
-                    ).first_or_create.tap do |user|
-                      user.display_name = panoptes.client.authenticated_user_display_name
+                      id: panoptes.authenticated_user_id,
+                      login: panoptes.authenticated_user_login
+                    ).first_or_create
 
-                      # Explicitly set user admin accessor if encoded in JWT
-                      user.admin = panoptes.client.authenticated_admin?
-                    end
-
-    if needs_roles_refresh?
-      set_roles
-    end
+    set_roles if needs_roles_refresh?
+    set_admin if admin_status_changed?
+    set_name if display_name_changed?
+    save_user! if user_changed?
   end
 
   def set_roles
     return unless current_user
+    current_user.roles = panoptes.roles(current_user.id)
+    current_user.roles_refreshed_at = Time.now
+  end
 
-    current_user.update(roles: panoptes.roles(current_user.id), roles_refreshed_at: Time.now)
+  def set_admin
+    current_user.admin = panoptes.authenticated_admin?
+  end
+
+  def set_name
+    current_user.display_name = panoptes.authenticated_user_display_name
+  end
+
+  def save_user!
+    current_user.save!
   end
 
   def panoptes
@@ -53,6 +61,18 @@ class ApplicationController < ActionController::Base
 
   def needs_roles_refresh?
     current_user.roles.nil? || current_user.roles_refreshed_at < panoptes.token_created_at
+  end
+
+  def admin_status_changed?
+    current_user.admin != panoptes.authenticated_admin?
+  end
+
+  def display_name_changed?
+    current_user.display_name != panoptes.authenticated_user_display_name
+  end
+
+  def user_changed?
+    needs_roles_refresh? || admin_status_changed? || display_name_changed?
   end
 
   private

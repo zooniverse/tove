@@ -3,6 +3,12 @@ require 'panoptes/client'
 class PanoptesApi
   attr_accessor :client
 
+  delegate :authenticated_admin?,
+           :authenticated_user_id,
+           :authenticated_user_login,
+           :authenticated_user_display_name,
+           :token_expiry, to: :client
+
   def initialize(token)
     @token ||= token
     client
@@ -36,7 +42,7 @@ class PanoptesApi
   end
 
   def token_created_at
-    client.token_expiry - ENV.fetch(TOKEN_VALIDITY_TIME, 2.hours)
+    token_expiry - ENV.fetch("TOKEN_VALIDITY_TIME", "2").to_i.hours
   end
 
   def api

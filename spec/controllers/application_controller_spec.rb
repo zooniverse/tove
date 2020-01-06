@@ -34,10 +34,10 @@ RSpec.describe ApplicationController, type: :controller do
 
     before(:each) do
       allow(api_double).to receive(:client).and_return(client)
-      allow(client).to receive(:authenticated_user_id).and_return('1234567')
-      allow(client).to receive(:authenticated_user_login).and_return('myusername')
-      allow(client).to receive(:authenticated_user_display_name).and_return('My Username')
-      allow(client).to receive(:authenticated_admin?).and_return(true)
+      allow(api_double).to receive(:authenticated_user_id).and_return('1234567')
+      allow(api_double).to receive(:authenticated_user_login).and_return('myusername')
+      allow(api_double).to receive(:authenticated_user_display_name).and_return('My Username')
+      allow(api_double).to receive(:authenticated_admin?).and_return(true)
 
       allow(api_double).to receive(:roles).and_return({ 'foo' => ['bar'] })
 
@@ -45,31 +45,64 @@ RSpec.describe ApplicationController, type: :controller do
       allow(controller).to receive(:auth_token).and_return(true)
     end
 
-    describe '#needs_roles_refresh?' do
-      let(:user){ create :user, roles: {} }
+    describe 'user attribute checking' do
+      let(:user){ create :user, roles: {}, admin: false, display_name: "default" }
 
       before do
         allow(controller).to receive(:current_user).and_return user
-        allow(api_double).to receive(:token_created_at).and_return(Time.now - 1.hour)
       end
 
-      it 'is true when the roles are nil' do
-        user.roles = nil
-        expect(controller.needs_roles_refresh?).to be true
+      describe '#needs_roles_refresh?' do
+        before do
+          allow(api_double).to receive(:token_created_at).and_return(Time.now - 1.hour)
+        end
+
+        it 'is true when the roles are nil' do
+          user.roles = nil
+          expect(controller.needs_roles_refresh?).to be true
+        end
+
+        it 'is true when the roles are old' do
+          user.roles_refreshed_at = Time.now - 2.days
+          expect(controller.needs_roles_refresh?).to be true
+        end
+
+        it 'is false when the roles are fresh' do
+          user.roles_refreshed_at = Time.now - 2.seconds
+          expect(controller.needs_roles_refresh?).to be false
+        end
       end
 
-      it 'is true when the roles are old' do
-        user.roles_refreshed_at = Time.now - 2.days
-        expect(controller.needs_roles_refresh?).to be true
+      describe '#admin_status_changed?' do
+        it 'is true when the flag is different' do
+          allow(api_double).to receive(:authenticated_admin?).and_return(true)
+          expect(controller.admin_status_changed?).to be true
+        end
+
+        it 'is false when the flag is the same' do
+          allow(api_double).to receive(:authenticated_admin?).and_return(false)
+          expect(controller.admin_status_changed?).to be false
+        end
       end
 
-      it 'is false when the roles are fresh' do
-        user.roles_refreshed_at = Time.now - 2.seconds
-        expect(controller.needs_roles_refresh?).to be false
+      describe '#display_name_changed?' do
+        it 'is true when the flag is different' do
+          allow(api_double).to receive(:authenticated_user_display_name).and_return("changed")
+          expect(controller.display_name_changed?).to be true
+        end
+
+        it 'is false when the name is the same' do
+          allow(api_double).to receive(:authenticated_user_display_name).and_return("default")
+          expect(controller.display_name_changed?).to be false
+        end
       end
     end
 
     describe '#set_user' do
+      before do
+        allow(controller).to receive(:needs_roles_refresh?).and_return(false)
+      end
+
       context 'with a valid JWT' do
         it 'creates a user' do
           expect{controller.set_user}.to change{User.count}.by(1)
@@ -83,7 +116,6 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'does not set roles when they are fresh' do
-          allow(controller).to receive(:needs_roles_refresh?).and_return(false)
           expect(controller).to_not receive(:set_roles)
           controller.set_user
         end
@@ -97,7 +129,7 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'raises an error' do
-          allow(api_double.client).to receive(:authenticated_user_id).and_raise(Panoptes::Client::AuthenticationExpired)
+          allow(api_double).to receive(:authenticated_user_id).and_raise(Panoptes::Client::AuthenticationExpired)
           expect{controller.set_user}.to raise_error Panoptes::Client::AuthenticationExpired
         end
 
@@ -109,7 +141,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     describe '#set_roles' do
-      let(:user){ create :user, roles_refreshed_at: (Time.now - 2.days)}
+      let(:user){ create :user, roles: {}, roles_refreshed_at: (Time.now - 2.days)}
 
       context 'with a user' do
         before(:each) do
@@ -123,7 +155,7 @@ RSpec.describe ApplicationController, type: :controller do
 
         it "sets the current user's project roles" do
           controller.set_roles
-          expect(User.find(user.id).roles).to eql 'foo' => ['bar']
+          expect(user.roles).to eql 'foo' => ['bar']
         end
 
         it 'updates the refreshed at timestamp' do
