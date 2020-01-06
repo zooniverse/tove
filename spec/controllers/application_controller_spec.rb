@@ -100,7 +100,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     describe '#set_user' do
       before do
-        allow(controller).to receive(:needs_roles_refresh?).and_return(false)
+        allow(controller).to receive(:needs_roles_refresh?).and_return(true)
       end
 
       context 'with a valid JWT' do
@@ -110,12 +110,12 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'sets user roles when they need to be refreshed' do
-          allow(controller).to receive(:needs_roles_refresh?).and_return(true)
           expect(controller).to receive(:set_roles)
           controller.set_user
         end
 
         it 'does not set roles when they are fresh' do
+          allow(controller).to receive(:needs_roles_refresh?).and_return(false)
           expect(controller).to_not receive(:set_roles)
           controller.set_user
         end

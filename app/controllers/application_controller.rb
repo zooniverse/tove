@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
     set_roles if needs_roles_refresh?
     set_admin if admin_status_changed?
     set_name if display_name_changed?
-    save_user! if user_updated?
+    save_user! if user_changed?
   end
 
   def set_roles
@@ -71,7 +71,7 @@ class ApplicationController < ActionController::Base
     current_user.display_name != panoptes.authenticated_user_display_name
   end
 
-  def user_updated?
+  def user_changed?
     needs_roles_refresh? || admin_status_changed? || display_name_changed?
   end
 
