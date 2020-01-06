@@ -7,6 +7,24 @@ module ErrorExtender
     rescue_from ActiveModel::UnknownAttributeError, with: :render_jsonapi_unknown_attribute
   end
 
+  def report_to_sentry(exception)
+    if current_user
+      Raven.user_context(
+        id: current_user.id,
+        username: current_user.login,
+        roles: current_user.roles
+      )
+    end
+    Raven.capture_exception(exception)
+  end
+
+  # Overriding this JSONAPI::Errors method to add Sentry reporting
+  def render_jsonapi_internal_server_error(exception)
+    report_to_sentry(exception)
+    error = { status: '500', title: Rack::Utils::HTTP_STATUS_CODES[500] }
+    render jsonapi_errors: [error], status: :internal_server_error
+  end
+
   def render_jsonapi_bad_request(exception)
     error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400] }
     render jsonapi_errors: [error], status: :bad_request
