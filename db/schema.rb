@@ -10,20 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_14_194626) do
+ActiveRecord::Schema.define(version: 2020_01_06_221128) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
     t.string "slug", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "subjects", force: :cascade do |t|
-    t.integer "workflow_id", null: false
-    t.jsonb "metadata", default: {}
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -37,6 +30,10 @@ ActiveRecord::Schema.define(version: 2019_10_14_194626) do
     t.boolean "flagged", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "updated_by"
+    t.integer "total_lines"
+    t.integer "total_pages"
+    t.jsonb "metadata"
   end
 
   create_table "users", force: :cascade do |t|
