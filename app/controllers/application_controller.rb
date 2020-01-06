@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     @current_user = User.where(
                       id: panoptes.authenticated_user_id,
                       login: panoptes.authenticated_user_login
-                    ).first_or_create
+                    ).first_or_initialize
 
     set_roles if needs_roles_refresh?
     set_admin if admin_status_changed?
