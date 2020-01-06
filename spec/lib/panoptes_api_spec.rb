@@ -27,7 +27,6 @@ RSpec.describe PanoptesApi, type: :lib do
     it 'uses the expiration time env var if present' do
       ENV["TOKEN_VALIDITY_TIME"] = "24"
       expect(panoptes_api.token_created_at).to eq(party_time - 24.hours)
-
     end
   end
 
