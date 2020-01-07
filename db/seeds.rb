@@ -18,7 +18,6 @@ ActiveRecord::Base.transaction do
     (1..90).each do |_x|
       Transcription.create(
         workflow: w,
-        subject_id: (_x.to_s + w.id.to_s).to_i,
         group_id: 'GROUP' + rand(3).to_s,
         status: rand(3),
         flagged: [true, false].sample,

@@ -1,7 +1,6 @@
 class Transcription < ApplicationRecord
   belongs_to :workflow
 
-  validates :subject_id, presence: true, uniqueness: true
   validates :status, presence: true
   validates :group_id, presence: true
 
