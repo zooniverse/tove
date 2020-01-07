@@ -3,7 +3,7 @@ class Transcription < ApplicationRecord
 
   validates :status, presence: true
   validates :group_id, presence: true
-  validates :text, presence: true
+  validates :text, length: { minimum: 0, allow_nil: false, message: "can't be nil" }
 
   enum status: {
     unseen: 0,
