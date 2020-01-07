@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_06_221128) do
+ActiveRecord::Schema.define(version: 2020_01_06_225502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,7 +22,6 @@ ActiveRecord::Schema.define(version: 2020_01_06_221128) do
   end
 
   create_table "transcriptions", force: :cascade do |t|
-    t.integer "subject_id", null: false
     t.integer "workflow_id", null: false
     t.string "group_id", null: false
     t.jsonb "text", null: false
