@@ -1,8 +1,13 @@
-require 'authenticator'
 require 'panoptes/client'
 
-class PanoptesClient
+class PanoptesApi
   attr_accessor :client
+
+  delegate :authenticated_admin?,
+           :authenticated_user_id,
+           :authenticated_user_login,
+           :authenticated_user_display_name,
+           :token_expiry, to: :client
 
   def initialize(token)
     @token ||= token
@@ -21,7 +26,7 @@ class PanoptesClient
   end
 
   def project(slug)
-    response = client.get('projects', { slug: slug, cards: true })['projects'].first
+    response = api.get('projects', { slug: slug, cards: true })['projects'].first
     { id: response['id'].to_i, slug: response['slug'] }
   end
 
@@ -32,12 +37,19 @@ class PanoptesClient
   def client
     @client ||= Panoptes::Client.new({
       env: env,
-      public_key_path: Authenticator.key_path,
       auth: { token: @token }
-    }).panoptes
+    })
+  end
+
+  def token_created_at
+    token_expiry - ENV.fetch("TOKEN_VALIDITY_TIME", "2").to_i.hours
+  end
+
+  def api
+    client.panoptes
   end
 
   def get_roles(user_id)
-    client.paginate('project_roles', { user_id: user_id, page_size: 100 })
+    api.paginate('project_roles', { user_id: user_id, page_size: 100 })
   end
 end
