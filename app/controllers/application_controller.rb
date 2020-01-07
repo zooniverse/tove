@@ -1,9 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery unless: -> { request.format.json? }
 
-  require 'authenticator'
-  require 'panoptes_client'
-
   attr_reader :current_user, :auth_token
   before_action :set_user
 
@@ -20,26 +17,62 @@ class ApplicationController < ActionController::Base
   end
 
   def set_user
-    @current_user = if auth_token.present?
-        User.from_jwt(Authenticator.from_token(auth_token))
-      else
-        nil
-      end
+    return nil unless auth_token.present?
+
+    @current_user = User.where(
+                      id: panoptes.authenticated_user_id,
+                      login: panoptes.authenticated_user_login
+                    ).first_or_initialize
+
+    set_roles if needs_roles_refresh?
+    set_admin if admin_status_changed?
+    set_name if display_name_changed?
+    save_user! if user_changed?
   end
 
   def set_roles
     return unless current_user
-    current_user.roles = panoptes_client.roles current_user.id
+    current_user.roles = panoptes.roles(current_user.id)
+    current_user.roles_refreshed_at = Time.now
   end
 
-  def panoptes_client
-    @panoptes_client ||= PanoptesClient.new auth_token
+  def set_admin
+    current_user.admin = panoptes.authenticated_admin?
+  end
+
+  def set_name
+    current_user.display_name = panoptes.authenticated_user_display_name
+  end
+
+  def save_user!
+    current_user.save!
+  end
+
+  def panoptes
+    @panoptes_api ||= PanoptesApi.new auth_token
   end
 
   def auth_token
     return @auth_token if @auth_token
+
     authorization = request.headers['Authorization']
     @auth_token = authorization.sub(/^Bearer /, '') if authorization.present?
+  end
+
+  def needs_roles_refresh?
+    current_user.roles.nil? || current_user.roles_refreshed_at < panoptes.token_created_at
+  end
+
+  def admin_status_changed?
+    current_user.admin != panoptes.authenticated_admin?
+  end
+
+  def display_name_changed?
+    current_user.display_name != panoptes.authenticated_user_display_name
+  end
+
+  def user_changed?
+    needs_roles_refresh? || admin_status_changed? || display_name_changed?
   end
 
   private

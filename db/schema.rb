@@ -39,6 +39,10 @@ ActiveRecord::Schema.define(version: 2020_01_06_225502) do
     t.string "login"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "roles"
+    t.datetime "roles_refreshed_at"
+    t.string "display_name"
+    t.boolean "admin", default: false, null: false
   end
 
   create_table "workflows", force: :cascade do |t|

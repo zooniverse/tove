@@ -21,6 +21,9 @@ gem 'sentry-raven'
 
 group :development, :test do
   gem 'coveralls', require: false
+  gem 'pry-byebug'
+  gem 'pry-rails'
+  gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
   gem 'pry-byebug'
