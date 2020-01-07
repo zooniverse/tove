@@ -3,7 +3,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#index' do
     let!(:transcription) { create(:transcription, status: 1) }
-    let!(:another_transcription) { create(:transcription, status: 0) }
+    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0) }
     let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2) }
 
     it_has_behavior "pagination" do
