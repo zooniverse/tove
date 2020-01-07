@@ -1,5 +1,4 @@
 RSpec.describe WorkflowsController, type: :controller do
-  include_examples 'authenticates'
 
   describe '#index' do
     let!(:workflow) { create(:workflow) }
