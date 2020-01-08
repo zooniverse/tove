@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_06_225502) do
+ActiveRecord::Schema.define(version: 2020_01_08_174058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,9 +29,6 @@ ActiveRecord::Schema.define(version: 2020_01_06_225502) do
     t.boolean "flagged", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "updated_by"
-    t.integer "total_lines"
-    t.integer "total_pages"
     t.jsonb "metadata"
   end
 
