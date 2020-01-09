@@ -32,8 +32,16 @@ class TranscriptionsController < ApplicationController
     if params[:filter]
       params[:filter].each do |key, value|
         if key.split('_').first == 'status'
-          enum_value = Transcription.statuses[value]
-          params[:filter][key] = enum_value if enum_value
+          status_terms = value.split(',')
+          status_enum_values = []
+          status_terms.each do |term|
+            enum_value = Transcription.statuses[term]
+            status_enum_values.append(enum_value.to_s) if enum_value
+          end
+          
+          unless status_enum_values.empty?
+            params[:filter][key] = status_enum_values.join(',')
+          end
         end
       end
     end
