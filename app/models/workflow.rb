@@ -5,27 +5,31 @@ class Workflow < ApplicationRecord
 
   validates :display_name, presence: true
 
+  # return an array listing groups that belong to the workflow
+  # data contains following information per group:
+  #   * group id
+  #   * transcription count
+  #   * last updated at
+  #   * last updated by
   def groups
-    # aggregate group_id, transcription count, and last update info in one db call
-    sql = <<-SQL
-    SELECT updated_at, updated_by, t2.group_id, t2.count
-    FROM
-    transcriptions AS t1
-    JOIN
-      (SELECT group_id, count(*) AS count, max(updated_at) AS max_date
-      FROM transcriptions
-      WHERE
-        workflow_id = #{id}
-      GROUP BY group_id) t2 ON t1.updated_at = t2.max_date;
-    SQL
-
-    ActiveRecord::Base.connection.execute(sql)
-                      .map do |g|
-                        [g['group_id'], 
-                        { transcription_count: g['count'], 
-                          updated_at: g['updated_at'], 
-                          updated_by: g['updated_by'] }]
-                      end.to_h
+    transcription_counts = transcriptions.group(:group_id).count(:id)
+    # get most recent updated_at date for each group, use .where to join onto transcription table
+    groups_last_updated_at = transcriptions.group(:group_id)
+                                           .maximum(:updated_at)
+                                           .map { |_group, date| date } # get only the date
+    groups_data = transcriptions.where(updated_at: groups_last_updated_at)
+                                .map do |g|
+                                  {
+                                    group_id: g['group_id'],
+                                    updated_at: g['updated_at'],
+                                    updated_by: g['updated_by']
+                                  }
+                                end
+    
+    # add group count to groups_data object
+    groups_data.each do |g| 
+      g[:transcription_count] = transcription_counts[g[:group_id]]
+    end
   end
 
   def total_transcriptions
