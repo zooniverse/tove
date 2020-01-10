@@ -22,7 +22,9 @@ RSpec.describe WorkflowsController, type: :controller do
     end
 
     it 'serialized transcription groups' do
-      allow_any_instance_of(Workflow).to receive(:groups).and_return({"FIRST" => 2, "SECOND" => 1})
+      # TODO: the results here look out of sync with the actual group data from the workflow
+      # that shoudl be fixed or tested elsewhere.... maybe on the serializer itself?
+      allow_any_instance_of(Workflow).to receive(:transcription_group_data).and_return({"FIRST" => 2, "SECOND" => 1})
       get :index
       expect(json_data.first["attributes"]["groups"]).to eq({"FIRST" => 2, "SECOND" => 1})
     end
