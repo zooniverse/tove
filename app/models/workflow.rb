@@ -19,16 +19,16 @@ class Workflow < ApplicationRecord
                                            .map { |_group, date| date } # get only the date
     groups_data = transcriptions.where(updated_at: groups_last_updated_at)
                                 .map do |g|
+                                  [g['group_id'],
                                   {
-                                    group_id: g['group_id'],
                                     updated_at: g['updated_at'],
                                     updated_by: g['updated_by']
-                                  }
-                                end
+                                  }]
+                                end.to_h
     
     # add group count to groups_data object
-    groups_data.each do |g| 
-      g[:transcription_count] = transcription_counts[g[:group_id]]
+    groups_data.each do |key, value|
+      value[:transcription_count] = transcription_counts[key]
     end
   end
 
