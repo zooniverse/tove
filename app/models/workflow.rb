@@ -23,11 +23,6 @@ class Workflow < ApplicationRecord
       group_transcription_count = data.count
 
       # construct the resulting data record results
-      #
-      # IMHO these look a lot like a data record that could easily be stored in the database
-      # and we're getting into another association territory with this method
-      # especially as the workflow is really leaning on the transcription assocation here,
-      # it's not really anything to do with a workflow but it's serialized as a workflow attribute...
       transcription_group_data[group_id] =
         {
           updated_at: transcription.max_date,
