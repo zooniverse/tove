@@ -24,9 +24,30 @@ RSpec.describe WorkflowsController, type: :controller do
     it 'serialized transcription groups' do
       # TODO: the results here look out of sync with the actual group data from the workflow
       # that shoudl be fixed or tested elsewhere.... maybe on the serializer itself?
-      allow_any_instance_of(Workflow).to receive(:transcription_group_data).and_return({"FIRST" => 2, "SECOND" => 1})
+      allow_any_instance_of(Workflow).to receive(:transcription_group_data)
+                                         .and_return({
+                                            'FIRST' => {
+                                              "updated_at": '2019-12-16 00:00:00 UTC',
+                                              "updated_by": 'The Dark Master',
+                                              "transcription_count": 1
+                                            },
+                                            "SECOND" => {
+                                              "updated_at": '2019-12-18 00:00:00 UTC',
+                                              "updated_by": 'The Grey Tiger',
+                                              "transcription_count": 2
+                                            }})
       get :index
-      expect(json_data.first["attributes"]["groups"]).to eq({"FIRST" => 2, "SECOND" => 1})
+      expect(json_data.first["attributes"]["groups"]).to eq(
+        {"FIRST" => {
+          "updated_at" => '2019-12-16 00:00:00 UTC',
+          "updated_by" => 'The Dark Master',
+          "transcription_count" => 1
+        }, 
+        "SECOND" => {
+          "updated_at" => '2019-12-18 00:00:00 UTC',
+          "updated_by" => 'The Grey Tiger',
+          "transcription_count" => 2
+        }})
     end
 
     describe "filtration" do
