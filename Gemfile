@@ -6,6 +6,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 4.3'
 
 gem 'panoptes-client'
+gem 'pundit'
 
 # jsonapi.rb is a bundle that incorporates fast_jsonapi (serialization),
 # ransack (filtration), and some RSpec matchers along with some
@@ -26,8 +27,6 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
-  gem 'pry-byebug'
-  gem 'rspec-rails'
 end
 
 group :development do
