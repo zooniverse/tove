@@ -30,15 +30,15 @@ RSpec.describe Workflow, type: :model do
            updated_by: 'Dove')
   end
 
-  describe '#groups' do
+  describe '#transcription_group_data' do
     it 'counts transcriptions per group' do
-      expect(workflow.groups['FIRST'][:transcription_count]).to eq(2)
+      expect(workflow.transcription_group_data['FIRST'][:transcription_count]).to eq(2)
     end
     it 'gets the date of the most recently updated transcription' do
-      expect(workflow.groups['FIRST'][:updated_at]).to eq('2019-12-16 00:00:00 UTC')
+      expect(workflow.transcription_group_data['FIRST'][:updated_at]).to eq('2019-12-16 00:00:00 UTC')
     end
     it 'gets the user who last updated a transcription of the group' do
-      expect(workflow.groups['FIRST'][:updated_by]).to eq('Ursula')
+      expect(workflow.transcription_group_data['FIRST'][:updated_by]).to eq('Ursula')
     end
   end
 
