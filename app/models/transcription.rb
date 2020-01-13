@@ -3,7 +3,14 @@ class Transcription < ApplicationRecord
 
   validates :status, presence: true
   validates :group_id, presence: true
-  validates :text, length: { minimum: 0, allow_nil: false, message: "can't be nil" }
+  validates :text, :text_json_is_not_nil
+  # ....
+  private 
+  def text_json_is_not_nil
+    if text.nil?
+      errors.add(:text, "must be set to a json object")
+    end
+  end
 
   enum status: {
     unseen: 0,
