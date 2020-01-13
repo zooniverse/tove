@@ -1,9 +1,5 @@
 RSpec.describe Transcription, type: :model do
   context 'validation' do
-    it 'requires a subject id' do
-      expect(build(:transcription, subject_id: nil)).to_not be_valid
-    end
-
     it 'requires a workflow id' do
       expect(build(:transcription, workflow_id: nil)).to_not be_valid
     end
