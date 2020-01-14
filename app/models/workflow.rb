@@ -18,8 +18,6 @@ class Workflow < ApplicationRecord
       # take the first/latest update_at transcription
       transcription = data.first
       # get the count from the number of transcriptions in the group
-      # Note: this may be sub-optimal if a group can have a large number transcriptions
-      # as we only use the data in the first record and count the rest only.
       group_transcription_count = data.count
 
       # construct the resulting data record results
