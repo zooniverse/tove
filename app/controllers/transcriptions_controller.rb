@@ -32,13 +32,19 @@ class TranscriptionsController < ApplicationController
     if params[:filter]
       params[:filter].each do |key, value|
         if key.split('_').first == 'status'
+          # split status terms in case there is a list of them
           status_terms = value.split(',')
           status_enum_values = []
+          
+          # for each status term, try to convert to enum value,
+          # and add to list of converted enum values
           status_terms.each do |term|
             enum_value = Transcription.statuses[term]
             status_enum_values.append(enum_value.to_s) if enum_value
           end
           
+          # if list of converted enum values is not empty,
+          # update params to reflect converted values
           unless status_enum_values.empty?
             params[:filter][key] = status_enum_values.join(',')
           end
