@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_18_224035) do
+ActiveRecord::Schema.define(version: 2020_01_06_225502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,15 +21,7 @@ ActiveRecord::Schema.define(version: 2019_12_18_224035) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "subjects", force: :cascade do |t|
-    t.integer "workflow_id", null: false
-    t.jsonb "metadata", default: {}
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "transcriptions", force: :cascade do |t|
-    t.integer "subject_id", null: false
     t.integer "workflow_id", null: false
     t.string "group_id", null: false
     t.jsonb "text", null: false
@@ -40,6 +32,7 @@ ActiveRecord::Schema.define(version: 2019_12_18_224035) do
     t.string "updated_by"
     t.integer "total_lines"
     t.integer "total_pages"
+    t.jsonb "metadata"
   end
 
   create_table "users", force: :cascade do |t|
