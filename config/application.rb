@@ -21,6 +21,8 @@ Bundler.require(*Rails.groups)
 
 module Tove
   class Application < Rails::Application
+    attr_accessor :commit_id
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
