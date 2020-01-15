@@ -97,6 +97,7 @@ Final questions:
 A: Retrieving files from a file system with virtual directories shouldn't be any different than retrieving files from a normal file system. As long as blob prefixes are constructed in a way that reflects the organizational system used within the application/database, there should be no trouble. File retrieval may be helped by append blobs - final decision on blob type is still TBD.
 
 2. Q: Would there be any benefit to caching files on on-premises file servers? If this sounds like something we'd like to employ, it would be worth reconsidering Azure File Service.
+A: This doesn't appear to be something we will need.
 
 
 ### Links and Articles:
