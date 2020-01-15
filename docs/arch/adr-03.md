@@ -47,7 +47,7 @@ By default, storage clients limit block size to 128 MB, such that when a block b
 
 When uploading additional blocks to a blob, the additional blocks are associated with the specified blob, but do not become part of the blob until you commit a list of block IDs that include the newly uploaded blocks.
 
-We should note that the Azure Blob Storage gem only exposes the functionality for working with block blobs - to work with any other type of blob, we would have to construct HTTP requests by hand.
+The [azure-storage-blob gem](https://github.com/azure/azure-storage-ruby/tree/master/blob) allows us to talk to Azure blob storage using ruby methods, though it only provides functionality for working with block blobs (to work with any other type of blob, we would have to construct HTTP requests by hand). The gem methods abstract away the interaction with individual blocks within a blob, and automatically creates multiple blocks (all associated with a single blob) if the file is greater than the maximum size allowed for a single block.
 
 ##### Append Blobs 
 An append blob also consists of one or more blocks, but is optimized for appending additional blocks onto the blob. Blocks can only be added to the end of an append blob, and block IDs are not exposed.
