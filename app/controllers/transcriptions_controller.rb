@@ -31,6 +31,8 @@ class TranscriptionsController < ApplicationController
   def status_filter_to_int
     if params[:filter]
       params[:filter].each do |key, value|
+        # filter key is comprised of <filterterm>_<relationship> 
+        # e.g. id_eq, status_in, etc - check if filter term is status
         if key.split('_').first == 'status'
           # split status terms in case there is a list of them
           status_terms = value.split(',')
