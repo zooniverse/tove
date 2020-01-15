@@ -29,6 +29,9 @@ ActiveRecord::Schema.define(version: 2020_01_06_225502) do
     t.boolean "flagged", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "updated_by"
+    t.integer "total_lines"
+    t.integer "total_pages"
     t.jsonb "metadata"
   end
 
