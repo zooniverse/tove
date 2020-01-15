@@ -54,14 +54,26 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       describe 'filters by status' do
-        it 'filters by single status' do
+        it 'filters by single status id' do
           get :index, params: { filter: { status_eq: another_transcription.status_before_type_cast } }
           expect(json_data.size).to eq(1)
           expect(json_data.first["attributes"]["status"]).to eq(another_transcription.status)
         end
 
-        it 'filters by multiple statuses' do
+        it 'filters by multiple status ids' do
           status_filter = "#{another_transcription.status_before_type_cast},#{separate_transcription.status_before_type_cast}"
+          get :index, params: { filter: { status_in: status_filter } }
+          expect(json_data.size).to eq(2)
+        end
+
+        it 'filters by status term' do
+          get :index, params: { filter: { status_eq: another_transcription.status }}
+          expect(json_data.size).to eq(1)
+          expect(json_data.first["attributes"]["status"]).to eq(another_transcription.status)
+        end
+
+        it 'filters by multiple status terms' do
+          status_filter = "#{another_transcription.status},#{separate_transcription.status}"
           get :index, params: { filter: { status_in: status_filter } }
           expect(json_data.size).to eq(2)
         end
