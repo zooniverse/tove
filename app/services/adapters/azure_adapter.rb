@@ -8,11 +8,11 @@ module Adapters
       )
     end
 
-    def put_file
+    def upload_file
       # to do
     end
 
-    def get_file
+    def download_file
       # to do
     end
 
@@ -20,11 +20,7 @@ module Adapters
       # to do
     end
 
-    def get_project_files(project_id)
-      # to do
-    end
-
-    def get_workflow_files(workflow_id)
+    def get_files(prefix)
       # to do
     end
   end
