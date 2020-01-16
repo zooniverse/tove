@@ -1,7 +1,7 @@
 # ADR 03: Azure Data Storage Tools
 
-* Status: Awaiting Review
-* Date: Dec 23, 2019
+* Status: Approved
+* Date: Jan 16 2020
 
 ## Context
 
