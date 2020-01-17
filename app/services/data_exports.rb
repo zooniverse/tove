@@ -5,26 +5,15 @@ module DataExports
     def generate_transcription_files(transcription_id)
       @transcription = Transcription.find(transcription_id)
 
-      # really wanted to do this using the Tempfile class, but it didn't work
-      # when I passed the tempfile to azure
-      # raw_transcription_file = Tempfile.new([transcription_id.to_s, '.json'])
-      # raw_transcription_file.write(transcription.text)
-
       directory_path = File.expand_path('~/Documents/temp')
-      filename = File.join(path,'/t.json')
+      file_path = write_raw_data_to_file(directory_path)
 
-      File.open(filename, 'w') { |f|
-        f.puts transcription.text
-      }
-
-      raw_transcription_file_path = File.join(generate_path(transcription), 'raw-transcription-data.json')
+      blob_path = File.join(generate_blob_directory(transcription), "raw_data_#{transcription_id}.json")
       azure = AzureBlobStorage.new
-      azure.put_file(raw_transcription_file_path, filename)
-
-      # raw_transcription_file.unlink
+      azure.put_file(blob_path, filename)
     end
 
-    def raw_transcription_file(directory_path)
+    def write_raw_data_to_file(directory_path)
       file_path = File.join(path, "raw_data_#{@transcription.id}.json")
       
       File.open(file_path, 'w') { |f|
@@ -33,7 +22,7 @@ module DataExports
       file_path
     end
 
-    def generate_path(transcription)
+    def generate_blob_directory(transcription)
       workflow_id = transcription.workflow_id
       project_id = Workflow.find(workflow_id).project_id
 
