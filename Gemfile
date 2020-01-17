@@ -7,6 +7,8 @@ gem 'puma', '~> 4.3'
 
 gem 'panoptes-client'
 
+gem 'azure-storage-blob'
+
 # jsonapi.rb is a bundle that incorporates fast_jsonapi (serialization),
 # ransack (filtration), and some RSpec matchers along with some
 # boilerplate for pagination and error handling
