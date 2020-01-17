@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
 
   attr_reader :current_user, :auth_token
   before_action :set_user
-  after_action :verify_authorized
+  # after_action :verify_authorized
 
   include ErrorExtender
   include JSONAPI::Pagination
