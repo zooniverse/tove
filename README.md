@@ -22,6 +22,7 @@ Or interactively / manually in a docker shell
 docker-compose run --rm -e RAILS_ENV=test app bash
 # from the bash prompt
 bin/rspec
+```
 
 ## Namesake
 
