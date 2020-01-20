@@ -1,11 +1,11 @@
 class ProjectsController < ApplicationController
   def index
-    @projects = Project.all
+    @projects = policy_scope(Project)
     jsonapi_render(@projects, allowed_filters)
   end
 
   def show
-    @project = Project.find(params[:id])
+    @project = policy_scope(Project).find(params[:id])
     render jsonapi: @project
   end
 
