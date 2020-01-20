@@ -76,8 +76,8 @@ RSpec.describe ProjectsController, type: :controller do
 
       context 'without any roles' do
         let(:user) { create(:user, roles: {} )}
-        it "returns return an empty response" do
-          expect(response).to have_http_status(:not_found)
+        it "returns a 403" do
+          expect(response).to have_http_status(:forbidden)
         end
       end
 

@@ -5,6 +5,7 @@ FactoryBot.define do
 
     trait :admin do
       admin { true }
+      roles { {} }
     end
   end
 end

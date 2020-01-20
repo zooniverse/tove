@@ -6,12 +6,20 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def projects
-    records.compact.collect(&:project).uniq.compact
+    records.collect(&:project).uniq
   end
 
   class Scope < Scope
     def resolve
       viewer_policy_scope
+    end
+
+    def viewer_policy_scope
+      if user.admin?
+        scope.all
+      elsif user
+        scope.joins(:project).where project_id: viewer_project_ids
+      end
     end
   end
 end
