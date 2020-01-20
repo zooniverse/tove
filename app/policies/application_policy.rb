@@ -1,19 +1,19 @@
 class ApplicationPolicy
   include UserRoles
-  attr_reader :user, :record
+  attr_reader :user, :records
 
   def initialize(user, records)
     @user = user
-    @record = Array.wrap(records)
-    raise Pundit::NotAuthorizedError, "must provide Panoptes token" unless logged_in?
+    @records = Array.wrap(records)
+    raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless logged_in?
   end
 
   def index?
-    false
+    admin? || (logged_in? && viewer?)
   end
 
   def show?
-    false
+    admin? || (logged_in? && viewer?)
   end
 
   def update?
@@ -28,32 +28,22 @@ class ApplicationPolicy
     !!user
   end
 
-  # def scope
-  #   Pundit.policy_scope!(user, records.first.class)
-  # end
+  class Scope
+    include UserRoles
+    attr_reader :user, :scope
 
-  # class Scope
-  #   include UserRoles
-  #   attr_reader :user, :scope
+    def initialize(user, scope)
+      raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless user
+      @user = user
+      @scope = scope
+    end
 
-  #   def initialize(user, scope)
-  #     raise Pundit::NotAuthorizedError, "must provide Panoptes token" unless logged_in?
-  #     @user = user
-  #     @scope = scope
-  #   end
-
-  #   def resolve
-  #     scope
-  #   end
-
-  #   def privileged_policy_scope
-  #     if user && user.admin
-  #       scope.all
-  #     elsif user
-  #       scope.joins(:project).where project_id: privileged_project_ids
-  #     else
-  #       scope.none
-  #     end
-  #   end
-  # end
+    def viewer_policy_scope
+      if user.admin?
+        scope.all
+      elsif user
+        scope.joins(:project).where project_id: viewer_project_ids
+      end
+    end
+  end
 end
