@@ -4,7 +4,7 @@ module UserRoles
   def editor_project_ids
     return [] unless user
     @editor_project_ids ||= user.roles.select do |id, roles|
-      (roles & %w(owner collaborator expert scientist)).any?
+      (roles & %w(owner collaborator expert scientist moderator)).any?
     end.keys
   end
 
@@ -18,7 +18,7 @@ module UserRoles
   def viewer_project_ids
     return [] unless user
     @viewer_project_ids ||= user.roles.select do |id, roles|
-      (roles & %w(tester)).any?
+      (roles & %w(owner collaborator expert scientist tester)).any?
     end.keys
   end
 end
