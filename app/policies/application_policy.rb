@@ -16,10 +16,6 @@ class ApplicationPolicy
     admin? || (logged_in? && viewer?)
   end
 
-  def update?
-    false
-  end
-
   def admin?
     logged_in? && user.admin
   end
@@ -36,14 +32,6 @@ class ApplicationPolicy
       raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless user
       @user = user
       @scope = scope
-    end
-
-    def viewer_policy_scope
-      if user.admin?
-        scope.all
-      elsif user
-        scope.joins(:project).where project_id: viewer_project_ids
-      end
     end
   end
 end

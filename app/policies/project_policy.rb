@@ -30,11 +30,7 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def viewer_policy_scope
-      if user
-        scope.where id: viewer_project_ids
-      else
-        scope.none
-      end
+      scope.where id: viewer_project_ids
     end
   end
 end

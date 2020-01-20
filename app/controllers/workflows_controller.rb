@@ -5,7 +5,8 @@ class WorkflowsController < ApplicationController
   end
 
   def show
-    @workflow = policy_scope(Workflow).find(params[:id])
+    @workflow = Workflow.find(params[:id])
+    authorize @workflow
     render jsonapi: @workflow
   end
 

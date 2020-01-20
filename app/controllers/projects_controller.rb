@@ -5,7 +5,8 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @project = policy_scope(Project).find(params[:id])
+    @project = Project.find(params[:id])
+    authorize @project
     render jsonapi: @project
   end
 
