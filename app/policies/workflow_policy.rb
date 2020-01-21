@@ -18,7 +18,7 @@ class WorkflowPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       elsif user
-        scope.joins(:project).where project_id: viewer_project_ids
+        scope.where project_id: viewer_project_ids
       end
     end
   end
