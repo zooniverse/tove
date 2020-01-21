@@ -1,6 +1,6 @@
 # TOVE: Transcription Object Viewer/Editor
 
-## Development
+*Readme and docs coming soon*	
 
 Prepare the Docker containers:
 
