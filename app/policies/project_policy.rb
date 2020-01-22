@@ -1,21 +1,21 @@
 class ProjectPolicy < ApplicationPolicy
   def editor?
     return false if records.empty?
-    records.compact.all? do |record|
+    records.all? do |record|
       editor_project_ids.include? record.id.to_s
     end
   end
 
   def approver?
     return false if records.empty?
-    records.compact.all? do |record|
+    records.all? do |record|
       approver_project_ids.include? record.id.to_s
     end
   end
 
   def viewer?
     return false if records.empty?
-    records.compact.all? do |record|
+    records.all? do |record|
       viewer_project_ids.include? record.id.to_s
     end
   end

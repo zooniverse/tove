@@ -6,12 +6,7 @@ class TranscriptionPolicy < ApplicationPolicy
   end
 
   def project_policy
-    ProjectPolicy.new(user, projects)
-  end
-
-  def projects
-    # Project.where(id: records.collect(&:workflow).pluck(:project_id).uniq)
-    records.collect(&:workflow).collect(&:project)
+    ProjectPolicy.new(user, Project.where(id: records.collect(&:workflow).pluck(:project_id).uniq))
   end
 
   class Scope < Scope

@@ -2,11 +2,7 @@ class WorkflowPolicy < ApplicationPolicy
   delegate :editor?, :approver?, :viewer?, to: :project_policy
 
   def project_policy
-    ProjectPolicy.new(user, projects)
-  end
-
-  def projects
-    records.collect(&:project).uniq
+    ProjectPolicy.new(user, records.collect(&:project).uniq)
   end
 
   class Scope < Scope
