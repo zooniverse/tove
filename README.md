@@ -1,8 +1,32 @@
 # TOVE: Transcription Object Viewer/Editor
 
-*Readme and docs coming soon*
+*Readme and docs coming soon*	
 
- >“You seem very clever at explaining words, Sir,” said Alice. “Would you kindly tell me the meaning of the poem ‘Jabberwocky’?”
+Prepare the Docker containers:
+
+```
+docker-compose build
+docker-compose run --rm app bundle exec rails db:setup
+docker-compose run --rm -e RAILS_ENV=test app bin/rails db:create
+```
+
+Run tests with:
+
+```
+docker-compose run --rm -e RAILS_ENV=test app bundle exec rspec
+```
+
+Or interactively / manually in a docker shell
+
+```
+docker-compose run --rm -e RAILS_ENV=test app bash
+# from the bash prompt
+bin/rspec
+```
+
+## Namesake
+
+>“You seem very clever at explaining words, Sir,” said Alice. “Would you kindly tell me the meaning of the poem ‘Jabberwocky’?”
 >\
 >\
 >“Let’s hear it,” said Humpty Dumpty. “I can explain all the poems that ever were invented—and a good many that haven’t been invented just yet.”

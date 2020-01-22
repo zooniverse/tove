@@ -23,6 +23,9 @@
 /config/credentials/staging.key
 /config/master.key
 
+# Ignore application status files
+/commit_id.txt
+
 /.rvmrc
 spec/examples.txt
 /coverage
