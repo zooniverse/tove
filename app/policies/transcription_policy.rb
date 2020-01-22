@@ -2,6 +2,18 @@ class TranscriptionPolicy < ApplicationPolicy
   delegate :editor?, :approver?, :viewer?, to: :project_policy
 
   def update?
+    has_update_rights?
+  end
+
+  def approve?
+    if has_update_rights?
+      approver? || admin?
+    else
+      false
+    end
+  end
+
+  def has_update_rights?
     admin? || (logged_in? && editor?)
   end
 
