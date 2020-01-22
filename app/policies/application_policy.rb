@@ -1,11 +1,11 @@
 class ApplicationPolicy
-  include UserRoles
-  attr_reader :user, :records
+  attr_reader :user, :records, :role_checker
 
   def initialize(user, records)
     @user = user
     @records = Array.wrap(records)
     raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless logged_in?
+    @role_checker = RoleChecker.new(user, @records)
   end
 
   def index?
@@ -25,13 +25,13 @@ class ApplicationPolicy
   end
 
   class Scope
-    include UserRoles
-    attr_reader :user, :scope
+    attr_reader :user, :scope, :role_checker
 
     def initialize(user, scope)
       raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless user
       @user = user
       @scope = scope
+      @role_checker = RoleChecker.new(user, scope)
     end
   end
 end

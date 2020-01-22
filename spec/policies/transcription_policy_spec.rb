@@ -18,7 +18,7 @@ RSpec.describe TranscriptionPolicy, type: :policy do
       expect(described_class).not_to permit(user, records)
     end
 
-    it 'forbids unauthorized requests' do
+    it 'forbids unauthenticated requests' do
       user = nil
       expect{described_class.new(user, records)}.to raise_error(Pundit::NotAuthorizedError)
     end
@@ -46,7 +46,7 @@ RSpec.describe TranscriptionPolicy, type: :policy do
       expect(described_class).not_to permit(user, records)
     end
 
-    it 'forbids unauthorized requests' do
+    it 'forbids unauthenticated requests' do
       user = nil
       expect{described_class.new(user, records)}.to raise_error(Pundit::NotAuthorizedError)
     end

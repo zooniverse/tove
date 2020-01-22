@@ -18,7 +18,7 @@ class TranscriptionPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       elsif user
-        scope.joins(:workflow).where(workflows: { project_id: viewer_project_ids } )
+        scope.joins(:workflow).where(workflows: { project_id: role_checker.viewer_project_ids } )
       end
     end
   end

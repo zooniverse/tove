@@ -2,7 +2,7 @@ class WorkflowPolicy < ApplicationPolicy
   delegate :editor?, :approver?, :viewer?, to: :project_policy
 
   def project_policy
-    ProjectPolicy.new(user, records.collect(&:project).uniq)
+    ProjectPolicy.new(user, Project.where(id: records.pluck(:project_id).uniq))
   end
 
   class Scope < Scope
@@ -14,7 +14,7 @@ class WorkflowPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       elsif user
-        scope.joins(:project).where project_id: viewer_project_ids
+        scope.joins(:project).where project_id: role_checker.viewer_project_ids
       end
     end
   end

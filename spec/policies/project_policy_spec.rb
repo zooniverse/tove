@@ -3,6 +3,7 @@ RSpec.describe ProjectPolicy, type: :policy do
 
   permissions :index?, :show? do
     let!(:records) { create :project }
+
     it 'permits viewers' do
       user.roles = {records.id => ['tester'] }
       expect(described_class).to permit(user, records)
