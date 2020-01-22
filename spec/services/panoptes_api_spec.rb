@@ -1,7 +1,7 @@
 require './spec/fixtures/project_roles.rb'
 require './spec/fixtures/project.rb'
 
-RSpec.describe PanoptesApi, type: :lib do
+RSpec.describe PanoptesApi, type: :service do
   include_context 'role parsing'
   include_context 'project parsing'
 
