@@ -30,8 +30,6 @@ class RoleChecker
     user_role_ids(user.roles, VIEWER_ROLES)
   end
 
-  # private
-
   def user_role_ids(user_roles, allowed_roles)
     allowed_role_ids = []
     user_roles.each do |id, roles|
