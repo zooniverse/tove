@@ -14,9 +14,17 @@ class AzureBlobStorage
     @container_name = 'data-exports'
   end
 
-  def put_file(path, file)
-    binding.pry
-    @blob_client.create_block_blob(@container_name, path, file)
+  def put_file(blob_path, file)
+    content = ::File.open(file, 'rb') { |file| file.read }
+    @blob_client.create_block_blob(@container_name, blob_path, content)
+  end
+
+  # receive a list of hashes formatted as
+  # { blob_path: <path_to_blob>, file: <file_name> }
+  def put_files_multiple(file_list)
+    file_list.each do |f|
+      put_file(f[:blob_path], f[:file])
+    end
   end
 
   def get_file(path)
