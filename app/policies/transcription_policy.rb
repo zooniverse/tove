@@ -18,7 +18,8 @@ class TranscriptionPolicy < ApplicationPolicy
   end
 
   def project_policy
-    ProjectPolicy.new(user, Project.where(id: records.collect(&:workflow).pluck(:project_id).uniq))
+    workflow_ids = records.map(&:workflow_id).uniq
+    ProjectPolicy.new(user, Project.joins(:workflows).where(workflows: { id: workflow_ids }).distinct)
   end
 
   class Scope < Scope
