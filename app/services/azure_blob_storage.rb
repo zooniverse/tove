@@ -31,8 +31,8 @@ class AzureBlobStorage
     # to do
   end
 
-  def delete_file
-    # to do
+  def delete_file(blob_path)
+    client.delete_blob(@container_name, blob_path)
   end
 
   def get_files(prefix)
