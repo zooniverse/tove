@@ -1,5 +1,5 @@
 class RoleChecker
-  attr_reader :user, :records
+  attr_reader :user, :records, :viewer_project_ids
 
   EDITOR_ROLES = %w(owner collaborator expert scientist moderator)
   APPROVER_ROLES = %w(owner collaborator)
@@ -8,7 +8,7 @@ class RoleChecker
   def initialize(user, records)
     @user = user
     @records = records
-    @viewer_project_ids = viewer_project_ids
+    @viewer_project_ids = get_viewer_project_ids
   end
 
   def can_edit?
@@ -26,7 +26,7 @@ class RoleChecker
     check_roles(ids, records)
   end
 
-  def viewer_project_ids
+  def get_viewer_project_ids
     user_role_ids(user.roles, VIEWER_ROLES)
   end
 
@@ -41,6 +41,7 @@ class RoleChecker
   end
 
   def check_roles(project_ids, records)
+    return false if records.empty?
     records.all? do |record|
       project_ids.include? record.id.to_s
     end

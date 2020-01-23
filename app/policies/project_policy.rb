@@ -1,16 +1,13 @@
 class ProjectPolicy < ApplicationPolicy
   def editor?
-    return false if records.empty?
     role_checker.can_edit?
   end
 
   def approver?
-    return false if records.empty?
     role_checker.can_approve?
   end
 
   def viewer?
-    return false if records.empty?
     role_checker.can_view?
   end
 
