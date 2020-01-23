@@ -3,7 +3,8 @@ require 'securerandom'
 
 module DataExports
 
-  class DataExporter
+  class DataStorage
+    # this method is called when a transcription is set to status approved
     def export_transcription(transcription_id)
       file_generator = TranscriptionFileGenerator.new(transcription_id)
       file_list = file_generator.generate_transcription_files
@@ -13,6 +14,20 @@ module DataExports
 
       # we are done with the files, delete the temp directory and its contents
       file_generator.delete_temp_directory
+    end
+
+    # this method is called when transcription status changes from approved to
+    # any other status
+    def delete_stored_transcription_data(transcription_id)
+      # to do
+      # prefix = transcription_storage_directory()
+    end
+
+    def self.transcription_storage_directory(transcription)
+      workflow_id = transcription.workflow_id
+      project_id = Workflow.find(workflow_id).project_id
+
+      "approved-transcriptions/#{project_id}/#{workflow_id}/#{transcription.group_id}/#{transcription.id}"
     end
   end
 
@@ -26,7 +41,7 @@ module DataExports
 
     def generate_transcription_files
       file_list = []
-      blob_directory = generate_blob_directory(@transcription)
+      blob_directory = DataStorage.transcription_storage_directory(@transcription)
 
       # raw data file
       file_path = write_raw_data_to_file(@directory_path)
@@ -49,7 +64,7 @@ module DataExports
     # returns location of the file
     def write_raw_data_to_file(directory_path)
       file_path = File.join(directory_path, "raw_data_#{@transcription.id}.json")
-      
+
       File.open(file_path, 'w') { |f|
         f.puts @transcription.text
       }
@@ -81,13 +96,6 @@ module DataExports
       end
 
       consensus_text
-    end
-
-    def generate_blob_directory(transcription)
-      workflow_id = transcription.workflow_id
-      project_id = Workflow.find(workflow_id).project_id
-
-      "approved-transcriptions/#{project_id}/#{workflow_id}/#{transcription.group_id}/#{transcription.id}"
     end
   end
 
