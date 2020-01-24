@@ -11,8 +11,9 @@ class TranscriptionsController < ApplicationController
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
+    binding.pry
 
-    update_transcription_exports if status_has_changed
+    update_transcription_exports(update_attrs) if status_has_changed(update_attrs)
 
     @transcription.update!(update_attrs)
     render jsonapi: @transcription
