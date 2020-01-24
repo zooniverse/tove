@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'securerandom'
+require 'csv'
 
 module DataExports
 
@@ -41,17 +42,28 @@ module DataExports
 
     def generate_transcription_files
       file_list = []
-      blob_directory = DataStorage.transcription_storage_directory(@transcription)
+      storage_directory = DataStorage.transcription_storage_directory(@transcription)
 
       # raw data file
-      file_path = write_raw_data_to_file(@directory_path)
-      blob_path = File.join(blob_directory, "raw_data_#{@transcription.id}.json")
-      file_list.append({ :blob_path => blob_path, :file => file_path})
+      file_path = write_raw_data_to_file
+      storage_path = File.join(storage_directory, "raw_data_#{@transcription.id}.json")
+      file_list.append({ :storage_path => storage_path, :file => file_path })
 
       # consensus text file
-      file_path = write_consensus_text_to_file(@directory_path)
-      blob_path = File.join(blob_directory, "consensus_text_#{@transcription.id}.txt")
-      file_list.append({ :blob_path => blob_path, :file => file_path})
+      file_path = write_consensus_text_to_file
+      storage_path = File.join(storage_directory, "consensus_text_#{@transcription.id}.txt")
+      file_list.append({ :storage_path => storage_path, :file => file_path })
+
+      # transcription metadata file
+      file_path = write_metadata_to_file
+      storage_path = File.join(storage_directory, "transcription_metadata_#{@transcription.id}.csv")
+      file_list.append({ :storage_path => storage_path, :file => file_path })
+
+
+      # transcription line metadata file
+      file_path = write_line_metadata_to_file
+      storage_path = File.join(storage_directory, "transcription_line_metadata_#{@transcription.id}.csv")
+      file_list.append({ :storage_path => storage_path, :file => file_path })
     end
 
     def delete_temp_directory
@@ -62,8 +74,8 @@ module DataExports
 
     # creates raw data file
     # returns location of the file
-    def write_raw_data_to_file(directory_path)
-      file_path = File.join(directory_path, "raw_data_#{@transcription.id}.json")
+    def write_raw_data_to_file
+      file_path = File.join(@directory_path, "raw_data_#{@transcription.id}.json")
 
       File.open(file_path, 'w') { |f|
         f.puts @transcription.text
@@ -73,8 +85,8 @@ module DataExports
 
     # creates raw data file
     # returns location of the file
-    def write_consensus_text_to_file(directory_path)
-      file_path = File.join(directory_path, "consensus_text_#{@transcription.id}.txt")
+    def write_consensus_text_to_file
+      file_path = File.join(@directory_path, "consensus_text_#{@transcription.id}.txt")
 
       File.open(file_path, 'w') { |f|
         f.puts consensus_text
@@ -96,6 +108,115 @@ module DataExports
       end
 
       consensus_text
+    end
+
+    def write_metadata_to_file
+      file_path = File.join(@directory_path, "transcription_metadata_#{@transcription.id}.csv")
+      CSV.open(file_path, 'wb') do |csv|
+        transcription_metadata.each do |csv_line|
+          csv << csv_line
+        end
+      end
+
+      file_path
+    end
+
+    def write_line_metadata_to_file
+      file_path = File.join(@directory_path, "transcription_line_metadata_#{@transcription.id}.csv")
+      CSV.open(file_path, 'wb') do |csv|
+        transcription_line_metadata.each do |csv_line|
+          csv << csv_line
+        end
+      end
+
+      file_path
+    end
+
+    def transcription_metadata
+      # still to get:
+      #   * external id
+      #   * caesar parameters
+      #   * aggregation algorithm
+      #   * text edited (based on if a line was edited)
+
+      csv_lines = []
+      csv_lines << [
+        'transcription id',
+        'external id',
+        'caesar parameters',
+        'aggregation algorithm',
+        'date approved',
+        'user who approved',
+        'text edited (T/F)',
+        'number of pages'
+      ]
+      csv_lines << [
+        @transcription.id,
+        'external id',
+        'caesar parameters',
+        'aggregation algorithm',
+        @transcription.updated_at,
+        @transcription.updated_by,
+        'text edited (T/F)',
+        @transcription.total_pages
+      ]
+    end
+
+    def transcription_line_metadata
+      # still to get:
+      #   * line edited
+      #   * orig transcriber username
+      #   * line editor username
+
+      csv_lines = []
+      csv_lines << [
+        'consensus text',
+        'line number',
+        'line slope',
+        'consensus score',
+        'line edited (T/F)',
+        'original transcriber username',
+        'line editor username',
+        'flagged for low consensus (T/F)',
+        'page number',
+        'column',
+        'number of transcribers',
+        'line coordinates'
+      ]
+
+      @transcription.text.each_with_index do |(key, value), page_index|
+        # if we find a frame, iterate through the lines of the frame
+        if /^frame/.match(key)
+          page = page_index + 1
+
+          value.each_with_index do |line, line_index|
+            line_number = line_index + 1
+            column = line['gutter_label'] + 1
+            num_transcribers = line['user_ids'].count
+            line_coordinates = {
+              'clusters_x': line['clusters_x'],
+              'clusters_y': line['clusters_y']
+            }
+
+            csv_lines << [
+              line['consensus_text'],
+              line_number,
+              line['line_slope'],
+              line['consensus_score'],
+              'line edited (T/F)',
+              'original transcriber username',
+              'line editor username',
+              line['low_consensus'],
+              page,
+              column,
+              num_transcribers,
+              line_coordinates
+            ]
+
+            csv_lines
+          end
+        end
+      end
     end
   end
 

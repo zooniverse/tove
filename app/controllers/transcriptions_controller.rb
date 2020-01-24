@@ -13,9 +13,9 @@ class TranscriptionsController < ApplicationController
     raise ActionController::BadRequest if type_invalid?
     binding.pry
 
+    @transcription.update!(update_attrs)
     update_transcription_exports(update_attrs) if status_has_changed(update_attrs)
 
-    @transcription.update!(update_attrs)
     render jsonapi: @transcription
   end
 
@@ -70,8 +70,8 @@ class TranscriptionsController < ApplicationController
 
   def status_has_changed(attrs)
     attrs.each do |key, value|
-      if key == 'status' && @transcription.status != value
-        true
+      if key == 'status' && Transcription.statuses[@transcription.status] != value
+        return true
       end
     end
 
@@ -79,7 +79,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_transcription_exports(attrs)
-    if attrs['status'] == Transcription.statuses['approved']
+    if attrs['status'] == 'approved'
       data_storage = DataExports::DataStorage.new
       data_storage.export_transcription(@transcription.id)
     else
