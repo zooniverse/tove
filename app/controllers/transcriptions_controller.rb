@@ -79,11 +79,12 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_transcription_exports(attrs)
+    data_storage = DataExports::DataStorage.new
+
     if attrs['status'] == 'approved'
-      data_storage = DataExports::DataStorage.new
-      data_storage.export_transcription(@transcription.id)
+      data_storage.export_transcription(@transcription)
     else
-      # to do: delete transcription files in data storage
+      data_storage.delete_transcription_files(@transcription)
     end
   end
 end

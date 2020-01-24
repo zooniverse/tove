@@ -6,8 +6,8 @@ module DataExports
 
   class DataStorage
     # this method is called when a transcription is set to status approved
-    def export_transcription(transcription_id)
-      file_generator = TranscriptionFileGenerator.new(transcription_id)
+    def export_transcription(transcription)
+      file_generator = TranscriptionFileGenerator.new(transcription)
       file_list = file_generator.generate_transcription_files
 
       azure = AzureBlobStorage.new
@@ -19,11 +19,14 @@ module DataExports
 
     # this method is called when transcription status changes from approved to
     # any other status
-    def delete_stored_transcription_data(transcription_id)
-      # to do
-      # prefix = transcription_storage_directory()
+    def delete_transcription_files(transcription)
+      prefix = transcription_storage_directory(transcription)
+
+      azure = AzureBlobStorage.new
+      azure.get_filename_list(prefix).each { |b| azure.delete_blob(b) }
     end
 
+    # get the name of the directory in which we will save the transcription in on storage
     def self.transcription_storage_directory(transcription)
       workflow_id = transcription.workflow_id
       project_id = Workflow.find(workflow_id).project_id
@@ -33,9 +36,9 @@ module DataExports
   end
 
   class TranscriptionFileGenerator
-    def initialize(transcription_id)
-      @transcription = Transcription.find(transcription_id)
-      @directory_path = File.expand_path("~/transcription_files_temp/t#{transcription_id}_#{SecureRandom.uuid}")
+    def initialize(transcription)
+      @transcription = transcription
+      @directory_path = File.expand_path("~/transcription_files_temp/t#{@transcription.id}_#{SecureRandom.uuid}")
 
       FileUtils.mkdir_p @directory_path
     end
@@ -83,7 +86,7 @@ module DataExports
       file_path
     end
 
-    # creates raw data file
+    # creates consensus text file
     # returns location of the file
     def write_consensus_text_to_file
       file_path = File.join(@directory_path, "consensus_text_#{@transcription.id}.txt")
@@ -95,6 +98,7 @@ module DataExports
       file_path
     end
 
+    # retrieves and returns consensus text
     def consensus_text
       consensus_text = ""
       @transcription.text.each do |key, value|
@@ -110,6 +114,8 @@ module DataExports
       consensus_text
     end
 
+    # creates transcription metadata file
+    # returns location of the file
     def write_metadata_to_file
       file_path = File.join(@directory_path, "transcription_metadata_#{@transcription.id}.csv")
       CSV.open(file_path, 'wb') do |csv|
@@ -121,6 +127,8 @@ module DataExports
       file_path
     end
 
+    # creates transcription line metadata file
+    # returns location of the file
     def write_line_metadata_to_file
       file_path = File.join(@directory_path, "transcription_line_metadata_#{@transcription.id}.csv")
       CSV.open(file_path, 'wb') do |csv|
@@ -132,6 +140,8 @@ module DataExports
       file_path
     end
 
+    # retrieve and return transcription metadata formatted as
+    # array of csv lines
     def transcription_metadata
       # still to get:
       #   * external id
@@ -162,6 +172,8 @@ module DataExports
       ]
     end
 
+    # retrieve and return transcription line metadata formatted as
+    # array of csv lines
     def transcription_line_metadata
       # still to get:
       #   * line edited

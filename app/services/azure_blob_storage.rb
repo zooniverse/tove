@@ -35,7 +35,8 @@ class AzureBlobStorage
     client.delete_blob(@container_name, storage_path)
   end
 
-  def get_files(prefix)
-    # to do
+  def get_filename_list(prefix)
+    list = client.list_blobs(@container_name, prefix: prefix)
+                 .map { |b| b.name }
   end
 end
