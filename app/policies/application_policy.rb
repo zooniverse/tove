@@ -5,7 +5,7 @@ class ApplicationPolicy
     @user = user
     @records = Array.wrap(records)
     raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless logged_in?
-    @role_checker = RoleChecker.new(user, @records)
+    @role_checker = ProjectRoleChecker.new(user, @records)
   end
 
   def index?
@@ -31,7 +31,7 @@ class ApplicationPolicy
       raise Pundit::NotAuthorizedError, "must be logged in to Panoptes" unless user
       @user = user
       @scope = scope
-      @role_checker = RoleChecker.new(user, scope)
+      @role_checker = ProjectRoleChecker.new(user, scope)
     end
   end
 end
