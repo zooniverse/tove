@@ -1,11 +1,12 @@
 require 'fileutils'
 require 'securerandom'
 require 'csv'
+require 'pathname'
 
 module DataExports
 
   class DataStorage
-    # this method is called when a transcription is set to status approved
+    # Public: exports transcription data to files for storage.
     def export_transcription(transcription)
       file_generator = TranscriptionFileGenerator.new(transcription)
       file_list = file_generator.generate_transcription_files
@@ -17,8 +18,31 @@ module DataExports
       file_generator.delete_temp_directory
     end
 
-    # this method is called when transcription status changes from approved to
-    # any other status
+    # Public: downloads all transcription files for a given project,
+    # workflow, group or transcription
+    def download_transcription_files(scope)
+      if scope.is_a?(Transcription)
+        prefix = transcription_storage_directory(scope)
+        # to do: include user id in the folder name
+        directory_path = File.expand_path("~/data_exports_temp/downloaded_files/#{SecureRandom.uuid}")
+        FileUtils.mkdir_p directory_path
+
+        azure = AzureBlobStorage.new
+        filename_list = azure.get_filename_list(prefix)
+
+        storage_root = Pathname.new('approved-transcriptions/')
+        filename_list.each do |f|
+          content = azure.get_file(f)
+          # we probably wont need this 'relative path' code, but saving it temporarily
+          relative_path = Pathname.new(f).relative_path_from(storage_root)
+          download_path = File.join(directory_path, relative_path)
+        end
+
+        # to do: zip up the files that you've downloaded to the generated folder
+      end
+    end
+
+    # Public: deletes transcription files from storage
     def delete_transcription_files(transcription)
       prefix = transcription_storage_directory(transcription)
 
@@ -26,7 +50,8 @@ module DataExports
       azure.get_filename_list(prefix).each { |b| azure.delete_blob(b) }
     end
 
-    # get the name of the directory in which we will save the transcription in on storage
+    # Public: gets the name of the directory in which the transcription is
+    # (or will be) saved in on storage
     def self.transcription_storage_directory(transcription)
       workflow_id = transcription.workflow_id
       project_id = Workflow.find(workflow_id).project_id
@@ -38,7 +63,7 @@ module DataExports
   class TranscriptionFileGenerator
     def initialize(transcription)
       @transcription = transcription
-      @directory_path = File.expand_path("~/transcription_files_temp/t#{@transcription.id}_#{SecureRandom.uuid}")
+      @directory_path = File.expand_path("~/data_exports_temp/generated_files/t#{@transcription.id}_#{SecureRandom.uuid}")
 
       FileUtils.mkdir_p @directory_path
     end
@@ -229,6 +254,15 @@ module DataExports
           end
         end
       end
+    end
+  end
+
+  # QUESTION: should we use something like this instead of a list of hashes?
+  # would it be cleaner?
+  class ExportFile
+    def initialize(storage_path, local_file_path)
+      @storage_path = storage_path
+      @file_path = local_file_path
     end
   end
 
