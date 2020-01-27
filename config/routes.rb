@@ -3,5 +3,8 @@ Rails.application.routes.draw do
 
   resources :projects, only: [:index, :show]
   resources :workflows, only: [:index, :show]
-  resources :transcriptions, only: [:index, :show, :update]
+  resources :transcriptions, only: [:index, :show, :update] do
+    get 'export', on: :member
+  end
+
 end
