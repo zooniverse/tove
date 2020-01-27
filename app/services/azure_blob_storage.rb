@@ -28,7 +28,8 @@ class AzureBlobStorage
   end
 
   def get_file(path)
-    # to do
+    blob, content = client.get_blob(@container_name, path)
+    content
   end
 
   def delete_file(storage_path)
