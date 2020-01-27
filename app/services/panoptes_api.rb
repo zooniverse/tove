@@ -18,7 +18,7 @@ class PanoptesApi
     { }.tap do |roles|
       response = get_roles(user_id)
       response['project_roles'].map do |role|
-        project_id = role['links']['project'].to_i
+        project_id = role['links']['project']
         roles[project_id] ||= []
         roles[project_id] |= role['roles']
       end

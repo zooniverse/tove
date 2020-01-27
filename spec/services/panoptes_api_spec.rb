@@ -1,7 +1,7 @@
 require './spec/fixtures/project_roles.rb'
 require './spec/fixtures/project.rb'
 
-RSpec.describe PanoptesApi, type: :lib do
+RSpec.describe PanoptesApi, type: :service do
   include_context 'role parsing'
   include_context 'project parsing'
 
@@ -31,7 +31,7 @@ RSpec.describe PanoptesApi, type: :lib do
   end
 
   describe '#roles' do
-    let(:parsed_roles) { { 1 => ["collaborator"], 2 => ["owner"], 3 => ["researcher"] } }
+    let(:parsed_roles) { { '1' => ["collaborator"], '2' => ["owner"], '3' => ["researcher"] } }
 
     it 'returns a hash' do
       allow(panoptes_api).to receive(:api).and_return(client_double)

@@ -1,8 +1,12 @@
 class ApplicationController < ActionController::Base
+  include Pundit
+
   protect_from_forgery unless: -> { request.format.json? }
 
   attr_reader :current_user, :auth_token
   before_action :set_user
+  after_action :verify_authorized, except: :index
+  after_action :verify_policy_scoped, only: :index
 
   include ErrorExtender
   include JSONAPI::Pagination

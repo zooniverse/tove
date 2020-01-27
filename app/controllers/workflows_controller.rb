@@ -1,11 +1,12 @@
 class WorkflowsController < ApplicationController
   def index
-    @workflows = Workflow.all
+    @workflows = policy_scope(Workflow)
     jsonapi_render(@workflows, allowed_filters)
   end
 
   def show
     @workflow = Workflow.find(params[:id])
+    authorize @workflow
     render jsonapi: @workflow
   end
 
