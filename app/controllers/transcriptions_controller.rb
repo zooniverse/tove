@@ -24,6 +24,15 @@ class TranscriptionsController < ApplicationController
     render jsonapi: @transcription
   end
 
+  def export
+    # placeholder file. this will be swapped out with a zip file of all
+    # transcription files from azure
+    full_path_to_file = File.expand_path("~/transcription_files_temp/temp.txt")
+    file = File.open(full_path_to_file, "w") { |f| f.write 'temp text' }
+
+    send_data file
+  end
+
   private
 
   def update_attrs
