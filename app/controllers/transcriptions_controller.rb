@@ -11,7 +11,6 @@ class TranscriptionsController < ApplicationController
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
-    binding.pry
 
     @transcription.update!(update_attrs)
     update_transcription_exports(update_attrs) if status_has_changed(update_attrs)
@@ -25,12 +24,17 @@ class TranscriptionsController < ApplicationController
   end
 
   def export
-    # placeholder file. this will be swapped out with a zip file of all
-    # transcription files from azure
     full_path_to_file = File.expand_path("~/transcription_files_temp/temp.txt")
-    file = File.open(full_path_to_file, "w") { |f| f.write 'temp text' }
+    @transcription = Transcription.find(params[:id])
 
-    send_data file
+    # TO DO: zip all the files and then send the zip
+    @transcription.files.take(1).each do |azure_file|
+      file = File.open(full_path_to_file,  'w')
+      file.write(azure_file.download)
+      file.close()
+    end
+
+    send_file full_path_to_file
   end
 
   private
@@ -91,9 +95,13 @@ class TranscriptionsController < ApplicationController
     data_storage = DataExports::DataStorage.new
 
     if attrs['status'] == 'approved'
-      data_storage.export_transcription(@transcription)
+      file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
+      file_generator.generate_transcription_files.each do |f|
+        filename = File.basename(f[:file])
+        @transcription.files.attach(io: File.open(f[:file]), filename: filename)
+      end
     else
-      data_storage.delete_transcription_files(@transcription)
+      # TO DO : remove transcription files
     end
   end
 end

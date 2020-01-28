@@ -1,5 +1,6 @@
 class Transcription < ApplicationRecord
   belongs_to :workflow
+  has_many_attached :files
 
   validates :status, presence: true
   validates :group_id, presence: true
