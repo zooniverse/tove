@@ -5,7 +5,7 @@ RSpec.describe PanoptesApi, type: :service do
   include_context 'role parsing'
   include_context 'project parsing'
 
-  let(:panoptes_api) { described_class.new(123) }
+  let(:panoptes_api) { described_class.new(token: 123) }
   let(:client_double) { double }
 
   it 'aliases the API endpoint' do

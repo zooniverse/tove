@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
   end
 
   def panoptes
-    @panoptes_api ||= PanoptesApi.new auth_token
+    @panoptes_api ||= PanoptesApi.new(token: auth_token)
   end
 
   def auth_token

@@ -9,8 +9,15 @@ class PanoptesApi
            :authenticated_user_display_name,
            :token_expiry, to: :client
 
-  def initialize(token)
-    @token ||= token
+  def initialize(token=nil, admin=nil)
+    @auth = if admin
+      auth = {
+        client_id: Rails.application.credentials.panoptes_client_id,
+        client_secret: Rails.application.credentials.panoptes_client_secret
+      }
+    else
+      { token: token }
+    end
     client
   end
 
@@ -37,7 +44,7 @@ class PanoptesApi
   def client
     @client ||= Panoptes::Client.new({
       env: env,
-      auth: { token: @token }
+      auth: @auth
     })
   end
 
