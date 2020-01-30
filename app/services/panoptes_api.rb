@@ -9,9 +9,9 @@ class PanoptesApi
            :authenticated_user_display_name,
            :token_expiry, to: :client
 
-  def initialize(token=nil, admin=nil)
+  def initialize(token:, admin:)
     @auth = if admin
-      auth = {
+      {
         client_id: Rails.application.credentials.panoptes_client_id,
         client_secret: Rails.application.credentials.panoptes_client_secret
       }
@@ -37,6 +37,17 @@ class PanoptesApi
     { id: response['id'].to_i, slug: response['slug'] }
   end
 
+  def workflow(id, include_project=nil)
+    query = { id: id }
+    response = if include_project
+      query[:include] = 'project'
+      get_workflow_with_project(query)
+    else
+      get_workflow(query)
+    end
+    response
+  end
+
   def env
     Rails.env.production? ? :production : :staging
   end
@@ -58,5 +69,27 @@ class PanoptesApi
 
   def get_roles(user_id)
     api.paginate('project_roles', { user_id: user_id, page_size: 100 })
+  end
+
+  private
+
+  def get_workflow_with_project(query)
+    response = api.get('workflows', query)
+    workflow = response['workflows'].first
+    project = response['linked']['projects'].first
+
+    {
+      id: workflow['id'].to_i,
+      display_name: workflow['display_name'],
+      project: {
+        id: project['id'].to_i,
+        slug: project['slug']
+      }
+    }
+  end
+
+  def get_workflow(query)
+    response = api.get('workflows', query)['workflows'].first
+    { id: response['id'].to_i, display_name: response['display_name'] }
   end
 end

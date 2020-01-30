@@ -1,11 +1,21 @@
 require './spec/fixtures/project_roles.rb'
 require './spec/fixtures/project.rb'
+require './spec/fixtures/workflow.rb'
 
 RSpec.describe PanoptesApi, type: :service do
   include_context 'role parsing'
   include_context 'project parsing'
+  include_context 'workflow parsing'
 
-  let(:panoptes_api) { described_class.new(token: 123) }
+  context 'Tove is talking directly to Panoptes' do
+    let(:panoptes_api) { described_class.new(token: nil, admin: true) }
+
+    it 'uses the client credentials' do
+      expect(panoptes_api.client.auth.keys).to include(:client_secret, :client_id)
+    end
+  end
+
+  let(:panoptes_api) { described_class.new(token: 123, admin: false) }
   let(:client_double) { double }
 
   it 'aliases the API endpoint' do
@@ -50,4 +60,35 @@ RSpec.describe PanoptesApi, type: :service do
     end
   end
 
+  describe '#workflow' do
+    let(:parsed_workflow) { { :id => 2660, :display_name => "A Frozen Workflow"} }
+
+    context 'just the workflow' do
+      it 'parses and formats' do
+        allow(panoptes_api).to receive(:api).and_return(client_double)
+        allow(client_double).to receive(:get).and_return(raw_workflow.with_indifferent_access)
+        expect(panoptes_api.workflow(2660)).to eq(parsed_workflow)
+      end
+    end
+
+    context 'includes the linked project' do
+      let(:linked_workflow) {
+        {
+          id: 2660,
+          display_name: "A Frozen Workflow",
+          project: {
+            id: 1715,
+            slug: "zwolf/ztest"
+          }
+        }
+      }
+
+      it 'includes the linked project' do
+        raw_workflow[:linked] = raw_project
+        allow(panoptes_api).to receive(:api).and_return(client_double)
+        allow(client_double).to receive(:get).and_return(raw_workflow.with_indifferent_access)
+        expect(panoptes_api.workflow(2660, include_project: true)).to eq(linked_workflow)
+      end
+    end
+  end
 end
