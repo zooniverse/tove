@@ -1,65 +1,33 @@
 require 'fileutils'
 require 'securerandom'
 require 'csv'
-require 'pathname'
 
 module DataExports
 
   class DataStorage
-    # Public: exports transcription data to files for storage.
-    def export_transcription(transcription)
-      file_generator = TranscriptionFileGenerator.new(transcription)
-      file_list = file_generator.generate_transcription_files
-
-      azure = AzureBlobStorage.new
-      azure.put_files_multiple(file_list)
-
-      # we are done with the files, delete the temp directory and its contents
-      file_generator.delete_temp_directory
-    end
-
     # Public: downloads all transcription files for a given project,
     # workflow, group or transcription
-    def download_transcription_files(scope)
+    def transcription_files_zip(scope)
       if scope.is_a?(Transcription)
-        transcription = transcription
-        prefix = transcription_storage_directory(transcription)
-        # to do: include user id in the folder name
+        transcription = scope # rename for clarity
+
+        # to do: add user id to top level directory
         directory_path = File.expand_path("~/data_exports_temp/downloaded_files/#{SecureRandom.uuid}/transcription_#{transcription.id}")
         FileUtils.mkdir_p directory_path
 
-        azure = AzureBlobStorage.new
-        filename_list = azure.get_filename_list(prefix)
-
-        filename_list.each do |f|
-          content = azure.get_file(f)
-          file_path = File.join(directory_path, File.basename(f))
-
-          file = File.open(file_path,  'w')
-          file.write(content)
+        transcription.files.each do |storage_file|
+          download_path = File.join(directory_path, storage_file.filename.to_s)
+          file = File.open(download_path,  'w')
+          file.write(storage_file.download)
           file.close()
         end
 
-        # to do: zip up the files that you've downloaded to the generated folder
-        # ZipFileGenerator.new(directory_path, "export_#{SecureRandom.uuid}.zip")
+        zip_file_path = File.join(directory_path, "export_#{SecureRandom.uuid}.zip")
+        zip_generator = ZipFileGenerator.new(directory_path, zip_file_path)
+        zip_generator.write
+
+        return zip_file_path
       end
-    end
-
-    # Public: deletes transcription files from storage
-    def delete_transcription_files(transcription)
-      prefix = transcription_storage_directory(transcription)
-
-      azure = AzureBlobStorage.new
-      azure.get_filename_list(prefix).each { |b| azure.delete_blob(b) }
-    end
-
-    # Public: gets the name of the directory in which the transcription is
-    # (or will be) saved in on storage
-    def self.transcription_storage_directory(transcription)
-      workflow_id = transcription.workflow_id
-      project_id = Workflow.find(workflow_id).project_id
-
-      "approved-transcriptions/project_#{project_id}/workflow_#{workflow_id}/group_#{transcription.group_id}/transcription_#{transcription.id}"
     end
   end
 
@@ -73,28 +41,10 @@ module DataExports
 
     def generate_transcription_files
       file_list = []
-      storage_directory = DataStorage.transcription_storage_directory(@transcription)
-
-      # raw data file
-      file_path = write_raw_data_to_file
-      storage_path = File.join(storage_directory, "raw_data_#{@transcription.id}.json")
-      file_list.append({ :storage_path => storage_path, :file => file_path })
-
-      # consensus text file
-      file_path = write_consensus_text_to_file
-      storage_path = File.join(storage_directory, "consensus_text_#{@transcription.id}.txt")
-      file_list.append({ :storage_path => storage_path, :file => file_path })
-
-      # transcription metadata file
-      file_path = write_metadata_to_file
-      storage_path = File.join(storage_directory, "transcription_metadata_#{@transcription.id}.csv")
-      file_list.append({ :storage_path => storage_path, :file => file_path })
-
-
-      # transcription line metadata file
-      file_path = write_line_metadata_to_file
-      storage_path = File.join(storage_directory, "transcription_line_metadata_#{@transcription.id}.csv")
-      file_list.append({ :storage_path => storage_path, :file => file_path })
+      file_list.append(write_raw_data_to_file,
+                       write_consensus_text_to_file,
+                       write_metadata_to_file,
+                       write_line_metadata_to_file)
     end
 
     def delete_temp_directory
@@ -257,15 +207,6 @@ module DataExports
           end
         end
       end
-    end
-  end
-
-  # QUESTION: should we use something like this instead of a list of hashes?
-  # would it be cleaner?
-  class ExportFile
-    def initialize(storage_path, local_file_path)
-      @storage_path = storage_path
-      @file_path = local_file_path
     end
   end
 

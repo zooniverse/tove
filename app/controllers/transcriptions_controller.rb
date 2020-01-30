@@ -24,21 +24,13 @@ class TranscriptionsController < ApplicationController
   end
 
   def export
-    directory_path = File.expand_path("~/data_exports_temp")
     @transcription = Transcription.find(params[:id])
-    full_path_to_file = File.join(directory_path, "send_file.txt")
 
-    binding.pry
-    # TO DO: zip all the files and then send the zip
-    @transcription.files.each do |storage_file|
-      file = File.open(full_path_to_file,  'w')
-      file.write(storage_file.download)
-      file.close()
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.transcription_files_zip(@transcription)
+    send_file zip_file
 
-      puts storage_file.filename
-    end
-
-    send_file full_path_to_file
+    # to do: how to delete the generated zip file after it sends?
   end
 
   private
@@ -96,17 +88,16 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_transcription_exports(attrs)
-    data_storage = DataExports::DataStorage.new
-
     if attrs['status'] == 'approved'
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |f|
         filename = File.basename(f[:file])
-        binding.pry
         @transcription.files.attach(io: File.open(f[:file]), filename: filename)
       end
+
+      file_generator.delete_temp_directory
     else
-      # TO DO : remove transcription files
+      @transcription.files.each { |f| f.purge }
     end
   end
 end
