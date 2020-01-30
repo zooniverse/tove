@@ -22,8 +22,6 @@ gem 'sentry-raven'
 
 group :development, :test do
   gem 'coveralls', require: false
-  gem 'pry-byebug'
-  gem 'pry-rails'
   gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
@@ -38,6 +36,11 @@ end
 group :test do
   gem 'simplecov'
   gem 'pundit-matchers'
+end
+
+group :test, :devlopment, :staging do
+  gem 'pry-byebug'
+  gem 'pry-rails'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
