@@ -24,14 +24,18 @@ class TranscriptionsController < ApplicationController
   end
 
   def export
-    full_path_to_file = File.expand_path("~/transcription_files_temp/temp.txt")
+    directory_path = File.expand_path("~/data_exports_temp")
     @transcription = Transcription.find(params[:id])
+    full_path_to_file = File.join(directory_path, "send_file.txt")
 
+    binding.pry
     # TO DO: zip all the files and then send the zip
-    @transcription.files.take(1).each do |azure_file|
+    @transcription.files.each do |storage_file|
       file = File.open(full_path_to_file,  'w')
-      file.write(azure_file.download)
+      file.write(storage_file.download)
       file.close()
+
+      puts storage_file.filename
     end
 
     send_file full_path_to_file
@@ -98,6 +102,7 @@ class TranscriptionsController < ApplicationController
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |f|
         filename = File.basename(f[:file])
+        binding.pry
         @transcription.files.attach(io: File.open(f[:file]), filename: filename)
       end
     else
