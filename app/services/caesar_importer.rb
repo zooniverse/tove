@@ -1,28 +1,43 @@
 class CaesarImporter
-  attr_reader :id, :reducible, :data, :subject
+  attr_reader :reduction_id, :reducible, :data, :subject_info
 
-  def initialize(**params)
-    @id = params[:id]
-    @reducible = params[:reducible]
-    @data = params[:data]
-    @subject_info = params[:subject]
+  def initialize(**args)
+    @reduction_id = args[:id]
+    @reducible = args[:reducible].with_indifferent_access
+    @data = args[:data].with_indifferent_access
+    @subject_info = args[:subject].with_indifferent_access
   end
 
   def process
-    if workflow
-      # workflow exists, project must too
-      # Just move on, I guess?
-    else
-      if project
-        # project exists, get workflow
-        parsed_wf = pull_workflow(@reducible[:id])
+    generate_parent_resources
+
+    # If a transcription with this id already exists, an exception will be raised
+    new_transcription = Transcription.new(transcription_create_attrs)
+    new_transcription.workflow = workflow
+    new_transcription.save!
+  end
+
+  private
+
+  def workflow
+    Workflow.find_by(id: reducible[:id])
+  end
+
+  def generate_parent_resources
+    # If the workflow exists, the project does too
+    unless workflow
+      response = pull_wf_and_project
+      existing_project = Project.find_by(id: response[:project][:id])
+
+      if existing_project
+        # Project exists, create workflow
         new_wf = Workflow.create(
-          id: parsed_wf[:id],
-          display_name: parsed_wf[:display_name]
+          id: response[:id],
+          display_name: response[:display_name],
+          project: existing_project
         )
       else
-        # project does not exist, get both
-        response = pull_wf_and_project(@reducible[:id])
+        # project does not exist, create both
         new_project = Project.create(
           id: response[:project][:id],
           slug: response[:project][:slug]
@@ -34,48 +49,27 @@ class CaesarImporter
         )
       end
     end
-
-    if transcription
-      # How is this possible? Do we overwrite?
-    else
-      # Do I need to ask panoptes? I've already got the metadata.
-      new_transcription_attrs = {
-        id: subject_info['id'],
-        text: data,
-        metadata: subject_info['metadata'],
-
-        # NEEDS DB FIELDS
-
-        # make sure this works
-        group_id: subject_info['metadata']['group_id'] || 'default',
-        internal_id: subject_info['metadata']['internal_id'] || subject_info['id'],
-
-        low_consensus_lines: data['low_consensus_lines'],
-        transcribed_lines: data['transcribed_lines'],
-        reducer: data['reducer'],
-        parameters: data['parameters']
-
-        # Count the number of `frameX` with a regex or some shit
-        # number_pages: data[]
-
-      }
-      new_transcription = Transcription.new(new_transcription_attrs)
-
-      # What if they forgot them
-    end
   end
 
+  def transcription_create_attrs
+    {
+      id: subject_info['id'],
+      status: 0,
+      text: data,
+      metadata: subject_info['metadata'],
 
-  def workflow
-    @workflow ||= Workflow.find_by(id: reducible[:id])
-  end
+      # NEEDS DB FIELDS
 
-  def project
-    @project ||= Project.find_by(id: workflow.project_id)
-  end
+      # make sure this works
+      group_id: subject_info['metadata']['group_id'] || 'default',
+      internal_id: subject_info['metadata']['internal_id'] || subject_info['id'],
 
-  def transcription
-    @transcription ||= Transcription.find_by(id: @subject_info['id'])
+      low_consensus_lines: data['low_consensus_lines'],
+      total_lines: data['transcribed_lines'],
+      reducer: data['reducer'],
+      parameters: data['parameters'],
+      total_pages: data.keys.grep(/frame/).count
+    }
   end
 
   def api
@@ -84,9 +78,5 @@ class CaesarImporter
 
   def pull_wf_and_project
     api.workflow(reducible[:id], include_project: true)
-  end
-
-  def pull_workflow
-    api.workflow(reducible[:id])
   end
 end
