@@ -22,23 +22,26 @@ module DataExports
     # workflow, group or transcription
     def download_transcription_files(scope)
       if scope.is_a?(Transcription)
-        prefix = transcription_storage_directory(scope)
+        transcription = transcription
+        prefix = transcription_storage_directory(transcription)
         # to do: include user id in the folder name
-        directory_path = File.expand_path("~/data_exports_temp/downloaded_files/#{SecureRandom.uuid}")
+        directory_path = File.expand_path("~/data_exports_temp/downloaded_files/#{SecureRandom.uuid}/transcription_#{transcription.id}")
         FileUtils.mkdir_p directory_path
 
         azure = AzureBlobStorage.new
         filename_list = azure.get_filename_list(prefix)
 
-        storage_root = Pathname.new('approved-transcriptions/')
         filename_list.each do |f|
           content = azure.get_file(f)
-          # we probably wont need this 'relative path' code, but saving it temporarily
-          relative_path = Pathname.new(f).relative_path_from(storage_root)
-          download_path = File.join(directory_path, relative_path)
+          file_path = File.join(directory_path, File.basename(f))
+
+          file = File.open(file_path,  'w')
+          file.write(content)
+          file.close()
         end
 
         # to do: zip up the files that you've downloaded to the generated folder
+        # ZipFileGenerator.new(directory_path, "export_#{SecureRandom.uuid}.zip")
       end
     end
 
@@ -56,7 +59,7 @@ module DataExports
       workflow_id = transcription.workflow_id
       project_id = Workflow.find(workflow_id).project_id
 
-      "approved-transcriptions/#{project_id}/#{workflow_id}/#{transcription.group_id}/#{transcription.id}"
+      "approved-transcriptions/project_#{project_id}/workflow_#{workflow_id}/group_#{transcription.group_id}/transcription_#{transcription.id}"
     end
   end
 
