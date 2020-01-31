@@ -25,10 +25,7 @@ class TranscriptionsController < ApplicationController
 
   def export
     @transcription = Transcription.find(params[:id])
-
-    data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.transcription_files_zip(@transcription)
-    send_file zip_file
+    export_resource(@transcription)
 
     # to do: how to delete the generated zip file after it sends?
   end

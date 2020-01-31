@@ -81,4 +81,10 @@ class ApplicationController < ActionController::Base
     pagination = jsonapi_pagination_meta(resources)
     { pagination: pagination } if pagination.present?
   end
+
+  def export_resource(resource)
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.transcription_files_zip(resource)
+    send_file zip_file
+  end
 end

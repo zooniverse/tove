@@ -9,6 +9,11 @@ class WorkflowsController < ApplicationController
     render jsonapi: @workflow
   end
 
+  def export
+    @workflow = Workflow.find(params[:id])
+    export_resource(@workflow)
+  end
+
   private
 
   def allowed_filters
