@@ -1,0 +1,385 @@
+{
+  "id": 398,
+  "reducible": {
+    "id": 3085,
+    "type": "Workflow"
+  },
+  "data": {
+    "frame0": [
+      {
+        "clusters_x": [
+          1154.7465940054497,
+          991.692098092643
+        ],
+        "clusters_y": [
+          127.40190735694824,
+          135.4209809264305
+        ],
+        "clusters_text": [
+          [
+            "test"
+          ]
+        ],
+        "number_views": 1,
+        "consensus_score": 1,
+        "consensus_text": "test",
+        "line_slope": 177.18444331578877,
+        "slope_label": 2,
+        "gutter_label": 0,
+        "gold_standard": [
+          false
+        ],
+        "extract_index": [
+          0
+        ],
+        "user_ids": [
+          1325796
+        ],
+        "low_consensus": true
+      },
+      {
+        "clusters_x": [
+          645.0744416873449,
+          898.2357320099255
+        ],
+        "clusters_y": [
+          990.0260545905708,
+          980.2890818858561
+        ],
+        "clusters_text": [
+          [
+            "here"
+          ]
+        ],
+        "number_views": 1,
+        "consensus_score": 1,
+        "consensus_text": "here",
+        "line_slope": 1.0352250232549036,
+        "slope_label": 0,
+        "gutter_label": 0,
+        "gold_standard": [
+          false
+        ],
+        "extract_index": [
+          1
+        ],
+        "user_ids": [
+          1325841
+        ],
+        "low_consensus": true
+      },
+      {
+        "clusters_x": [
+          997.281508636798,
+          1383.3846080970993
+        ],
+        "clusters_y": [
+          131.2435233398439,
+          169.352884897697
+        ],
+        "clusters_text": [
+          [
+            "i",
+            "dear",
+            "dr",
+            "dr",
+            "Dear",
+            "Dear",
+            "i",
+            "i",
+            "Dr",
+            "i",
+            "",
+            "Dr",
+            "i"
+          ],
+          [
+            "am",
+            "",
+            "sir",
+            "sir",
+            "Sir",
+            "sir",
+            "am",
+            "am",
+            "Sir",
+            "am",
+            "test",
+            "Sir",
+            "am"
+          ],
+          [
+            "here",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "here",
+            "here",
+            "",
+            "here",
+            "",
+            "",
+            "here"
+          ]
+        ],
+        "number_views": 13,
+        "consensus_score": 5,
+        "consensus_text": "i am here",
+        "line_slope": 1.0352250232549036,
+        "slope_label": 0,
+        "gutter_label": 1,
+        "gold_standard": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "extract_index": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "user_ids": [
+          1325803,
+          1325796,
+          1325796,
+          1325841,
+          1325361,
+          1325361,
+          1325796,
+          null,
+          1325361,
+          1325361,
+          1325796,
+          1325800,
+          1325800
+        ],
+        "low_consensus": false
+      },
+      {
+        "clusters_x": [
+          917.792899408284,
+          1104.8343195266273
+        ],
+        "clusters_y": [
+          443.53846153846155,
+          442.24852071005915
+        ],
+        "clusters_text": [
+          [
+            "In"
+          ],
+          [
+            "folds"
+          ]
+        ],
+        "number_views": 1,
+        "consensus_score": 1,
+        "consensus_text": "In folds",
+        "line_slope": 1.0352250232549036,
+        "slope_label": 0,
+        "gutter_label": 1,
+        "gold_standard": [
+          false
+        ],
+        "extract_index": [
+          0
+        ],
+        "user_ids": [
+          1325361
+        ],
+        "low_consensus": true
+      },
+      {
+        "clusters_x": [
+          1118.6842105263158,
+          1301.1157894736843
+        ],
+        "clusters_y": [
+          470.8105263157895,
+          470.8105263157895
+        ],
+        "clusters_text": [
+          [
+            "bleh",
+            "bleh",
+            "bleh"
+          ]
+        ],
+        "number_views": 3,
+        "consensus_score": 3,
+        "consensus_text": "bleh",
+        "line_slope": 1.0352250232549036,
+        "slope_label": 0,
+        "gutter_label": 1,
+        "gold_standard": [
+          false,
+          false,
+          false
+        ],
+        "extract_index": [
+          1,
+          1,
+          2
+        ],
+        "user_ids": [
+          1325796,
+          null,
+          1325361
+        ],
+        "low_consensus": false
+      },
+      {
+        "clusters_x": [
+          952.6213017751479,
+          1041.6272189349113
+        ],
+        "clusters_y": [
+          486.1065088757396,
+          491.26627218934914
+        ],
+        "clusters_text": [
+          [
+            "love",
+            "love"
+          ]
+        ],
+        "number_views": 2,
+        "consensus_score": 2,
+        "consensus_text": "love",
+        "line_slope": 1.0352250232549036,
+        "slope_label": 0,
+        "gutter_label": 1,
+        "gold_standard": [
+          false,
+          false
+        ],
+        "extract_index": [
+          0,
+          1
+        ],
+        "user_ids": [
+          null,
+          1325361
+        ],
+        "low_consensus": true
+      },
+      {
+        "clusters_x": [
+          1145.972972972973,
+          989.8378378378378
+        ],
+        "clusters_y": [
+          131.60810810810813,
+          125.71621621621625
+        ],
+        "clusters_text": [
+          [
+            "Dear"
+          ]
+        ],
+        "number_views": 1,
+        "consensus_score": 1,
+        "consensus_text": "Dear",
+        "line_slope": -176.6771572511145,
+        "slope_label": 1,
+        "gutter_label": 0,
+        "gold_standard": [
+          false
+        ],
+        "extract_index": [
+          0
+        ],
+        "user_ids": [
+          1325796
+        ],
+        "low_consensus": true
+      },
+      {
+        "clusters_x": [
+          1174.5752508361204,
+          1007.247491638796
+        ],
+        "clusters_y": [
+          77.71404682274249,
+          64.59030100334445
+        ],
+        "clusters_text": [
+          [
+            "test"
+          ]
+        ],
+        "number_views": 1,
+        "consensus_score": 1,
+        "consensus_text": "test",
+        "line_slope": -176.6771572511145,
+        "slope_label": 1,
+        "gutter_label": 0,
+        "gold_standard": [
+          false
+        ],
+        "extract_index": [
+          0
+        ],
+        "user_ids": [
+          1325796
+        ],
+        "low_consensus": true
+      }
+    ],
+    "low_consensus_lines": 6,
+    "transcribed_lines": 8,
+    "reducer": "poly_line_text_reducer",
+    "aggregation_version": "3.4.0",
+    "parameters": {
+      "eps_slope": 3,
+      "eps_line": 20,
+      "eps_word": 30,
+      "gutter_tol": 30,
+      "min_word_count": 1,
+      "dot_freq": "line",
+      "min_samples": 1,
+      "low_consensus_threshold": 3,
+      "process_by_line": false
+    }
+  },
+  "subject": {
+    "id": 72815,
+    "metadata": {
+      "Date": "September 18, 1856",
+      "Title": "William T Whaley, Jr, John's Island, SC, autograph letter signed to Ziba B Oakes, 18 September 1856",
+      "image1": "1521_1.png",
+      "image2": "1521_2.png",
+      "image3": "",
+      "image4": "",
+      "image5": "",
+      "Addressee": "Oakes, Ziba B, 1806-1871",
+      "Description": "Wants runaway Moses sold"
+    },
+    "created_at": "2017-09-06T15:10:52.697Z",
+    "updated_at": "2017-11-09T19:27:49.622Z"
+  },
+  "created_at": "2018-01-08T22:30:32.077Z",
+  "updated_at": "2019-11-22T20:37:23.192Z"
+}
