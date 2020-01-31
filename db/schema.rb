@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 2020_01_30_200403) do
     t.jsonb "metadata"
     t.string "internal_id"
     t.string "reducer"
-    t.string "parameters"
+    t.jsonb "parameters"
     t.integer "low_consensus_lines"
   end
 
