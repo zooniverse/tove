@@ -3,9 +3,9 @@ class CaesarImporter
 
   def initialize(**args)
     @reduction_id = args[:id]
-    @reducible = args[:reducible].with_indifferent_access
-    @data = args[:data].with_indifferent_access
-    @subject_info = args[:subject].with_indifferent_access
+    @reducible = args[:reducible]
+    @data = args[:data]
+    @subject_info = args[:subject]
   end
 
   def process
@@ -53,21 +53,16 @@ class CaesarImporter
 
   def transcription_create_attrs
     {
-      id: subject_info['id'],
+      id: subject_info[:id],
       status: 0,
       text: data,
-      metadata: subject_info['metadata'],
-
-      # NEEDS DB FIELDS
-
-      # make sure this works
-      group_id: subject_info['metadata']['group_id'] || 'default',
-      internal_id: subject_info['metadata']['internal_id'] || subject_info['id'],
-
-      low_consensus_lines: data['low_consensus_lines'],
-      total_lines: data['transcribed_lines'],
-      reducer: data['reducer'],
-      parameters: data['parameters'],
+      metadata: subject_info[:metadata],
+      group_id: subject_info[:metadata][:group_id] || 'default',
+      internal_id: subject_info[:metadata][:internal_id] || subject_info[:id],
+      low_consensus_lines: data[:low_consensus_lines],
+      total_lines: data[:transcribed_lines],
+      reducer: data[:reducer],
+      parameters: data[:parameters],
       total_pages: data.keys.grep(/frame/).count
     }
   end

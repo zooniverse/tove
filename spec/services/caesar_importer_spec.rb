@@ -9,24 +9,44 @@ RSpec.describe CaesarImporter, type: :service do
     }
   }
 
+  # ActionController::Parameter objects are hashes w/ indfferent access
   let(:data) {
     {
-      "frame0": ["test"],
-      "frame1": ["notempty"],
-      "low_consensus_lines": 10,
-      "transcribed_lines": 100,
-      "reducer": "poly_line_text_reducer",
-      "parameters": {"eagle_one": "fox_two"}
-    }
+      frame0: ["test"],
+      frame1: ["notempty"],
+      low_consensus_lines: 10,
+      transcribed_lines: 100,
+      reducer: "poly_line_text_reducer",
+      parameters: {"eagle_one" => "fox_two"}
+    }.with_indifferent_access
   }
+
   let(:args) {
     {
       reduction_id: 123,
       reducible: {id: parsed_workflow[:id], type: 'Workflow'},
       data: data,
-      subject: {id: 999, metadata: {"group_id": "GROUPX", "internal_id": "INTERNALID"}}
+      subject: {id: 999, metadata: {group_id: "GROUPX", internal_id: "INTERNALID"}}
     }
   }
+
+  let(:transcription_attrs) {
+    {
+      id: 999,
+      workflow_id: parsed_workflow[:id],
+      status: 'unseen',
+      text: data,
+      metadata: args[:subject][:metadata].with_indifferent_access,
+      group_id: 'GROUPX',
+      internal_id: 'INTERNALID',
+      low_consensus_lines: 10,
+      total_lines: 100,
+      reducer: data["reducer"],
+      parameters: data["parameters"],
+      total_pages: 2
+    }
+  }
+
   let(:importer) { described_class.new(args)}
 
   describe '#process' do
@@ -41,6 +61,14 @@ RSpec.describe CaesarImporter, type: :service do
           .and change{Workflow.count}.by(1)
           .and change{Transcription.count}.by(1)
       end
+
+      it 'generates the correct resources' do
+        importer.process
+        t = Transcription.find(transcription_attrs[:id])
+        transcription_attrs.each { |key, value| expect(t.send(key)).to eq(value) }
+        expect(Project.find(parsed_project[:id])).to be_valid
+        expect(Workflow.find(parsed_workflow[:id])).to be_valid
+      end
     end
 
     context 'when the project exists, but not the workflow' do
@@ -52,6 +80,13 @@ RSpec.describe CaesarImporter, type: :service do
           .and change{Workflow.count}.by(1)
           .and change{Transcription.count}.by(1)
       end
+
+      it 'generates the correct transcription and workflow' do
+        importer.process
+        t = Transcription.find(transcription_attrs[:id])
+        transcription_attrs.each { |key, value| expect(t.send(key)).to eq(value) }
+        expect(Workflow.find(parsed_workflow[:id])).to be_valid
+      end
     end
 
     context 'when both the workflow and project exist' do
@@ -61,11 +96,18 @@ RSpec.describe CaesarImporter, type: :service do
           display_name: parsed_workflow[:display_name],
           project: existing_project
       )}
+
       it 'creates the workflow and transcription' do
         expect{ importer.process }
           .to change{Project.count}.by(0)
           .and change{Workflow.count}.by(0)
           .and change{Transcription.count}.by(1)
+      end
+
+      it 'generates the correct transcription' do
+        importer.process
+        t = Transcription.find(transcription_attrs[:id])
+        transcription_attrs.each { |key, value| expect(t.send(key)).to eq(value) }
       end
     end
 
