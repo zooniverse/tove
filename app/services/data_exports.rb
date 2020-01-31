@@ -3,30 +3,43 @@ require 'securerandom'
 require 'csv'
 
 module DataExports
-
   class DataStorage
     # Public: downloads all transcription files for a given project,
     # workflow, group or transcription
-    def transcription_files_zip(scope)
-      if scope.is_a?(Transcription)
-        transcription = scope # rename for clarity
+    def transcription_files_zip(resource)
+      directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
 
-        # to do: add user id to top level directory
-        directory_path = File.expand_path("~/data_exports_temp/downloaded_files/#{SecureRandom.uuid}/transcription_#{transcription.id}")
-        FileUtils.mkdir_p directory_path
+      if resource.is_a?(Transcription)
+        # to do: include user id in top level directory name
+        transcription_folder = File.join(directory_path, "transcription_#{resource.id}")
+        FileUtils.mkdir_p([transcription_folder, directory_path])
 
-        transcription.files.each do |storage_file|
-          download_path = File.join(directory_path, storage_file.filename.to_s)
+        # download transcription files from storage to disk
+        resource.files.each do |storage_file|
+          download_path = File.join(transcription_folder, storage_file.filename.to_s)
           file = File.open(download_path,  'w')
           file.write(storage_file.download)
           file.close()
         end
 
         zip_file_path = File.join(directory_path, "export_#{SecureRandom.uuid}.zip")
-        zip_generator = ZipFileGenerator.new(directory_path, zip_file_path)
+        zip_generator = ZipFileGenerator.new(transcription_folder, zip_file_path)
         zip_generator.write
 
         return zip_file_path
+
+      elsif resource.is_a?(Workflow)
+        workflow_folder = File.join(directory_path, "workflow_#{resource.id}")
+        FileUtils.mkdir_p([workflow_folder, directory_path])
+
+        resource.transcription_group_data.each do |group_key, data|
+          group_folder = File.join(workflow_folder, "group_#{group_key}")
+
+          transcriptions = Transcription.where(group_id: group_key)
+          transcriptions.each do |t|
+            # to do
+          end
+        end
       end
     end
   end
@@ -53,7 +66,7 @@ module DataExports
 
     private
 
-    # creates raw data file
+    # Private: creates raw data file,
     # returns location of the file
     def write_raw_data_to_file
       file_path = File.join(@directory_path, "raw_data_#{@transcription.id}.json")
@@ -64,7 +77,7 @@ module DataExports
       file_path
     end
 
-    # creates consensus text file
+    # Private: creates consensus text file,
     # returns location of the file
     def write_consensus_text_to_file
       file_path = File.join(@directory_path, "consensus_text_#{@transcription.id}.txt")
@@ -76,7 +89,7 @@ module DataExports
       file_path
     end
 
-    # retrieves and returns consensus text
+    # Private: retrieves and returns consensus text
     def consensus_text
       consensus_text = ""
       @transcription.text.each do |key, value|
@@ -92,7 +105,7 @@ module DataExports
       consensus_text
     end
 
-    # creates transcription metadata file
+    # Private: creates transcription metadata file,
     # returns location of the file
     def write_metadata_to_file
       file_path = File.join(@directory_path, "transcription_metadata_#{@transcription.id}.csv")
@@ -105,7 +118,7 @@ module DataExports
       file_path
     end
 
-    # creates transcription line metadata file
+    # Private: creates transcription line metadata file,
     # returns location of the file
     def write_line_metadata_to_file
       file_path = File.join(@directory_path, "transcription_line_metadata_#{@transcription.id}.csv")
@@ -118,10 +131,10 @@ module DataExports
       file_path
     end
 
-    # retrieve and return transcription metadata formatted as
+    # Private: retrieve and return transcription metadata formatted as
     # array of csv lines
     def transcription_metadata
-      # still to get:
+      # TO DO - still to get:
       #   * external id
       #   * caesar parameters
       #   * aggregation algorithm
@@ -150,10 +163,10 @@ module DataExports
       ]
     end
 
-    # retrieve and return transcription line metadata formatted as
+    # Private: retrieve and return transcription line metadata formatted as
     # array of csv lines
     def transcription_line_metadata
-      # still to get:
+      # TO DO - still to get:
       #   * line edited
       #   * orig transcriber username
       #   * line editor username
@@ -209,5 +222,4 @@ module DataExports
       end
     end
   end
-
 end
