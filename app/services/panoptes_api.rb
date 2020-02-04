@@ -62,6 +62,7 @@ class PanoptesApi
   private
 
   def get_workflow_with_project(query)
+    query[:fields] = 'display_name'
     response = api.get('workflows', query)
     workflow = response['workflows'].first
     project = response['linked']['projects'].first
