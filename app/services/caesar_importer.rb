@@ -68,7 +68,7 @@ class CaesarImporter
   end
 
   def api
-     @api ||= PanoptesApi.new(token: nil, admin: true)
+     @api ||= ClientPanoptesApi.new
   end
 
   def pull_wf_and_project

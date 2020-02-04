@@ -40,13 +40,13 @@ RSpec.describe ApplicationController, type: :controller do
 
   describe '#panoptes' do
     it 'instantiates a new Panoptes client instance' do
-      expect(PanoptesApi).to receive(:new)
+      expect(UserPanoptesApi).to receive(:new)
       controller.panoptes
     end
   end
 
   context 'using the Panoptes client' do
-    let(:api_double) { instance_double(PanoptesApi) }
+    let(:api_double) { instance_double(UserPanoptesApi) }
     let(:client) { double }
 
     before(:each) do

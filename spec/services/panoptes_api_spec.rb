@@ -8,14 +8,14 @@ RSpec.describe PanoptesApi, type: :service do
   include_context 'workflow parsing'
 
   context 'Tove is talking directly to Panoptes' do
-    let(:panoptes_api) { described_class.new(token: nil, admin: true) }
+    let(:panoptes_api) { ClientPanoptesApi.new }
 
     it 'uses the client credentials' do
       expect(panoptes_api.client.auth.keys).to include(:client_secret, :client_id)
     end
   end
 
-  let(:panoptes_api) { described_class.new(token: 123, admin: false) }
+  let(:panoptes_api) { UserPanoptesApi.new(token: 123) }
   let(:client_double) { double }
 
   it 'aliases the API endpoint' do

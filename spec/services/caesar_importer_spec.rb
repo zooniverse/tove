@@ -121,11 +121,11 @@ RSpec.describe CaesarImporter, type: :service do
 
   describe 'Panoptes API implementation' do
     it 'pulls the workflow from the API' do
-      api_double = instance_double(PanoptesApi)
+      api_double = instance_double(ClientPanoptesApi)
       allow(api_double).to receive(:workflow).and_return(linked_workflow)
-      allow(PanoptesApi).to receive(:new).and_return(api_double)
+      allow(ClientPanoptesApi).to receive(:new).and_return(api_double)
 
-      expect(PanoptesApi).to receive(:new).with(token: nil, admin: true)
+      expect(ClientPanoptesApi).to receive(:new)
       expect(api_double).to receive(:workflow).with(linked_workflow[:id], {:include_project=>true})
       importer.process
     end
