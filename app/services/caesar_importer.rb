@@ -31,18 +31,18 @@ class CaesarImporter
 
       if existing_project
         # Project exists, create workflow
-        new_wf = Workflow.create(
+        new_wf = Workflow.create!(
           id: response[:id],
           display_name: response[:display_name],
           project: existing_project
         )
       else
         # project does not exist, create both
-        new_project = Project.create(
+        new_project = Project.create!(
           id: response[:project][:id],
           slug: response[:project][:slug]
         )
-        new_wf = Workflow.create(
+        new_wf = Workflow.create!(
           id: response[:id],
           display_name: response[:display_name],
           project: new_project
