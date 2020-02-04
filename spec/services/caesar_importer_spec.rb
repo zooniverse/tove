@@ -21,14 +21,8 @@ RSpec.describe CaesarImporter, type: :service do
     }.with_indifferent_access
   }
 
-  let(:args) {
-    {
-      reduction_id: 123,
-      reducible: {id: parsed_workflow[:id], type: 'Workflow'},
-      data: data,
-      subject: {id: 999, metadata: {group_id: "GROUPX", internal_id: "INTERNALID"}}
-    }
-  }
+  let(:metadata) { {group_id: "GROUPX", internal_id: "INTERNALID"}.with_indifferent_access }
+  let(:subject) { { id: 999, metadata: metadata } }
 
   let(:transcription_attrs) {
     {
@@ -36,7 +30,7 @@ RSpec.describe CaesarImporter, type: :service do
       workflow_id: parsed_workflow[:id],
       status: 'unseen',
       text: data,
-      metadata: args[:subject][:metadata].with_indifferent_access,
+      metadata: metadata,
       group_id: 'GROUPX',
       internal_id: 'INTERNALID',
       low_consensus_lines: 10,
@@ -47,7 +41,12 @@ RSpec.describe CaesarImporter, type: :service do
     }
   }
 
-  let(:importer) { described_class.new(args)}
+  let(:importer) { described_class.new(
+    id: 123,
+    reducible: {id: parsed_workflow[:id], type: 'Workflow'},
+    data: data,
+    subject: subject
+  )}
 
   describe '#process' do
     before do
@@ -112,7 +111,7 @@ RSpec.describe CaesarImporter, type: :service do
     end
 
     context 'when a transcription with the same id exists' do
-      let!(:existing_t) { create(:transcription, id: args[:subject][:id])}
+      let!(:existing_t) { create(:transcription, id: subject[:id]) }
       it 'raises a ResourceExists exception' do
         expect{importer.process}.to raise_error(ActiveRecord::RecordNotUnique)
       end

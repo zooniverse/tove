@@ -1,11 +1,11 @@
 class CaesarImporter
   attr_reader :reduction_id, :reducible, :data, :subject_info
 
-  def initialize(**args)
-    @reduction_id = args[:id]
-    @reducible = args[:reducible]
-    @data = args[:data]
-    @subject_info = args[:subject]
+  def initialize(id:, reducible:, data:, subject:)
+    @reduction_id = id
+    @reducible = reducible
+    @data = data
+    @subject_info = subject
   end
 
   def process

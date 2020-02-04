@@ -4,7 +4,12 @@ class CaesarController < ActionController::Base
 
   def import
     begin
-      importer = CaesarImporter.new(arg_hash)
+      importer = CaesarImporter.new(
+        id: params[:id],
+        reducible: params[:reducible],
+        data: params[:data],
+        subject: params[:subject]
+      )
       importer.process
     rescue => exception
       Raven.capture_exception(exception)
@@ -15,14 +20,4 @@ class CaesarController < ActionController::Base
     end
   end
 
-  private
-
-  def arg_hash
-    {
-      id: params[:id],
-      reducible: params[:reducible],
-      data: params[:data],
-      subject: params[:subject]
-    }
-  end
 end
