@@ -8,8 +8,8 @@ class Transcription < ApplicationRecord
   enum status: {
     unseen: 0,
     ready: 1, # ready as in "ready for approval"
-    approved: 2,
-    in_progress: 3
+    in_progress: 2,
+    approved: 3
 
   }
 
