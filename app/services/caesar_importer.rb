@@ -1,11 +1,14 @@
 class CaesarImporter
   attr_reader :reduction_id, :reducible, :data, :subject_info
 
+  class ReducibleError < StandardError; end
+
   def initialize(id:, reducible:, data:, subject:)
     @reduction_id = id
     @reducible = reducible
     @data = data
     @subject_info = subject
+    validate_reducible
   end
 
   def process
@@ -73,5 +76,11 @@ class CaesarImporter
 
   def pull_wf_and_project
     api.workflow(reducible[:id], include_project: true)
+  end
+
+  def validate_reducible
+    unless reducible[:type] == 'Workflow'
+      raise ReducibleError, 'Reducible must be a workflow'
+    end
   end
 end

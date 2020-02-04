@@ -7,6 +7,7 @@ module ErrorExtender
     rescue_from ActiveModel::UnknownAttributeError, with: :render_jsonapi_unknown_attribute
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
     rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
+    rescue_from CaesarImporter::ReducibleError, with: :render_jsonapi_not_authorized
   end
 
   def report_to_sentry(exception)

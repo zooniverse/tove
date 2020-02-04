@@ -48,6 +48,19 @@ RSpec.describe CaesarImporter, type: :service do
     subject: subject
   )}
 
+  context 'the reducible is not a workflow' do
+    it 'raises an error' do
+      expect {
+        described_class.new(
+          id: 123,
+          reducible: {id: 666, type: 'Project'},
+          data: data,
+          subject: subject
+        )
+      }.to raise_error(CaesarImporter::ReducibleError)
+    end
+  end
+
   describe '#process' do
     before do
       allow(importer).to receive(:pull_wf_and_project).and_return(linked_workflow)
