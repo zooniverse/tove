@@ -23,7 +23,7 @@ RSpec.describe PanoptesApi, type: :service do
   end
 
   describe '#token_created_at' do
-    let(:party_time) { Time.parse('1999-12-31') }
+    let(:party_time) { Time.parse('1999-12-31 23:59:59') }
 
     before do
       allow(panoptes_api).to receive(:token_expiry).and_return(party_time)
