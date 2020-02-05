@@ -12,8 +12,9 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
 
+    status_has_changed = status_has_changed(update_attrs)
     @transcription.update!(update_attrs)
-    update_transcription_exports(update_attrs) if status_has_changed(update_attrs)
+    update_transcription_exports(update_attrs) if status_has_changed
 
     render jsonapi: @transcription
   end
@@ -24,10 +25,13 @@ class TranscriptionsController < ApplicationController
   end
 
   def export
-    @transcription = Transcription.find(params[:id])
-    export_resource(@transcription)
-
-    # to do: how to delete the generated zip file after it sends?
+    if params.has_key?(:id)
+      @transcription = Transcription.find(params[:id])
+      export_resource(@transcription)
+    else
+      @transcriptions = Transcription.where(group_id: params[:group_id])
+      export_resource(@transcriptions)
+    end
   end
 
   private
@@ -76,7 +80,7 @@ class TranscriptionsController < ApplicationController
 
   def status_has_changed(attrs)
     attrs.each do |key, value|
-      if key == 'status' && Transcription.statuses[@transcription.status] != value
+      if key == 'status' && @transcription.status != value
         return true
       end
     end
