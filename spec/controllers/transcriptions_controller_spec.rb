@@ -135,15 +135,18 @@ RSpec.describe TranscriptionsController, type: :controller do
     let!(:transcription) { create(:transcription) }
     let(:export_params) { { id: transcription.id } }
 
+    before do
+      transcription.files.attach(create_file_blob)
+    end
 
     it 'returns successfully' do
-      transcription.files.attach(create_file_blob)
-
       get :export, params: export_params
       expect(response).to have_http_status(:ok)
     end
 
-    # to do: add method to check that it's returning a file, or that it's returning a
-    # zip of all the files that were attached to the transcription?
+    it 'should have a response with content-type of application/zip' do
+      get :export, params: export_params
+      expect(response.header["Content-Type"]).to eq("application/zip")
+    end
   end
 end
