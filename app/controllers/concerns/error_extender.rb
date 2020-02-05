@@ -6,6 +6,7 @@ module ErrorExtender
     rescue_from ActionController::BadRequest, with: :render_jsonapi_bad_request
     rescue_from ActiveModel::UnknownAttributeError, with: :render_jsonapi_unknown_attribute
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
+    rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
   end
 
   def report_to_sentry(exception)
@@ -22,8 +23,7 @@ module ErrorExtender
   # Overriding this JSONAPI::Errors method to add Sentry reporting
   def render_jsonapi_internal_server_error(exception)
     report_to_sentry(exception)
-    error = { status: '500', title: Rack::Utils::HTTP_STATUS_CODES[500] }
-    render jsonapi_errors: [error], status: :internal_server_error
+    super(exception)
   end
 
   def render_jsonapi_bad_request(exception)
@@ -44,5 +44,10 @@ module ErrorExtender
     }
 
     render jsonapi_errors: [error], status: :unprocessable_entity
+  end
+
+  def render_jsonapi_not_authorized
+    error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403] }
+    render jsonapi_errors: [error], status: :forbidden
   end
 end

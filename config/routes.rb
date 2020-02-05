@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   get '/', to: 'status#show'
 
+  post '/import', to: 'caesar#import'
+  
   resources :projects, only: [:index, :show] do
     get 'export', on: :member
   end
@@ -11,5 +13,4 @@ Rails.application.routes.draw do
     get 'export', on: :member
     get 'export', on: :collection
   end
-
 end

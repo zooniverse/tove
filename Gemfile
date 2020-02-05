@@ -6,6 +6,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 4.3'
 
 gem 'panoptes-client'
+gem 'pundit'
 
 # Connect to Azure Storage with Rails Active Storage
 gem 'azure-storage'
@@ -27,12 +28,9 @@ gem 'sentry-raven'
 
 group :development, :test do
   gem 'coveralls', require: false
-  gem 'pry-rails'
   gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
-  gem 'pry-byebug'
-  gem 'rspec-rails'
 end
 
 group :development do
@@ -43,6 +41,12 @@ end
 
 group :test do
   gem 'simplecov'
+  gem 'pundit-matchers'
+end
+
+group :test, :devlopment, :staging do
+  gem 'pry-byebug'
+  gem 'pry-rails'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

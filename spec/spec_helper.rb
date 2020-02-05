@@ -1,5 +1,7 @@
 require 'factory_bot'
 require 'jsonapi/rspec'
+require "pundit/rspec"
+require 'pundit/matchers'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|

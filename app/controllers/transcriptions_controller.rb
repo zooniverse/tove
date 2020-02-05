@@ -4,23 +4,30 @@ class TranscriptionsController < ApplicationController
   before_action :status_filter_to_int, only: :index
 
   def index
-    @transcriptions = Transcription.all
+    @transcriptions = policy_scope(Transcription)
     jsonapi_render(@transcriptions, allowed_filters)
+  end
+
+  def show
+    @transcription = Transcription.find(params[:id])
+    authorize @transcription
+    render jsonapi: @transcription
   end
 
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
 
+    if approve?
+      authorize @transcription, :approve?
+    else
+      authorize @transcription
+    end
+
     status_has_changed = status_has_changed(update_attrs)
     @transcription.update!(update_attrs)
     update_transcription_exports(update_attrs) if status_has_changed
 
-    render jsonapi: @transcription
-  end
-
-  def show
-    @transcription = Transcription.find(params[:id])
     render jsonapi: @transcription
   end
 
@@ -40,7 +47,7 @@ class TranscriptionsController < ApplicationController
     jsonapi_deserialize(params)
   end
 
-  # jsonapi.rb filtering doesn't handle filtering by enum term (e.g. 'ready'),
+  # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
   # so we must translate status terms to their integer value if they're present
   def status_filter_to_int
     if params[:filter]
@@ -71,6 +78,10 @@ class TranscriptionsController < ApplicationController
 
   def type_invalid?
     params[:data][:type] != "transcriptions"
+  end
+
+  def approve?
+    update_attrs["status"] == "approved"
   end
 
   def allowed_filters

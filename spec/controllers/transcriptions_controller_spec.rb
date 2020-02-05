@@ -1,4 +1,6 @@
 RSpec.describe TranscriptionsController, type: :controller do
+  let(:admin_user) { create :user, :admin }
+  before { allow(controller).to receive(:current_user).and_return admin_user }
 
   describe '#index' do
     let!(:transcription) { create(:transcription, status: 1) }
@@ -9,16 +11,38 @@ RSpec.describe TranscriptionsController, type: :controller do
       let(:another) { another_transcription }
     end
 
-    it "returns http success" do
-      get :index
-      expect(response).to have_http_status(:ok)
-    end
+    describe 'roles' do
+      before { allow(controller).to receive(:current_user).and_return user }
 
-    it 'should render' do
-      get :index
-      expect(json_data.first).to have_type('transcription')
-      expect(json_data.first).to have_attributes(:text, :status, :flagged)
-      expect(json_data.first["id"]).to eql(transcription.id.to_s)
+      context 'without any roles' do
+        let(:user) { create(:user, roles: {} )}
+        it "returns return an empty response" do
+          get :index
+          expect(response).to have_http_status(:ok)
+          expect(json_data.size).to eq(0)
+        end
+      end
+
+      context 'as an admin' do
+        let(:user) { create(:user, :admin) }
+        it 'returns the full scope' do
+          get :index
+          expect(response).to have_http_status(:ok)
+          expect(json_data.size).to eq(3)
+        end
+      end
+
+      context 'as a viewer' do
+        let(:user) { create(:user, roles: {transcription.workflow.project.id => ['tester']}) }
+        it 'returns the authorized workflow' do
+          get :index
+          expect(response).to have_http_status(:ok)
+          expect(json_data.first).to have_type('transcription')
+          expect(json_data.first).to have_attributes(:text, :status, :flagged)
+          expect(json_data.first["id"]).to eql(transcription.id.to_s)
+          expect(json_data.size).to eq(2)
+        end
+      end
     end
 
     describe "filtration" do
@@ -84,14 +108,34 @@ RSpec.describe TranscriptionsController, type: :controller do
   describe '#show' do
     let!(:transcription) { create(:transcription) }
 
-    it 'returns successfully' do
-      get :show, params: { id: transcription.id }
-      expect(response).to have_http_status(:ok)
-    end
+    describe 'roles' do
+      before do
+        allow(controller).to receive(:current_user).and_return user
+        get :show, params: { id: transcription.id }
+      end
 
-    it 'renders the requested transcription' do
-      get :show, params: { id: transcription.id }
-      expect(json_data).to have_id(transcription.id.to_s)
+      context 'without any roles' do
+        let(:user) { create(:user, roles: {} )}
+        it "returns a 403" do
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as an admin' do
+        let(:user) { create(:user, :admin) }
+        it 'returns the full scope' do
+          expect(response).to have_http_status(:ok)
+          expect(json_data).to have_id(transcription.id.to_s)
+        end
+      end
+
+      context 'as a viewer' do
+        let(:user) { create(:user, roles: {transcription.workflow.project.id => ['tester']}) }
+        it 'returns the authorized workflow' do
+          expect(response).to have_http_status(:ok)
+          expect(json_data["id"]).to eql(transcription.id.to_s)
+        end
+      end
     end
   end
 
@@ -127,6 +171,74 @@ RSpec.describe TranscriptionsController, type: :controller do
         busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "garf": true } } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    describe 'roles' do
+      before { allow(controller).to receive(:current_user).and_return user }
+
+      context 'without any roles' do
+        let(:user) { create(:user, roles: {} )}
+        it "returns a 403 Forbidden" do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as an admin' do
+        let(:user) { create(:user, :admin) }
+        it 'updates the resource' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'allows approval' do
+          update_params[:data][:attributes][:status] = "approved"
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'as an approver' do
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['owner']}) }
+        it 'updates the resource' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'allows approval' do
+          update_params[:data][:attributes][:status] = "approved"
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'as an editor' do
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['scientist']}) }
+        it 'updates the resource' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'forbids approval' do
+          update_params[:data][:attributes][:status] = "approved"
+          patch :update, params: update_params
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as a viewer' do
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+        it 'returns a 403 Forbidden' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        it 'forbids approval' do
+          update_params[:data][:attributes][:status] = "approved"
+          patch :update, params: update_params
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
