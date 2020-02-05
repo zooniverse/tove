@@ -4,7 +4,9 @@ Rails.application.routes.draw do
   resources :projects, only: [:index, :show] do
     get 'export', on: :member
   end
-  resources :workflows, only: [:index, :show]
+  resources :workflows, only: [:index, :show] do
+    get 'export', on: :member
+  end
   resources :transcriptions, only: [:index, :show, :update] do
     get 'export', on: :member
     get 'export', on: :collection

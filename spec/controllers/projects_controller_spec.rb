@@ -43,4 +43,25 @@ RSpec.describe ProjectsController, type: :controller do
       expect(json_data).to have_id(project.id.to_s)
     end
   end
+
+  describe '#export' do
+    let (:project) { create(:project, slug: "lizard_king/underground_fortress") }
+    let (:workflow) { create(:workflow, project: project)}
+    let(:transcription) { create(:transcription, workflow: workflow) }
+    let(:export_params) { { id: project.id } }
+
+    before do
+      transcription.files.attach(create_file_blob)
+    end
+
+    it 'returns successfully' do
+      get :export, params: export_params
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'should have a response with content-type of application/zip' do
+      get :export, params: export_params
+      expect(response.header["Content-Type"]).to eq("application/zip")
+    end
+  end
 end

@@ -132,21 +132,37 @@ RSpec.describe TranscriptionsController, type: :controller do
   end
 
   describe '#export' do
-    let!(:transcription) { create(:transcription) }
-    let(:export_params) { { id: transcription.id } }
+    let(:transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
+    let(:second_transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
+    let(:export_single_params) { { id: transcription.id } }
+    let(:export_group_params) { { group_id: transcription.group_id } }
 
     before do
       transcription.files.attach(create_file_blob)
     end
 
-    it 'returns successfully' do
-      get :export, params: export_params
-      expect(response).to have_http_status(:ok)
+    context 'exporting a single transcription' do
+      it 'returns successfully' do
+        get :export, params: export_single_params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'should have a response with content-type of application/zip' do
+        get :export, params: export_single_params
+        expect(response.header["Content-Type"]).to eq("application/zip")
+      end
     end
 
-    it 'should have a response with content-type of application/zip' do
-      get :export, params: export_params
-      expect(response.header["Content-Type"]).to eq("application/zip")
+    context 'exporting a transcription group' do
+      it 'returns successfully' do
+        get :export, params: export_group_params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'should have a response with content-type of application/zip' do
+        get :export, params: export_group_params
+        expect(response.header["Content-Type"]).to eq("application/zip")
+      end
     end
   end
 end

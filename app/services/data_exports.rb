@@ -60,11 +60,13 @@ module DataExports
       group.each do |t|
         download_transcription_files(t, group_folder)
       end
+
+      zip_files(output_directory, group_folder)
     end
 
     def zip_workflow(workflow, output_directory)
       workflow_folder = download_workflow_files(workflow, output_directory)
-      return zip_files(output_directory, workflow_folder)
+      zip_files(output_directory, workflow_folder)
     end
 
     # download workflow's transcription files from storage to disk

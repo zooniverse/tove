@@ -40,7 +40,7 @@ RSpec.describe WorkflowsController, type: :controller do
           "updated_at" => '2019-12-16 00:00:00 UTC',
           "updated_by" => 'The Dark Master',
           "transcription_count" => 1
-        }, 
+        },
         "SECOND" => {
           "updated_at" => '2019-12-18 00:00:00 UTC',
           "updated_by" => 'The Grey Tiger',
@@ -74,6 +74,26 @@ RSpec.describe WorkflowsController, type: :controller do
     it 'renders the requested workflow' do
       get :show, params: { id: workflow.id }
       expect(json_data).to have_id(workflow.id.to_s)
+    end
+  end
+
+  describe '#export' do
+    let (:workflow) { create(:workflow)}
+    let(:transcription) { create(:transcription, workflow: workflow) }
+    let(:export_params) { { id: workflow.id } }
+
+    before do
+      transcription.files.attach(create_file_blob)
+    end
+
+    it 'returns successfully' do
+      get :export, params: export_params
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'should have a response with content-type of application/zip' do
+      get :export, params: export_params
+      expect(response.header["Content-Type"]).to eq("application/zip")
     end
   end
 end
