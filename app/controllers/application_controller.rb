@@ -84,7 +84,11 @@ class ApplicationController < ActionController::Base
 
   def export_resource(resource)
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.transcription_files_zip(resource)
-    send_file zip_file
+    zip_file = data_storage.resource_files_zip(resource)
+
+    File.open(zip_file, 'r') do |f|
+      send_data f.read, filename: 'export.zip', type: 'application/zip'
+    end
+    File.delete(zip_file)
   end
 end
