@@ -9,6 +9,11 @@ class ProjectsController < ApplicationController
     render jsonapi: @project
   end
 
+  def export
+    @project = Project.find(params[:id])
+    export_resource(@project)
+  end
+
   private
 
   def allowed_filters
