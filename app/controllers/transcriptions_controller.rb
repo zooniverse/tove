@@ -69,7 +69,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def whitelisted_attributes?
-    params[:data][:attributes] && params[:data][:attributes].keys.all? { |key| whitelist.include? key }
+    params[:data][:attributes] && params[:data][:attributes].keys.all? { |key| update_attr_whitelist.include? key }
   end
 
   def approve?
@@ -80,7 +80,7 @@ class TranscriptionsController < ApplicationController
     [:id, :workflow_id, :group_id, :flagged, :status]
   end
 
-  def whitelist
+  def update_attr_whitelist
     ["flagged", "text", "status"]
   end
 end
