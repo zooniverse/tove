@@ -16,7 +16,8 @@ class TranscriptionsController < ApplicationController
 
   def update
     @transcription = Transcription.find(params[:id])
-    raise ActionController::BadRequest if type_invalid?
+    raise ActionController::BadRequest if invalid_type?
+    raise Pundit::NotAuthorizedError unless whitelisted_attributes?
 
     if approve?
       authorize @transcription, :approve?
@@ -31,9 +32,6 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
-    if params[:data] && params[:data][:attributes]
-      params[:data][:attributes].delete_if { |k| whitelisted_attributes.exclude? k }
-    end
     jsonapi_deserialize(params)
   end
 
@@ -66,8 +64,12 @@ class TranscriptionsController < ApplicationController
     end
   end
 
-  def type_invalid?
+  def invalid_type?
     params[:data][:type] != "transcriptions"
+  end
+
+  def whitelisted_attributes?
+    params[:data][:attributes] && params[:data][:attributes].keys.all? { |key| whitelist.include? key }
   end
 
   def approve?
@@ -78,7 +80,7 @@ class TranscriptionsController < ApplicationController
     [:id, :workflow_id, :group_id, :flagged, :status]
   end
 
-  def whitelisted_attributes
+  def whitelist
     ["flagged", "text", "status"]
   end
 end

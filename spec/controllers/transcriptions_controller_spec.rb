@@ -167,18 +167,16 @@ RSpec.describe TranscriptionsController, type: :controller do
         expect(response).to have_http_status(:bad_request)
       end
 
-      it 'contains invalid data' do
-        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "pet": "dog" } }
+      it 'contains an invalid attribute' do
+        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "garf": true } } }
         patch :update, params: busted_params
-        expect(json_data).not_to have_key("pet")
+        expect(response).to have_http_status(:forbidden)
       end
 
-      it 'will only update whitelisted attributes' do
-        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_group", "flagged": true } } }
+      it 'contains read-only data' do
+        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_id" } } }
         patch :update, params: busted_params
-        expect(json_data["attributes"]["flagged"]).to be true
-        expect(json_data["attributes"]["group_id"]).not_to be('fake_group')
-        expect(json_data["attributes"]["workflow_id"]).not_to be(1000)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
