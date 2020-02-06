@@ -6,10 +6,10 @@ class Transcription < ApplicationRecord
   validate :text_json_is_not_nil
 
   enum status: {
-    unseen: 0,
-    ready: 1, # ready as in "ready for approval"
-    approved: 2,
-    in_progress: 3
+    approved: 0,
+    in_progress: 1,
+    ready: 2, # ready as in "ready for approval"
+    unseen: 3
 
   }
 
