@@ -32,13 +32,20 @@ class TranscriptionsController < ApplicationController
   end
 
   def export
-    if params.has_key?(:id)
-      @transcription = Transcription.find(params[:id])
-      export_resource(@transcription)
-    else
-      @transcriptions = Transcription.where(group_id: params[:group_id])
-      export_resource(@transcriptions)
+    @transcription = Transcription.find(params[:id])
+    authorize @transcription
+    export_resource @transcription
+  end
+
+  def export_group
+    editor_scope = TranscriptionPolicy::Scope.new(current_user, Transcription).editor_policy_scope
+    @transcriptions = editor_scope.where(group_id: params[:group_id])
+
+    if @transcriptions.empty?
+      raise Pundit::NotAuthorizedError, "User is not authorized to export group '#{params[:group_id]}'"
     end
+
+    export_resource @transcriptions
   end
 
   private

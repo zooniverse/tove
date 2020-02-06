@@ -267,13 +267,31 @@ RSpec.describe TranscriptionsController, type: :controller do
 
     context 'exporting a transcription group' do
       it 'returns successfully' do
-        get :export, params: export_group_params
+        get :export_group, params: export_group_params
         expect(response).to have_http_status(:ok)
       end
 
       it 'should have a response with content-type of application/zip' do
-        get :export, params: export_group_params
+        get :export_group, params: export_group_params
         expect(response.header["Content-Type"]).to eq("application/zip")
+      end
+    end
+
+    describe 'roles' do
+      let(:tester) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+
+      context 'as a viewer' do
+        before { allow(controller).to receive(:current_user).and_return tester }
+
+        it 'returns a 403 Forbidden when exporting one transcription' do
+          get :export, params: export_single_params
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        it 'returns a 403 Forbidden when exporting a group' do
+          get :export_group, params: export_group_params
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
