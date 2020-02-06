@@ -31,6 +31,7 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
+    params[:data][:attributes].delete_if { |k| whitelisted_attributes.exclude? k }
     jsonapi_deserialize(params)
   end
 
@@ -73,5 +74,9 @@ class TranscriptionsController < ApplicationController
 
   def allowed_filters
     [:id, :workflow_id, :group_id, :flagged, :status]
+  end
+
+  def whitelisted_attributes
+    ["flagged", "text", "status"]
   end
 end
