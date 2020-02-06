@@ -16,7 +16,7 @@ class TranscriptionsController < ApplicationController
 
   def update
     @transcription = Transcription.find(params[:id])
-    raise ActionController::BadRequest if invalid_type?
+    raise ActionController::BadRequest if type_invalid?
     raise Pundit::NotAuthorizedError unless whitelisted_attributes?
 
     if approve?
@@ -64,7 +64,7 @@ class TranscriptionsController < ApplicationController
     end
   end
 
-  def invalid_type?
+  def type_invalid?
     params[:data][:type] != "transcriptions"
   end
 
