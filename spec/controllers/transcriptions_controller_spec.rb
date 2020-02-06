@@ -167,10 +167,10 @@ RSpec.describe TranscriptionsController, type: :controller do
         expect(response).to have_http_status(:bad_request)
       end
 
-      it 'contains an invalid attribute' do
-        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "garf": true } } }
+      it 'contains invalid data' do
+        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "pet": "dog" } }
         patch :update, params: busted_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_data).not_to have_key("pet")
       end
 
       it 'will only update whitelisted attributes' do

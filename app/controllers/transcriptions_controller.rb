@@ -31,7 +31,9 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
-    params[:data][:attributes].delete_if { |k| whitelisted_attributes.exclude? k }
+    if params[:data] && params[:data][:attributes]
+      params[:data][:attributes].delete_if { |k| whitelisted_attributes.exclude? k }
+    end
     jsonapi_deserialize(params)
   end
 
