@@ -150,5 +150,27 @@ RSpec.describe WorkflowsController, type: :controller do
       get :export, params: export_params
       expect(response.header["Content-Type"]).to eq("application/zip")
     end
+
+    describe 'roles' do
+      context 'as a viewer' do
+        let(:viewer) { create(:user, roles: { workflow.project.id => ['tester']}) }
+        before { allow(controller).to receive(:current_user).and_return viewer }
+
+        it 'returns a 403 Forbidden when exporting a workflow' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as an editor' do
+        let(:editor) { create(:user, roles: { workflow.project.id => ['moderator']}) }
+        before { allow(controller).to receive(:current_user).and_return editor }
+
+        it 'returns successfully when exporting a workflow' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
   end
 end

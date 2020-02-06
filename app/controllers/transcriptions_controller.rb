@@ -110,8 +110,8 @@ class TranscriptionsController < ApplicationController
     if attrs['status'] == 'approved'
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |f|
-        filename = File.basename(f[:file])
-        @transcription.files.attach(io: File.open(f[:file]), filename: filename)
+        filename = File.basename(f)
+        @transcription.files.attach(io: File.open(f), filename: filename)
       end
 
       file_generator.delete_temp_directory
