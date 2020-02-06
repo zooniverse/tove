@@ -12,6 +12,7 @@ class WorkflowsController < ApplicationController
 
   def export
     @workflow = Workflow.find(params[:id])
+    authorize @workflow
     export_resource(@workflow)
   end
 

@@ -12,6 +12,7 @@ class ProjectsController < ApplicationController
 
   def export
     @project = Project.find(params[:id])
+    authorize @project
     export_resource(@project)
   end
 
