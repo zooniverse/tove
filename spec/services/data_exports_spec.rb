@@ -4,7 +4,7 @@ RSpec.describe DataExports::DataStorage do
     let(:workflow) { create(:workflow, project: project)}
     let(:transcription) { create(:transcription, workflow: workflow, group_id: "ROACH_WARRIORS") }
     let(:another_transcription) { create(:transcription, group_id: "ROACH_WARRIORS") }
-    let (:transcription_group) { [transcription, another_transcription] }
+    let(:transcription_group) { [transcription, another_transcription] }
 
     let(:data_storage) { described_class.new }
 
