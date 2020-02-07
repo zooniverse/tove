@@ -148,7 +148,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       expect(transcription.reload.flagged).to be_truthy
     end
 
-    context 'when transcription status changes', :focus => true do
+    context 'when transcription status changes' do
       context 'when a transcription is approved' do
         it 'attaches 4 data files to the transcription' do
           update_params[:data][:attributes][:status] = 'approved'
