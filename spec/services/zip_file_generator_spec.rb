@@ -1,7 +1,7 @@
 RSpec.describe ZipFileGenerator do
   let(:zip_file_path) { Rails.root.join("spec/fixtures/files/test-zip.zip") }
 
-  describe '#write', :focus => true do
+  describe '#write' do
     context 'when given a multi-level directory' do
       let(:zip_generator) {
         described_class.new(Rails.root.join("spec/fixtures"), zip_file_path)

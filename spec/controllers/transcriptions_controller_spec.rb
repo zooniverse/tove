@@ -148,6 +148,25 @@ RSpec.describe TranscriptionsController, type: :controller do
       expect(transcription.reload.flagged).to be_truthy
     end
 
+    context 'when transcription status changes', :focus => true do
+      context 'when a transcription is approved' do
+        it 'attaches 4 data files to the transcription' do
+          update_params[:data][:attributes][:status] = 'approved'
+          patch :update, params: update_params
+          expect(transcription.files.count).to eq(4)
+        end
+      end
+
+      context 'when a transcription is unapproved' do
+        it 'removes attached data files from storage' do
+          update_params[:data][:attributes][:status] = 'ready'
+          patch :update, params: update_params
+          expect(transcription.files.attached?).to be_falsey
+        end
+      end
+    end
+
+
     context 'validates the input' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }

@@ -115,46 +115,36 @@ module DataExports
   class TranscriptionFileGenerator
     def initialize(transcription)
       @transcription = transcription
-      @directory_path = File.expand_path("~/data_exports_temp/generated_files/t#{@transcription.id}_#{SecureRandom.uuid}")
-
-      FileUtils.mkdir_p @directory_path
     end
 
     def generate_transcription_files
-      file_list = []
-      file_list.append(write_raw_data_to_file,
-                       write_consensus_text_to_file,
-                       write_metadata_to_file,
-                       write_line_metadata_to_file)
-    end
-
-    def delete_temp_directory
-      FileUtils.remove_dir(@directory_path)
+      files = []
+      files.append(write_raw_data_to_file,
+                      write_consensus_text_to_file,
+                      write_metadata_to_file,
+                      write_line_metadata_to_file)
     end
 
     private
 
-    # Private: creates raw data file,
-    # returns location of the file
+    # Private: creates raw data file as tempfile,
+    # returns tempfile
     def write_raw_data_to_file
-      file_path = File.join(@directory_path, "raw_data_#{@transcription.id}.json")
+      file = Tempfile.new(["raw_data_#{@transcription.id}-", '.json'])
+      file.write(@transcription.text)
+      file.rewind
 
-      File.open(file_path, 'w') { |f|
-        f.puts @transcription.text
-      }
-      file_path
+      file
     end
 
     # Private: creates consensus text file,
     # returns location of the file
     def write_consensus_text_to_file
-      file_path = File.join(@directory_path, "consensus_text_#{@transcription.id}.txt")
+      file = Tempfile.new(["consensus_text_#{@transcription.id}-", '.txt'])
+      file.write(consensus_text)
+      file.rewind
 
-      File.open(file_path, 'w') { |f|
-        f.puts consensus_text
-      }
-
-      file_path
+      file
     end
 
     # Private: retrieves and returns consensus text
@@ -164,7 +154,6 @@ module DataExports
         # if we find a frame, iterate through the lines of the frame
         if /^frame/.match(key)
           value.each do |line|
-            puts line["consensus_text"]
             consensus_text.concat "#{line["consensus_text"]} "
           end
         end
@@ -176,27 +165,31 @@ module DataExports
     # Private: creates transcription metadata file,
     # returns location of the file
     def write_metadata_to_file
-      file_path = File.join(@directory_path, "transcription_metadata_#{@transcription.id}.csv")
-      CSV.open(file_path, 'wb') do |csv|
+      file = Tempfile.new(["transcription_metadata_#{@transcription.id}-", '.csv'])
+
+      CSV.open(file.path, 'wb') do |csv|
         transcription_metadata.each do |csv_line|
           csv << csv_line
         end
       end
 
-      file_path
+      file.rewind
+      file
     end
 
     # Private: creates transcription line metadata file,
     # returns location of the file
     def write_line_metadata_to_file
-      file_path = File.join(@directory_path, "transcription_line_metadata_#{@transcription.id}.csv")
-      CSV.open(file_path, 'wb') do |csv|
+      file = Tempfile.new(["transcription_line_metadata_#{@transcription.id}-", '.csv'])
+
+      CSV.open(file.path, 'wb') do |csv|
         transcription_line_metadata.each do |csv_line|
           csv << csv_line
         end
       end
 
-      file_path
+      file.rewind
+      file
     end
 
     # Private: retrieve and return transcription metadata formatted as
