@@ -149,17 +149,20 @@ module DataExports
 
     # Private: retrieves and returns consensus text
     def consensus_text
-      consensus_text = ""
+      full_consensus_text = ""
       @transcription.text.each do |key, value|
         # if we find a frame, iterate through the lines of the frame
         if /^frame/.match(key)
           value.each do |line|
-            consensus_text.concat "#{line["consensus_text"]} "
+            line_text = line['edited_consensus_text'].present? ?
+                        line['edited_consensus_text'] :
+                        line['consensus_text']
+            full_consensus_text.concat line_text
           end
         end
       end
 
-      consensus_text
+      full_consensus_text
     end
 
     # Private: creates transcription metadata file,
@@ -195,18 +198,12 @@ module DataExports
     # Private: retrieve and return transcription metadata formatted as
     # array of csv lines
     def transcription_metadata
-      # TO DO - still to get:
-      #   * external id
-      #   * caesar parameters
-      #   * aggregation algorithm
-      #   * text edited (based on if a line was edited)
-
       csv_lines = []
       csv_lines << [
         'transcription id',
-        'external id',
+        'internal id',
+        'reducer',
         'caesar parameters',
-        'aggregation algorithm',
         'date approved',
         'user who approved',
         'text edited (T/F)',
@@ -214,24 +211,33 @@ module DataExports
       ]
       csv_lines << [
         @transcription.id,
-        'external id',
-        'caesar parameters',
-        'aggregation algorithm',
+        @transcription.internal_id,
+        @transcription.reducer,
+        @transcription.parameters,
         @transcription.updated_at,
         @transcription.updated_by,
-        'text edited (T/F)',
+        is_text_edited?,
         @transcription.total_pages
       ]
+    end
+
+    def is_text_edited?
+      # iterate through each 'frame' aka 'page' of transcription
+      @transcription.text.each do |key, lines|
+        if /^frame/.match(key)
+          # iterate through each line of the frame
+          lines.each do |line|
+            return true if line['edited_consensus_text'].present?
+          end
+        end
+      end
+
+      false
     end
 
     # Private: retrieve and return transcription line metadata formatted as
     # array of csv lines
     def transcription_line_metadata
-      # TO DO - still to get:
-      #   * line edited
-      #   * orig transcriber username
-      #   * line editor username
-
       csv_lines = []
       csv_lines << [
         'consensus text',
@@ -261,15 +267,17 @@ module DataExports
               'clusters_x': line['clusters_x'],
               'clusters_y': line['clusters_y']
             }
+            line_edited = line['edited_consensus_text'].present?
+            consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
 
             csv_lines << [
-              line['consensus_text'],
+              consensus_text,
               line_number,
               line['line_slope'],
               line['consensus_score'],
-              'line edited (T/F)',
-              'original transcriber username',
-              'line editor username',
+              line_edited,
+              line['original_transcriber'],
+              line['line_editor'],
               line['low_consensus'],
               page,
               column,
