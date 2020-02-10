@@ -57,7 +57,7 @@ class CaesarImporter
   def transcription_create_attrs
     {
       id: subject_info[:id],
-      status: 0,
+      status: 'unseen',
       text: data,
       metadata: subject_info[:metadata],
       group_id: subject_info[:metadata][:group_id] || 'default',
