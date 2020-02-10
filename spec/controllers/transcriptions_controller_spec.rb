@@ -170,13 +170,13 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'contains an invalid attribute' do
         busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "garf": true } } }
         patch :update, params: busted_params
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'contains read-only data' do
         busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_id" } } }
         patch :update, params: busted_params
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:bad_request)
       end
     end
 

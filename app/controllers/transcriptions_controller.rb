@@ -17,7 +17,7 @@ class TranscriptionsController < ApplicationController
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
-    raise Pundit::NotAuthorizedError unless whitelisted_attributes?
+    raise ActionController::BadRequest unless whitelisted_attributes?
 
     if approve?
       authorize @transcription, :approve?
@@ -69,7 +69,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def whitelisted_attributes?
-    params[:data][:attributes] && params[:data][:attributes].keys.all? { |key| update_attr_whitelist.include? key }
+    update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
   end
 
   def approve?
