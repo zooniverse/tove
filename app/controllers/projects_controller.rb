@@ -13,7 +13,11 @@ class ProjectsController < ApplicationController
   def export
     @project = Project.find(params[:id])
     authorize @project
-    export_resource(@project)
+
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.zip_project_files @project
+
+    send_export_file zip_file
   end
 
   private

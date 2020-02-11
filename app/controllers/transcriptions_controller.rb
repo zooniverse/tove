@@ -34,7 +34,11 @@ class TranscriptionsController < ApplicationController
   def export
     @transcription = Transcription.find(params[:id])
     authorize @transcription
-    export_resource @transcription
+
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.zip_transcription_files @transcription
+
+    send_export_file zip_file
   end
 
   def export_group
@@ -45,7 +49,10 @@ class TranscriptionsController < ApplicationController
       raise Pundit::NotAuthorizedError, "User is not authorized to export group '#{params[:group_id]}'"
     end
 
-    export_resource @transcriptions
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.zip_group_files @transcriptions
+
+    send_export_file zip_file
   end
 
   private

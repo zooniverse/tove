@@ -13,7 +13,11 @@ class WorkflowsController < ApplicationController
   def export
     @workflow = Workflow.find(params[:id])
     authorize @workflow
-    export_resource(@workflow)
+
+    data_storage = DataExports::DataStorage.new
+    zip_file = data_storage.zip_workflow_files @workflow
+
+    send_export_file zip_file
   end
 
   private

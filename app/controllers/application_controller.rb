@@ -86,10 +86,7 @@ class ApplicationController < ActionController::Base
     { pagination: pagination } if pagination.present?
   end
 
-  def export_resource(resource)
-    data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.resource_files_zip(resource)
-
+  def send_export_file(zip_file)
     File.open(zip_file, 'r') do |f|
       send_data f.read, filename: 'export.zip', type: 'application/zip'
     end

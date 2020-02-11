@@ -6,31 +6,60 @@ module DataExports
   class NoStoredFilesFoundError < StandardError; end
 
   class DataStorage
-    # Public: downloads all transcription files for a given project,
-    # workflow, group or transcription
-    def resource_files_zip(resource)
-      # to do: include user id in top level directory name
+    # Public: downloads all transcription files for a given transcription
+    # returns path to zip file
+    def zip_transcription_files(transcription)
       directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
       FileUtils.mkdir_p(directory_path)
 
-      if resource.is_a?(Transcription)
-        if resource.files.attached?
-          transcription_folder = download_transcription_files(resource, directory_path)
-          return zip_files(directory_path, transcription_folder)
-        else
-          raise NoStoredFilesFoundError.new("No stored files found for transcription with id '#{resource.id}'")
-        end
-
-      # Transcription Group will come in as array of transcriptions
-      elsif resource.respond_to?('each')
-        zip_group(resource, directory_path)
-
-      elsif resource.is_a?(Workflow)
-        return zip_workflow(resource, directory_path)
-
-      elsif resource.is_a?(Project)
-        zip_project(resource, directory_path)
+      if transcription.files.attached?
+        transcription_folder = download_transcription_files(transcription, directory_path)
+        return zip_files(directory_path, transcription_folder)
+      else
+        raise NoStoredFilesFoundError.new("No stored files found for transcription with id '#{transcription.id}'")
       end
+    end
+
+    # Public : downloads all transcription group files for a given group
+    # returns path to zip file
+    def zip_group_files(group)
+      directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
+      FileUtils.mkdir_p(directory_path)
+
+      group_folder = File.join(directory_path, "group_#{group.first.group_id}")
+      FileUtils.mkdir_p(group_folder)
+
+      group.each do |t|
+        download_transcription_files(t, group_folder)
+      end
+
+      zip_files(directory_path, group_folder)
+    end
+
+    # Public : downloads all files for a given workflow
+    # returns path to zip file
+    def zip_workflow_files(workflow)
+      directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
+      FileUtils.mkdir_p(directory_path)
+
+      workflow_folder = download_workflow_files(workflow, directory_path)
+      zip_files(directory_path, workflow_folder)
+    end
+
+    # Public : downloads all files for a given project
+    # returns path to zip file
+    def zip_project_files(project)
+      directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
+      FileUtils.mkdir_p(directory_path)
+
+      project_folder = File.join(directory_path, "project_#{project.id}")
+      FileUtils.mkdir_p(project_folder)
+
+      project.workflows.each do |w|
+        download_workflow_files(w, project_folder)
+      end
+
+      zip_files(directory_path, project_folder)
     end
 
     private
@@ -53,22 +82,6 @@ module DataExports
       transcription_folder
     end
 
-    def zip_group(group, output_directory)
-      group_folder = File.join(output_directory, "group_#{group.first.group_id}")
-      FileUtils.mkdir_p(group_folder)
-
-      group.each do |t|
-        download_transcription_files(t, group_folder)
-      end
-
-      zip_files(output_directory, group_folder)
-    end
-
-    def zip_workflow(workflow, output_directory)
-      workflow_folder = download_workflow_files(workflow, output_directory)
-      zip_files(output_directory, workflow_folder)
-    end
-
     # download workflow's transcription files from storage to disk
     # @param directory_path [String]: path within which we will create the workflow file folder
     # returns location of generated workflow folder
@@ -89,17 +102,8 @@ module DataExports
       workflow_folder
     end
 
-    def zip_project(project, output_directory)
-      project_folder = File.join(output_directory, "project_#{project.id}")
-      FileUtils.mkdir_p(project_folder)
-
-      project.workflows.each do |w|
-        download_workflow_files(w, project_folder)
-      end
-
-      zip_files(output_directory, project_folder)
-    end
-
+    # @param output_directory [String]: directory into which generated zip file will be output
+    # @param input_directory [String]: directory to zip
     # returns location of zip file
     def zip_files(output_directory, input_directory)
       zip_file_path = File.join(output_directory, "export_#{SecureRandom.uuid}.zip")
