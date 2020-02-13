@@ -22,15 +22,18 @@ module DataExports
 
     # Public : downloads all transcription group files for a given group
     # returns path to zip file
-    def zip_group_files(group)
+    def zip_group_files(transcriptions)
       directory_path = File.expand_path("~/data_exports_temp/downloaded_files/user_id_#{SecureRandom.uuid}")
       FileUtils.mkdir_p(directory_path)
 
-      group_folder = File.join(directory_path, "group_#{group.first.group_id}")
+      group_folder = File.join(directory_path, "group_#{transcriptions.first.group_id}")
       FileUtils.mkdir_p(group_folder)
 
-      group.each do |t|
-        download_transcription_files(t, group_folder)
+      metadata_file_gen = AggregateMetadataFileGenerator.new(group_folder)
+      metadata_file_gen.generate_group_file(transcriptions)
+
+      transcriptions.each do |t|
+        download_transcription_files(t, group_folder) if t.files.attached?
       end
 
       zip_files(directory_path, group_folder)
@@ -43,6 +46,10 @@ module DataExports
       FileUtils.mkdir_p(directory_path)
 
       workflow_folder = download_workflow_files(workflow, directory_path)
+
+      metadata_file_gen = AggregateMetadataFileGenerator.new(workflow_folder)
+      metadata_file_gen.generate_workflow_file(workflow)
+
       zip_files(directory_path, workflow_folder)
     end
 
@@ -54,6 +61,9 @@ module DataExports
 
       project_folder = File.join(directory_path, "project_#{project.id}")
       FileUtils.mkdir_p(project_folder)
+
+      metadata_file_gen = AggregateMetadataFileGenerator.new(project_folder)
+      metadata_file_gen.generate_project_file(project)
 
       project.workflows.each do |w|
         download_workflow_files(w, project_folder)
@@ -113,6 +123,71 @@ module DataExports
       FileUtils.rm_rf(input_directory)
 
       zip_file_path
+    end
+  end
+
+  # Helper class for aggregating metadata from individual transcriptions
+  # within a group/workflow/project into a single csv file
+  class AggregateMetadataFileGenerator
+    def initialize(output_folder)
+      @metadata_rows = []
+      @metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
+    end
+
+    # Public: add metadata csv file to group folder
+    def generate_group_file(transcriptions)
+      compile_transcription_metadata(transcriptions)
+      generate_csv
+    end
+
+    # Public: add metadata csv file to workflow folder
+    def generate_workflow_file(workflow)
+      compile_workflow_metadata(workflow)
+      generate_csv
+    end
+
+    def generate_project_file(project)
+      project.workflows.each do |w|
+        compile_workflow_metadata(workflow)
+      end
+
+      generate_csv
+    end
+
+    private
+
+    # Private: for each transcription, extracts transcription metadata from metadata
+    # storage file, adds it to the metadata_rows array, which will be passed to a
+    # csv file generator.
+    # @param metadata_rows [Array]: collection of metadata rows for the current
+    # group/workflow/project being processed
+    # returns updated metadata_rows array
+    def compile_transcription_metadata(transcriptions)
+      transcriptions.each do |t|
+        t.files.each do |storage_file|
+          if /^transcription_metadata_.*\.csv$/.match storage_file.filename.to_s
+            rows = CSV.parse(storage_file.download)
+
+            # add header if it's the first transcription being added
+            @metadata_rows << rows[0] if @metadata_rows.empty?
+            # add content regardless
+            @metadata_rows << rows[1]
+          end
+        end
+      end
+    end
+
+    def compile_workflow_metadata(workflow)
+      workflow.transcription_group_data.each_key do |group_key|
+        transcriptions = Transcription.where(group_id: group_key)
+        compile_transcription_metadata(transcriptions)
+      end
+    end
+
+    def generate_csv
+      CSV.open(@metadata_file, 'wb') do |csv|
+        @metadata_rows.each { |row| csv << row }
+      end
     end
   end
 
