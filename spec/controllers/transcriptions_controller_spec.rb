@@ -269,7 +269,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let(:export_group_params) { { group_id: transcription.group_id } }
 
     before do
-      transcription.files.attach(create_file_blob)
+      transcription.files.attach(blank_file_blob)
     end
 
     context 'exporting a single transcription' do

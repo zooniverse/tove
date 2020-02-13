@@ -2,6 +2,11 @@ FactoryBot.define do
   factory :transcription do
     workflow
     group_id { "GROUP1A" }
+    text { { "checkout_this": "metadata" } }
+    status { 1 }
+  end
+
+  trait :full_json_blob do
     text { {
       "frame0": [{
         "user_ids": [11],
@@ -343,6 +348,5 @@ FactoryBot.define do
       "aggregation_version": "3.3.0",
       "low_consensus_lines": 15
     } }
-    status { 1 }
   end
 end

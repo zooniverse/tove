@@ -20,7 +20,7 @@ RSpec.describe DataExports::DataStorage do
 
     context 'when stored files are found' do
       before(:each) do
-        transcription.files.attach(create_file_blob)
+        transcription.files.attach(blank_file_blob)
       end
 
       subject { data_storage.zip_transcription_files(transcription) }
@@ -30,7 +30,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_group_files' do
     before(:each) do
-      transcription.files.attach(create_file_blob)
+      transcription.files.attach(blank_file_blob)
     end
 
     subject { data_storage.zip_group_files(transcription_group) }
@@ -39,7 +39,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_workflow_files' do
     before(:each) do
-      transcription.files.attach(create_file_blob)
+      transcription.files.attach(blank_file_blob)
     end
 
     subject { data_storage.zip_workflow_files(workflow) }
@@ -48,7 +48,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_project_files' do
     before(:each) do
-      transcription.files.attach(create_file_blob)
+      transcription.files.attach(blank_file_blob)
     end
 
     subject { data_storage.zip_project_files(project) }
