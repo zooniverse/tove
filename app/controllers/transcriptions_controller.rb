@@ -17,6 +17,7 @@ class TranscriptionsController < ApplicationController
   def update
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
+    raise ActionController::BadRequest unless whitelisted_attributes?
 
     if approve?
       authorize @transcription, :approve?
@@ -94,6 +95,10 @@ class TranscriptionsController < ApplicationController
     params[:data][:type] != "transcriptions"
   end
 
+  def whitelisted_attributes?
+    update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
+  end
+
   def approve?
     update_attrs["status"] == "approved"
   end
@@ -101,7 +106,6 @@ class TranscriptionsController < ApplicationController
   def allowed_filters
     [:id, :workflow_id, :group_id, :flagged, :status]
   end
-
 
   def status_has_changed(attrs)
     attrs.each do |key, value|
@@ -128,5 +132,9 @@ class TranscriptionsController < ApplicationController
     else
       @transcription.files.each { |f| f.purge }
     end
+  end
+
+  def update_attr_whitelist
+    ["flagged", "text", "status"]
   end
 end

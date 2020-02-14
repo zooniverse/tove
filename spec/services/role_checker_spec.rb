@@ -31,7 +31,7 @@ RSpec.describe ProjectRoleChecker, type: :service do
 
     describe '#can_view?' do
       it 'returns true when the user has permission' do
-        expect(checker.can_edit?).to be true
+        expect(checker.can_view?).to be true
       end
     end
   end
