@@ -4,7 +4,7 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
   let(:transcription) { create(:transcription, :full_json_blob) }
   let(:file_generator) { described_class.new transcription }
 
-  describe '#generate_transcription_files', :focus => true do
+  describe '#generate_transcription_files' do
     let(:files) { file_generator.generate_transcription_files }
 
     # close out tempfiles that have been opened
