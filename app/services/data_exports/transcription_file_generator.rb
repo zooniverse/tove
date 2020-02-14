@@ -9,9 +9,9 @@ module DataExports
     def generate_transcription_files
       files = []
       files.append(write_raw_data_to_file,
-                      write_consensus_text_to_file,
-                      write_metadata_to_file,
-                      write_line_metadata_to_file)
+                   write_consensus_text_to_file,
+                   write_metadata_to_file,
+                   write_line_metadata_to_file)
     end
 
     private
@@ -46,7 +46,7 @@ module DataExports
             line_text = line['edited_consensus_text'].present? ?
                         line['edited_consensus_text'] :
                         line['consensus_text']
-            full_consensus_text.concat line_text
+            full_consensus_text.concat line_text + ' '
           end
         end
       end
@@ -173,11 +173,12 @@ module DataExports
               num_transcribers,
               line_coordinates
             ]
-
-            csv_lines
           end
+
         end
       end
+
+      csv_lines
     end
   end
 end
