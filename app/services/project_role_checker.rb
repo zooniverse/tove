@@ -3,7 +3,7 @@ class ProjectRoleChecker
 
   EDITOR_ROLES = %w(owner collaborator expert scientist moderator)
   APPROVER_ROLES = %w(owner collaborator)
-  VIEWER_ROLES = %w(owner collaborator expert scientist tester)
+  VIEWER_ROLES = %w(owner collaborator expert scientist moderator tester)
 
   def initialize(user, records)
     @user = user
