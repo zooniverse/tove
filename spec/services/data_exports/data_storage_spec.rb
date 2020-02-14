@@ -7,12 +7,6 @@ RSpec.describe DataExports::DataStorage do
 
   let(:data_storage) { described_class.new }
 
-  shared_examples "generated zip file" do
-    it { is_expected.to be_a(String) }
-    it { is_expected.to match(/(\/data_exports_temp\/downloaded_files\/)/) }
-    it { is_expected.to match(/\.zip$/) }
-  end
-
   describe '#zip_transcription_files' do
     it 'throws error when no stored files are found' do
       expect { data_storage.zip_transcription_files(transcription) }.to raise_error(DataExports::NoStoredFilesFoundError)
@@ -23,8 +17,13 @@ RSpec.describe DataExports::DataStorage do
         transcription.files.attach(blank_file_blob)
       end
 
-      subject { data_storage.zip_transcription_files(transcription) }
-      it_behaves_like "generated zip file"
+      it "produces a zip file named export.zip" do
+        data_storage.zip_transcription_files(transcription) { |zip_file|
+          expect(zip_file).to be_a(String)
+          expect(File.basename(zip_file)).to eq('export.zip')
+          expect(File).to exist(zip_file)
+        }
+      end
     end
   end
 
@@ -33,8 +32,13 @@ RSpec.describe DataExports::DataStorage do
       transcription.files.attach(blank_file_blob)
     end
 
-    subject { data_storage.zip_group_files(transcription_group) }
-    it_behaves_like "generated zip file"
+    it "produces a zip file named export.zip" do
+      data_storage.zip_group_files(transcription_group) { |zip_file|
+        expect(zip_file).to be_a(String)
+        expect(File.basename(zip_file)).to eq('export.zip')
+        expect(File).to exist(zip_file)
+      }
+    end
   end
 
   describe '#zip_workflow_files' do
@@ -42,8 +46,13 @@ RSpec.describe DataExports::DataStorage do
       transcription.files.attach(blank_file_blob)
     end
 
-    subject { data_storage.zip_workflow_files(workflow) }
-    it_behaves_like "generated zip file"
+    it "produces a zip file named export.zip" do
+      data_storage.zip_workflow_files(workflow) { |zip_file|
+        expect(zip_file).to be_a(String)
+        expect(File.basename(zip_file)).to eq('export.zip')
+        expect(File).to exist(zip_file)
+      }
+    end
   end
 
   describe '#zip_project_files' do
@@ -51,7 +60,12 @@ RSpec.describe DataExports::DataStorage do
       transcription.files.attach(blank_file_blob)
     end
 
-    subject { data_storage.zip_project_files(project) }
-    it_behaves_like "generated zip file"
+    it "produces a zip file named export.zip" do
+      data_storage.zip_project_files(project) { |zip_file|
+        expect(zip_file).to be_a(String)
+        expect(File.basename(zip_file)).to eq('export.zip')
+        expect(File).to exist(zip_file)
+      }
+    end
   end
 end

@@ -90,6 +90,5 @@ class ApplicationController < ActionController::Base
     File.open(zip_file, 'r') do |f|
       send_data f.read, filename: 'export.zip', type: 'application/zip'
     end
-    File.delete(zip_file)
   end
 end

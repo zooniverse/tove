@@ -15,9 +15,9 @@ class WorkflowsController < ApplicationController
     authorize @workflow
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_workflow_files @workflow
-
-    send_export_file zip_file
+    zip_file = data_storage.zip_workflow_files(@workflow) { |zip_file|
+      send_export_file zip_file
+    }
   end
 
   private

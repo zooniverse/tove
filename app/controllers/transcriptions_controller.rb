@@ -36,9 +36,9 @@ class TranscriptionsController < ApplicationController
     authorize @transcription
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_transcription_files @transcription
-
-    send_export_file zip_file
+    data_storage.zip_transcription_files(@transcription) { |zip_file|
+      send_export_file zip_file
+    }
   end
 
   def export_group
@@ -50,9 +50,9 @@ class TranscriptionsController < ApplicationController
     end
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_group_files @transcriptions
-
-    send_export_file zip_file
+    zip_file = data_storage.zip_group_files(@transcriptions) { |zip_file|
+      send_export_file zip_file
+    }
   end
 
   private
