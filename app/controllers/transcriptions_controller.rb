@@ -108,13 +108,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def status_has_changed?
-    update_attrs.each do |key, value|
-      if key == 'status' && @transcription.status != value
-        return true
-      end
-    end
-
-    false
+    update_attrs.dig('status') != @transcription.status
   end
 
   def update_transcription_exports
