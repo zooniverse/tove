@@ -18,11 +18,11 @@ RSpec.describe DataExports::DataStorage do
       end
 
       it "produces a zip file named export.zip" do
-        data_storage.zip_transcription_files(transcription) { |zip_file|
+        data_storage.zip_transcription_files(transcription) do |zip_file|
           expect(zip_file).to be_a(String)
           expect(File.basename(zip_file)).to eq('export.zip')
           expect(File).to exist(zip_file)
-        }
+        end
       end
     end
   end
@@ -33,11 +33,11 @@ RSpec.describe DataExports::DataStorage do
     end
 
     it "produces a zip file named export.zip" do
-      data_storage.zip_group_files(transcription_group) { |zip_file|
+      data_storage.zip_group_files(transcription_group) do |zip_file|
         expect(zip_file).to be_a(String)
         expect(File.basename(zip_file)).to eq('export.zip')
         expect(File).to exist(zip_file)
-      }
+      end
     end
   end
 
@@ -47,11 +47,11 @@ RSpec.describe DataExports::DataStorage do
     end
 
     it "produces a zip file named export.zip" do
-      data_storage.zip_workflow_files(workflow) { |zip_file|
+      data_storage.zip_workflow_files(workflow) do |zip_file|
         expect(zip_file).to be_a(String)
         expect(File.basename(zip_file)).to eq('export.zip')
         expect(File).to exist(zip_file)
-      }
+      end
     end
   end
 
@@ -61,11 +61,11 @@ RSpec.describe DataExports::DataStorage do
     end
 
     it "produces a zip file named export.zip" do
-      data_storage.zip_project_files(project) { |zip_file|
+      data_storage.zip_project_files(project) do |zip_file|
         expect(zip_file).to be_a(String)
         expect(File.basename(zip_file)).to eq('export.zip')
         expect(File).to exist(zip_file)
-      }
+      end
     end
   end
 end

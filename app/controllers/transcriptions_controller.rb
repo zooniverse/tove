@@ -51,9 +51,9 @@ class TranscriptionsController < ApplicationController
     end
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_group_files(@transcriptions) { |zip_file|
+    zip_file = data_storage.zip_group_files(@transcriptions) do |zip_file|
       send_export_file zip_file
-    }
+    end
   end
 
   private
