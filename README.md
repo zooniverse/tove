@@ -1,6 +1,26 @@
 # TOVE: Transcription Object Viewer/Editor
 
-*Readme and docs coming soon*	
+Tove is the API for the [ALICE Text Editor](https://github.com/zooniverse/text-editor) tool. The text editor tool takes in reductions on transcription data from Caesar, and allows users to review, update and approve transcriptions.
+
+## Setup
+
+### Run app locally
+
+1. Install dependencies:
+- Rails 6.0.1
+- Ruby 2.6.5
+- PostgreSQL 9.5
+
+2. Clone the repo `git clone https://github.com/zooniverse/tove.git` 
+
+3. `cd` into the cloned folder   
+
+4. Run `bundle install`  
+
+5. Run `rails s` to start up the app locally
+
+
+### Run app within a docker container
 
 Prepare the Docker containers:
 
