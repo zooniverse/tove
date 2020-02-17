@@ -25,9 +25,9 @@ class TranscriptionsController < ApplicationController
       authorize @transcription
     end
 
-    status_has_changed = status_has_changed(update_attrs)
+    status_has_changed = status_has_changed?
     @transcription.update!(update_attrs)
-    update_transcription_exports(update_attrs) if status_has_changed
+    update_transcription_exports if status_has_changed
 
     render jsonapi: @transcription
   end
@@ -37,9 +37,9 @@ class TranscriptionsController < ApplicationController
     authorize @transcription
 
     data_storage = DataExports::DataStorage.new
-    data_storage.zip_transcription_files(@transcription) { |zip_file|
+    data_storage.zip_transcription_files(@transcription) do |zip_file|
       send_export_file zip_file
-    }
+    end
   end
 
   def export_group
@@ -59,7 +59,7 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
-    jsonapi_deserialize(params)
+    @update_attrs ||= jsonapi_deserialize(params)
   end
 
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
@@ -107,8 +107,8 @@ class TranscriptionsController < ApplicationController
     [:id, :workflow_id, :group_id, :flagged, :status]
   end
 
-  def status_has_changed(attrs)
-    attrs.each do |key, value|
+  def status_has_changed?
+    update_attrs.each do |key, value|
       if key == 'status' && @transcription.status != value
         return true
       end
@@ -117,8 +117,8 @@ class TranscriptionsController < ApplicationController
     false
   end
 
-  def update_transcription_exports(attrs)
-    if attrs['status'] == 'approved'
+  def update_transcription_exports
+    if update_attrs['status'] == 'approved'
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |f|
         # get filename without the temfile's randomly generated unique string
