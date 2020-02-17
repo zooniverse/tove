@@ -78,10 +78,12 @@ module DataExports
       FileUtils.mkdir_p(transcription_folder)
 
       transcription.files.each do |storage_file|
-        download_path = File.join(transcription_folder, storage_file.filename.to_s)
-        file = File.open(download_path,  'w')
-        file.write(storage_file.download)
-        file.close()
+        unless /^transcription_metadata_.*\.csv$/.match(storage_file.filename.to_s)
+          download_path = File.join(transcription_folder, storage_file.filename.to_s)
+          file = File.open(download_path,  'w')
+          file.write(storage_file.download)
+          file.close
+        end
       end
 
       transcription_folder
