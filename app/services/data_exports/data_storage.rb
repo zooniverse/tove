@@ -8,14 +8,14 @@ module DataExports
     # Public: downloads all transcription files for a given transcription
     # returns path to zip file
     def zip_transcription_files(transcription)
-      Dir.mktmpdir { |directory_path|
+      Dir.mktmpdir do |directory_path|
         if transcription.files.attached?
           transcription_folder = download_transcription_files(transcription, directory_path)
           yield zip_files(directory_path, transcription_folder)
         else
-          raise NoStoredFilesFoundError.new("No stored files found for transcription with id '#{transcription.id}'")
+          raise NoStoredFilesFoundError.new("No stored files found for transcription id '#{transcription.id}'")
         end
-      }
+      end
     end
 
     # Public : downloads all transcription group files for a given group

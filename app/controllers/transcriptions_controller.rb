@@ -1,6 +1,8 @@
 class TranscriptionsController < ApplicationController
   include JSONAPI::Deserialization
 
+  class NoExportableTranscriptionsError < StandardError; end
+
   before_action :status_filter_to_int, only: :index
 
   def index
@@ -47,7 +49,7 @@ class TranscriptionsController < ApplicationController
     @transcriptions = editor_scope.where(group_id: params[:group_id])
 
     if @transcriptions.empty?
-      raise Pundit::NotAuthorizedError, "User is not authorized to export group '#{params[:group_id]}'"
+      raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
     end
 
     data_storage = DataExports::DataStorage.new

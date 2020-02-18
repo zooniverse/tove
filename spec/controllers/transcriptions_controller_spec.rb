@@ -312,9 +312,9 @@ RSpec.describe TranscriptionsController, type: :controller do
           expect(response).to have_http_status(:forbidden)
         end
 
-        it 'returns a 403 Forbidden when exporting a group' do
+        it 'returns a 500 error when exporting a group' do
           get :export_group, params: export_group_params
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:error)
         end
       end
 
