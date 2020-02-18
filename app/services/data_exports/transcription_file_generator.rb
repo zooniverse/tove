@@ -43,9 +43,12 @@ module DataExports
         # if we find a frame, iterate through the lines of the frame
         if /^frame/.match(key)
           value.each do |line|
-            line_text = line['edited_consensus_text'].present? ?
-                        line['edited_consensus_text'] :
-                        line['consensus_text']
+            if line['edited_consensus_text'].present?
+              line_text = line['edited_consensus_text']
+            else
+              line_text = line['consensus_text']
+            end
+
             full_consensus_text.concat line_text + '\n'
           end
           # new line after every frame
