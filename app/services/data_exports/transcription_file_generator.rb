@@ -46,8 +46,10 @@ module DataExports
             line_text = line['edited_consensus_text'].present? ?
                         line['edited_consensus_text'] :
                         line['consensus_text']
-            full_consensus_text.concat line_text + ' '
+            full_consensus_text.concat line_text + '\n'
           end
+          # new line after every frame
+          full_consensus_text.concat '\n'
         end
       end
 
