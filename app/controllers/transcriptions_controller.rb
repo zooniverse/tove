@@ -114,7 +114,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_transcription_exports
-    if update_attrs['status'] == 'approved'
+    if approve?
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |f|
         # get filename without the temfile's randomly generated unique string
