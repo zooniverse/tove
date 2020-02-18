@@ -102,7 +102,7 @@ RSpec.describe ProjectsController, type: :controller do
   describe '#export' do
     let (:project) { create(:project, slug: "lizard_king/underground_fortress") }
     let (:workflow) { create(:workflow, project: project)}
-    let(:transcription) { create(:transcription, :full_json_blob, workflow: workflow) }
+    let(:transcription) { create(:transcription, :unedited_json_blob, workflow: workflow) }
     let(:export_params) { { id: project.id } }
 
     before do

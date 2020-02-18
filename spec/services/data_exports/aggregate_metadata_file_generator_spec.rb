@@ -3,8 +3,8 @@ require 'csv'
 RSpec.describe DataExports::AggregateMetadataFileGenerator do
   let (:project) { create(:project, slug: "lizard_king/underground_fortress") }
   let(:workflow) { create(:workflow, project: project)}
-  let(:transcription) { create(:transcription, :full_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
-  let(:another_transcription) { create(:transcription, :full_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
+  let(:transcription) { create(:transcription, :unedited_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
+  let(:another_transcription) { create(:transcription, :unedited_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
   let(:transcription_group) { [transcription, another_transcription] }
 
   let(:parent_dir) { Dir.mktmpdir }

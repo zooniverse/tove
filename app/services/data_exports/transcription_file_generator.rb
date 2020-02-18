@@ -117,16 +117,9 @@ module DataExports
 
     def is_text_edited?
       # iterate through each 'frame' aka 'page' of transcription
-      @transcription.text.each do |key, lines|
-        if /^frame/.match(key)
-          # iterate through each line of the frame
-          lines.each do |line|
-            return true if line['edited_consensus_text'].present?
-          end
-        end
+      @transcription.text.any? do |key, lines|
+        /^frame/.match(key) && lines.any? { |line| line['edited_consensus_text'].present? }
       end
-
-      false
     end
 
     # Private: retrieve and return transcription line metadata formatted as
