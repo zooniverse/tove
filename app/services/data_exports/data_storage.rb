@@ -21,7 +21,7 @@ module DataExports
     # Public : downloads all transcription group files for a given group
     # returns path to zip file
     def zip_group_files(transcriptions)
-      Dir.mktmpdir { |directory_path|
+      Dir.mktmpdir do |directory_path|
         group_folder = File.join(directory_path, "group_#{transcriptions.first.group_id}")
         FileUtils.mkdir_p(group_folder)
 
@@ -33,26 +33,26 @@ module DataExports
         end
 
         yield zip_files(directory_path, group_folder)
-      }
+      end
     end
 
     # Public : downloads all files for a given workflow
     # returns path to zip file
     def zip_workflow_files(workflow)
-      Dir.mktmpdir { |directory_path|
+      Dir.mktmpdir do |directory_path|
         workflow_folder = download_workflow_files(workflow, directory_path)
 
         metadata_file_gen = AggregateMetadataFileGenerator.new(workflow_folder)
         metadata_file_gen.generate_workflow_file(workflow)
 
         yield zip_files(directory_path, workflow_folder)
-      }
+      end
     end
 
     # Public : downloads all files for a given project
     # returns path to zip file
     def zip_project_files(project)
-      Dir.mktmpdir { |directory_path|
+      Dir.mktmpdir do |directory_path|
         project_folder = File.join(directory_path, "project_#{project.id}")
         FileUtils.mkdir_p(project_folder)
 
@@ -64,7 +64,7 @@ module DataExports
         end
 
         yield zip_files(directory_path, project_folder)
-      }
+      end
     end
 
     private
