@@ -38,7 +38,7 @@ group :test do
   gem 'pundit-matchers'
 end
 
-group :test, :devlopment, :staging do
+group :test, :development, :staging do
   gem 'pry-byebug'
   gem 'pry-rails'
 end
