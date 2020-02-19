@@ -25,6 +25,7 @@ class TranscriptionsController < ApplicationController
       authorize @transcription
     end
 
+    update_attrs['updated_by'] = current_user.login
     @transcription.update!(update_attrs)
     render jsonapi: @transcription
   end
@@ -32,7 +33,7 @@ class TranscriptionsController < ApplicationController
   private
 
   def update_attrs
-    jsonapi_deserialize(params)
+    @update_attrs ||= jsonapi_deserialize(params)
   end
 
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),

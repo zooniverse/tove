@@ -108,6 +108,17 @@ RSpec.describe TranscriptionsController, type: :controller do
   describe '#show' do
     let!(:transcription) { create(:transcription) }
 
+    it 'serializes the expected attributes' do
+      get :show, params: { id: transcription.id }
+      expect(json_data['attributes']).to have_key('workflow_id')
+      expect(json_data['attributes']).to have_key('group_id')
+      expect(json_data['attributes']).to have_key('text')
+      expect(json_data['attributes']).to have_key('status')
+      expect(json_data['attributes']).to have_key('flagged')
+      expect(json_data['attributes']).to have_key('updated_at')
+      expect(json_data['attributes']).to have_key('updated_by')
+    end
+
     describe 'roles' do
       before do
         allow(controller).to receive(:current_user).and_return user
@@ -146,6 +157,11 @@ RSpec.describe TranscriptionsController, type: :controller do
     it 'updates the resource' do
       patch :update, params: update_params
       expect(transcription.reload.flagged).to be_truthy
+    end
+
+    it 'saves updated_by user login to record' do
+      patch :update, params: update_params
+      expect(Transcription.find(transcription.id).updated_by).to eq(admin_user.login)
     end
 
     context 'validates the input' do
