@@ -15,7 +15,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_project_files(@project) do |zip_file|
+    data_storage.zip_project_files(@project) do |zip_file|
       send_export_file zip_file
     end
   end

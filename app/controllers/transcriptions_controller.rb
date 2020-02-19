@@ -27,9 +27,8 @@ class TranscriptionsController < ApplicationController
       authorize @transcription
     end
 
-    status_has_changed = status_has_changed?
     @transcription.update!(update_attrs)
-    update_transcription_exports if status_has_changed
+    update_transcription_exports if @transcription.status_previously_changed?
 
     render jsonapi: @transcription
   end
@@ -53,7 +52,7 @@ class TranscriptionsController < ApplicationController
     end
 
     data_storage = DataExports::DataStorage.new
-    zip_file = data_storage.zip_group_files(@transcriptions) do |zip_file|
+    data_storage.zip_group_files(@transcriptions) do |zip_file|
       send_export_file zip_file
     end
   end
@@ -107,10 +106,6 @@ class TranscriptionsController < ApplicationController
 
   def allowed_filters
     [:id, :workflow_id, :group_id, :flagged, :status]
-  end
-
-  def status_has_changed?
-    update_attrs.dig('status') != @transcription.status
   end
 
   def update_transcription_exports
