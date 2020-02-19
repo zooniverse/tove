@@ -17,12 +17,7 @@ Tove is the API for the [ALICE Text Editor](https://github.com/zooniverse/text-e
 
 4. Run `bundle install`  
 
-5. Run the following commands to set up the database and generate test data:
-```
-rake db:setup
-rake db:migrate
-rake db:seed
-```
+5. Run `rake db:setup` to set up the database and generate test data
 
 6. Run `rails s` to start the app locally
 
