@@ -21,8 +21,8 @@ class TranscriptionsController < ApplicationController
     raise ActionController::BadRequest if type_invalid?
     raise ActionController::BadRequest unless whitelisted_attributes?
 
-    if approve?
-      authorize @transcription, :approve?
+    if approving?
+      authorize @transcription, :approving?
     else
       authorize @transcription
     end
@@ -100,7 +100,7 @@ class TranscriptionsController < ApplicationController
     update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
   end
 
-  def approve?
+  def approving?
     update_attrs["status"] == "approved"
   end
 
@@ -109,7 +109,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_transcription_exports
-    if approve?
+    if approving?
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
       file_generator.generate_transcription_files.each do |temp_file|
         # get filename without the temfile's randomly generated unique string
