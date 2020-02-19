@@ -7,11 +7,12 @@ module DataExports
     end
 
     def generate_transcription_files
-      files = []
-      files.append(write_raw_data_to_file,
-                   write_consensus_text_to_file,
-                   write_metadata_to_file,
-                   write_line_metadata_to_file)
+      [
+        write_raw_data_to_file,
+        write_consensus_text_to_file,
+        write_metadata_to_file,
+        write_line_metadata_to_file
+      ]
     end
 
     private

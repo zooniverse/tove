@@ -27,14 +27,14 @@ class ZipFileGenerator
       full_path = File.join(@input_dir, relative_path)
 
       if File.directory? full_path
-        recursively_deflate_directory(full_path, zipfile, relative_path)
+        recursively_zip_directory(full_path, zipfile, relative_path)
       else
         put_into_archive(full_path, zipfile, relative_path)
       end
     end
   end
 
-  def recursively_deflate_directory(full_path, zipfile, relative_path)
+  def recursively_zip_directory(full_path, zipfile, relative_path)
     zipfile.mkdir relative_path
     subdir = Dir.entries(full_path) - %w[. ..]
     write_entries subdir, relative_path, zipfile
