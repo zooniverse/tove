@@ -111,17 +111,17 @@ class TranscriptionsController < ApplicationController
   def update_transcription_exports
     if approve?
       file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
-      file_generator.generate_transcription_files.each do |f|
+      file_generator.generate_transcription_files.each do |temp_file|
         # get filename without the temfile's randomly generated unique string
-        basename = File.basename(f)
+        basename = File.basename(temp_file)
         filename = basename.split('-').first + File.extname(basename)
-        @transcription.files.attach(io: File.open(f), filename: filename)
+        @transcription.files.attach(io: File.open(temp_file), filename: filename)
 
-        f.close
-        f.unlink
+        temp_file.close
+        temp_file.unlink
       end
     else
-      @transcription.files.each { |f| f.purge }
+      @transcription.files.each { |file| file.purge }
     end
   end
 
