@@ -22,13 +22,20 @@ class TranscriptionsController < ApplicationController
     raise ActionController::BadRequest unless whitelisted_attributes?
 
     if approving?
-      authorize @transcription, :approving?
+      authorize @transcription, :approve?
     else
       authorize @transcription
     end
 
     @transcription.update!(update_attrs)
-    update_transcription_exports if @transcription.status_previously_changed?
+
+    if @transcription.status_previously_changed?
+      if approving?
+        upload_files_to_storage
+      else
+        remove_files_from_storage
+      end
+    end
 
     render jsonapi: @transcription
   end
@@ -108,21 +115,21 @@ class TranscriptionsController < ApplicationController
     [:id, :workflow_id, :group_id, :flagged, :status]
   end
 
-  def update_transcription_exports
-    if approving?
-      file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
-      file_generator.generate_transcription_files.each do |temp_file|
-        # get filename without the temfile's randomly generated unique string
-        basename = File.basename(temp_file)
-        filename = basename.split('-').first + File.extname(basename)
-        @transcription.files.attach(io: File.open(temp_file), filename: filename)
+  def upload_files_to_storage
+    file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
+    file_generator.generate_transcription_files.each do |temp_file|
+      # get filename without the temfile's randomly generated unique string
+      basename = File.basename(temp_file)
+      filename = basename.split('-').first + File.extname(basename)
+      @transcription.files.attach(io: File.open(temp_file), filename: filename)
 
-        temp_file.close
-        temp_file.unlink
-      end
-    else
-      @transcription.files.each { |file| file.purge }
+      temp_file.close
+      temp_file.unlink
     end
+  end
+
+  def remove_files_from_storage
+    @transcription.files.each { |file| file.purge }
   end
 
   def update_attr_whitelist
