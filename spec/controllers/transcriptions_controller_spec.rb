@@ -148,6 +148,11 @@ RSpec.describe TranscriptionsController, type: :controller do
       expect(transcription.reload.flagged).to be_truthy
     end
 
+    it 'saves updated_by user login to record' do
+      patch :update, params: update_params
+      expect(Transcription.find(transcription.id).updated_by).to eq(admin_user.login)
+    end
+
     context 'validates the input' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
