@@ -9,10 +9,10 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
 
       # close out tempfiles that have been opened
       after(:each) do
-        files.each { |f|
-          f.close
-          f.unlink
-        }
+        files.each do |file|
+          file.close
+          file.unlink
+        end
       end
 
       it 'generates a file containing raw data' do
@@ -26,10 +26,10 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
       end
 
       it 'generates a file containing consensus text' do
-        consensus_text_file = files.detect { |f|
+        consensus_text_file = files.detect do |f|
           basename = File.basename(f)
           /^consensus_text_.*\.txt$/.match(basename)
-        }
+        end
 
         expect(File).to exist(consensus_text_file.path)
 
@@ -39,19 +39,19 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
       end
 
       it 'generates a file containing transcription metadata with 2 rows' do
-        metadata_file = files.detect { |f|
+        metadata_file = files.detect do |f|
           basename = File.basename(f)
           /^transcription_metadata_.*\.csv$/.match(basename)
-        }
+        end
 
         expect(File).to exist(metadata_file)
       end
 
       it 'generates transcription metadata file with expected header and number of rows' do
-        metadata_file = files.detect { |f|
+        metadata_file = files.detect do |f|
           basename = File.basename(f)
           /^transcription_metadata_.*\.csv$/.match(basename)
-        }
+        end
 
         rows = CSV.parse(metadata_file.read)
         expect(rows[0]).to eq([
@@ -72,19 +72,19 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
       end
 
       it 'generates file containing line metadata' do
-        line_metadata_file = files.detect { |f|
+        line_metadata_file = files.detect do |f|
           basename = File.basename(f)
           /^transcription_line_metadata_.*\.csv$/.match(basename)
-        }
+        end
 
         expect(File).to exist(line_metadata_file)
       end
 
       it 'generates line metadata file with correct header' do
-        line_metadata_file = files.detect { |f|
+        line_metadata_file = files.detect do |f|
           basename = File.basename(f)
           /^transcription_line_metadata_.*\.csv$/.match(basename)
-        }
+        end
 
         rows = CSV.parse(line_metadata_file.read)
         expect(rows[0]).to eq([
@@ -109,11 +109,29 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
     describe '#generate_transcription_files' do
       let(:transcription) { create(:transcription, :edited_json_blob) }
       let(:file_generator) { described_class.new transcription }
+      let(:files) { file_generator.generate_transcription_files }
 
       it 'determines that lines were edited' do
-        expect(file_generator.instance_eval{ is_text_edited? }).to be_truthy
+        expect(file_generator.instance_eval { is_text_edited? }).to be_truthy
+      end
+
+      it 'generates a file containing consensus text' do
+        consensus_text_file = files.detect do |file|
+          basename = File.basename(file)
+          /^consensus_text_.*\.txt$/.match(basename)
+        end
+
+        expect(File).to exist(consensus_text_file.path)
+
+        # confirm that first line of edited consensus text is present in file
+        first_consensus_line = transcription.text['frame0'][0]['edited_consensus_text']
+        expect(consensus_text_file.read).to include(first_consensus_line)
+
+        files.each do |file|
+          file.close
+          file.unlink
+        end
       end
     end
   end
-
 end
