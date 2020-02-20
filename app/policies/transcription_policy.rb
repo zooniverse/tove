@@ -44,3 +44,21 @@ class TranscriptionPolicy < ApplicationPolicy
     end
   end
 end
+
+class Export
+  class TranscriptionPolicy < ApplicationPolicy
+    class Scope < Scope
+      def resolve
+        editor_policy_scope
+      end
+
+      def editor_policy_scope
+        if user.admin?
+          scope.all
+        elsif user
+          scope.joins(:workflow).where(workflows: { project_id: role_checker.editor_project_ids } )
+        end
+      end
+    end
+  end
+end

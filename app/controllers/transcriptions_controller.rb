@@ -51,8 +51,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def export_group
-    editor_scope = TranscriptionPolicy::Scope.new(current_user, Transcription).editor_policy_scope
-    @transcriptions = editor_scope.where(group_id: params[:group_id])
+    @transcriptions = policy_scope([:export, Transcription]).where(group_id: params[:group_id])
 
     if @transcriptions.empty?
       raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
