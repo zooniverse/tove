@@ -27,6 +27,7 @@ class TranscriptionsController < ApplicationController
       authorize @transcription
     end
 
+    update_attrs['updated_by'] = current_user.login
     @transcription.update!(update_attrs)
 
     if @transcription.status_previously_changed?
