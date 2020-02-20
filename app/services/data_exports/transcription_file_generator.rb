@@ -39,22 +39,23 @@ module DataExports
 
     # Private: retrieves and returns consensus text
     def consensus_text
-      full_consensus_text = ""
-      @transcription.text.each do |key, value|
-        # if we find a frame, iterate through the lines of the frame
-        if /^frame/.match(key)
-          value.each do |line|
-            if line['edited_consensus_text'].present?
-              line_text = line['edited_consensus_text']
-            else
-              line_text = line['consensus_text']
-            end
+      full_consensus_text = ''
+      frame_regex = /^frame/
 
-            full_consensus_text.concat line_text + '\n'
-          end
-          # new line after every frame
-          full_consensus_text.concat '\n'
+      # if we find a frame, iterate through the lines of the frame
+      @transcription.text.filter { |key, _value| frame_regex.match(key) }
+                         .each_value do |value|
+        value.each do |line|
+          line_text = if line['edited_consensus_text'].present?
+                        line['edited_consensus_text']
+                      else
+                        line_text = line['consensus_text']
+                      end
+
+          full_consensus_text.concat line_text + '\n'
         end
+        # new line after every frame
+        full_consensus_text.concat '\n'
       end
 
       full_consensus_text
@@ -118,8 +119,9 @@ module DataExports
 
     def is_text_edited?
       # iterate through each 'frame' aka 'page' of transcription
+      frame_regex = /^frame/
       @transcription.text.any? do |key, lines|
-        /^frame/.match(key) && lines.any? { |line| line['edited_consensus_text'].present? }
+        frame_regex.match(key) && lines.any? { |line| line['edited_consensus_text'].present? }
       end
     end
 
@@ -142,38 +144,37 @@ module DataExports
         'line coordinates'
       ]
 
-      @transcription.text.each_with_index do |(key, value), page_index|
+      frame_regex = /^frame/
+      @transcription.text.filter { |key, _value| frame_regex.match(key) }
+                         .each_with_index do |(key, value), page_index|
         # if we find a frame, iterate through the lines of the frame
-        if /^frame/.match(key)
-          page = page_index + 1
+        page = page_index + 1
 
-          value.each_with_index do |line, line_index|
-            line_number = line_index + 1
-            column = line['gutter_label'] + 1
-            num_transcribers = line['user_ids'].count
-            line_coordinates = {
-              'clusters_x': line['clusters_x'],
-              'clusters_y': line['clusters_y']
-            }
-            line_edited = line['edited_consensus_text'].present?
-            consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
+        value.each_with_index do |line, line_index|
+          line_number = line_index + 1
+          column = line['gutter_label'] + 1
+          num_transcribers = line['user_ids'].count
+          line_coordinates = {
+            'clusters_x': line['clusters_x'],
+            'clusters_y': line['clusters_y']
+          }
+          line_edited = line['edited_consensus_text'].present?
+          consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
 
-            csv_lines << [
-              consensus_text,
-              line_number,
-              line['line_slope'],
-              line['consensus_score'],
-              line_edited,
-              line['original_transcriber'],
-              line['line_editor'],
-              line['low_consensus'],
-              page,
-              column,
-              num_transcribers,
-              line_coordinates
-            ]
-          end
-
+          csv_lines << [
+            consensus_text,
+            line_number,
+            line['line_slope'],
+            line['consensus_score'],
+            line_edited,
+            line['original_transcriber'],
+            line['line_editor'],
+            line['low_consensus'],
+            page,
+            column,
+            num_transcribers,
+            line_coordinates
+          ]
         end
       end
 

@@ -41,10 +41,12 @@ module DataExports
       # returns updated metadata_rows array
       def compile_transcription_metadata(transcriptions)
         @metadata_rows = []
+        metadata_file_regex = /^transcription_metadata_.*\.csv$/
 
         transcriptions.each do |t|
           t.files.each do |storage_file|
-            if /^transcription_metadata_.*\.csv$/.match storage_file.filename.to_s
+            is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
+            if is_transcription_metadata_file
               rows = CSV.parse(storage_file.download)
 
               # add header if it's the first transcription being added
