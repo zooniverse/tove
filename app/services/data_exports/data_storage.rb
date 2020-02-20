@@ -25,8 +25,7 @@ module DataExports
         group_folder = File.join(directory_path, "group_#{transcriptions.first.group_id}")
         FileUtils.mkdir_p(group_folder)
 
-        metadata_file_gen = AggregateMetadataFileGenerator.new(group_folder)
-        metadata_file_gen.generate_group_file(transcriptions)
+        AggregateMetadataFileGenerator.generate_group_file(transcriptions, group_folder)
 
         transcriptions.each do |t|
           download_transcription_files(t, group_folder) if t.files.attached?
@@ -41,9 +40,7 @@ module DataExports
     def zip_workflow_files(workflow)
       Dir.mktmpdir do |directory_path|
         workflow_folder = download_workflow_files(workflow, directory_path)
-
-        metadata_file_gen = AggregateMetadataFileGenerator.new(workflow_folder)
-        metadata_file_gen.generate_workflow_file(workflow)
+        AggregateMetadataFileGenerator.generate_workflow_file(workflow, workflow_folder)
 
         yield zip_files(directory_path, workflow_folder)
       end
@@ -56,8 +53,7 @@ module DataExports
         project_folder = File.join(directory_path, "project_#{project.id}")
         FileUtils.mkdir_p(project_folder)
 
-        metadata_file_gen = AggregateMetadataFileGenerator.new(project_folder)
-        metadata_file_gen.generate_project_file(project)
+        AggregateMetadataFileGenerator.generate_project_file(project, project_folder)
 
         project.workflows.each do |w|
           download_workflow_files(w, project_folder)

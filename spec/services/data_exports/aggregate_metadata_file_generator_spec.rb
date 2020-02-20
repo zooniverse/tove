@@ -10,8 +10,6 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
   let(:parent_dir) { Dir.mktmpdir }
   let(:csv_filepath) { File.join(parent_dir, 'transcriptions_metadata.csv')}
 
-  let(:metadata_file_gen) { described_class.new(parent_dir) }
-
   before(:each) do
     transcription.files.attach(transcription_metadata_blob)
     another_transcription.files.attach(transcription_metadata_blob)
@@ -19,7 +17,7 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
 
   describe '#generate_group_file' do
     before(:each) do
-      metadata_file_gen.generate_group_file(transcription_group)
+      described_class.generate_group_file(transcription_group, parent_dir)
     end
 
     after(:each) do
@@ -45,7 +43,7 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
 
   describe '#generate_workflow_file' do
     before(:each) do
-      metadata_file_gen.generate_workflow_file(workflow)
+      described_class.generate_workflow_file(workflow, parent_dir)
     end
 
     after(:each) do
@@ -64,7 +62,7 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
 
   describe '#generate_project_file' do
     before(:each) do
-      metadata_file_gen.generate_project_file(project)
+      described_class.generate_project_file(project, parent_dir)
     end
 
     after(:each) do
