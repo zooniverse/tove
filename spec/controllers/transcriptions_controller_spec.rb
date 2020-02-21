@@ -3,7 +3,7 @@ RSpec.describe TranscriptionsController, type: :controller do
   before { allow(controller).to receive(:current_user).and_return admin_user }
 
   describe '#index' do
-    let!(:transcription) { create(:transcription, status: 1) }
+    let!(:transcription) { create(:transcription, status: 1, internal_id: 11) }
     let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0) }
     let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2) }
 
@@ -62,6 +62,12 @@ RSpec.describe TranscriptionsController, type: :controller do
         get :index, params: { filter: { flagged_true: 1 } }
         expect(json_data.size).to eq(1)
         expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      it 'filters by internal id' do
+        get :index, params: { filter: { internal_id_eq: 11 } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(transcription.id.to_s)
       end
 
       describe 'filters by id' do
