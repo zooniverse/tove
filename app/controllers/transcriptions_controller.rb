@@ -78,7 +78,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def allowed_filters
-    [:id, :workflow_id, :group_id, :flagged, :status, :internal_id]
+    [:id, :workflow_id, :group_id, :flagged, :status]
   end
 
   def update_attr_whitelist
