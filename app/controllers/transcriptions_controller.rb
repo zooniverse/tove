@@ -121,7 +121,7 @@ class TranscriptionsController < ApplicationController
       # get filename without the temfile's randomly generated unique string
       basename = File.basename(temp_file)
       filename = basename.split('-').first + File.extname(basename)
-      @transcription.files.attach(io: File.open(temp_file), filename: filename)
+      @transcription.files.attach(io: temp_file, filename: filename)
 
       temp_file.close
       temp_file.unlink
@@ -129,7 +129,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def remove_files_from_storage
-    @transcription.files.each { |file| file.purge }
+    @transcription.files.map(&:purge)
   end
 
   def update_attr_whitelist
