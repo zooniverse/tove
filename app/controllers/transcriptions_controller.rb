@@ -84,4 +84,10 @@ class TranscriptionsController < ApplicationController
   def update_attr_whitelist
     ["flagged", "text", "status"]
   end
+
+  def jsonapi_serializer_params
+    {
+      is_collection: @transcriptions.respond_to?(:count)
+    }
+  end
 end
