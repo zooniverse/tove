@@ -87,7 +87,7 @@ class TranscriptionsController < ApplicationController
 
   def jsonapi_serializer_params
     {
-      is_collection: @transcriptions.respond_to?(:count)
+      serialize_text: url_options[:_recall][:action] == 'show'
     }
   end
 end
