@@ -87,7 +87,7 @@ class TranscriptionsController < ApplicationController
 
   def jsonapi_serializer_params
     {
-      serialize_text: url_options[:_recall][:action] == 'show'
+      serialize_text: action_name == 'show'
     }
   end
 end
