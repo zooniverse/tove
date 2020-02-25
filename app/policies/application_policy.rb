@@ -20,6 +20,10 @@ class ApplicationPolicy
     admin? || (logged_in? && editor?)
   end
 
+  def export_group?
+    admin? || (logged_in? && editor?)
+  end
+
   def admin?
     logged_in? && user.admin
   end

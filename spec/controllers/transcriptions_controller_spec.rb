@@ -147,7 +147,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       patch :update, params: update_params
       expect(transcription.reload.flagged).to be_truthy
     end
-    
+
     it 'saves updated_by user login to record' do
       patch :update, params: update_params
       expect(Transcription.find(transcription.id).updated_by).to eq(admin_user.login)
@@ -170,7 +170,7 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
       end
     end
-    
+
     context 'validates the input' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
@@ -276,7 +276,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let(:transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
     let(:second_transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
     let(:export_single_params) { { id: transcription.id } }
-    let(:export_group_params) { { group_id: transcription.group_id } }
+    let(:export_group_params) { { group_id: transcription.group_id, workflow_id: transcription.workflow_id } }
 
     before do
       transcription.files.attach(blank_file_blob)
@@ -316,9 +316,9 @@ RSpec.describe TranscriptionsController, type: :controller do
           expect(response).to have_http_status(:forbidden)
         end
 
-        it 'returns a 500 error when exporting a group' do
+        it 'returns a 403 error when exporting a group' do
           get :export_group, params: export_group_params
-          expect(response).to have_http_status(:error)
+          expect(response).to have_http_status(:forbidden)
         end
       end
 

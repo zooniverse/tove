@@ -52,7 +52,10 @@ class TranscriptionsController < ApplicationController
   end
 
   def export_group
-    @transcriptions = policy_scope([:export, Transcription]).where(group_id: params[:group_id])
+    workflow = Workflow.find(params[:workflow_id])
+    authorize workflow
+
+    @transcriptions = Transcription.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
 
     if @transcriptions.empty?
       raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
