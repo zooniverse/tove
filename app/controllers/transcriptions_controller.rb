@@ -84,4 +84,10 @@ class TranscriptionsController < ApplicationController
   def update_attr_whitelist
     ["flagged", "text", "status"]
   end
+
+  def jsonapi_serializer_params
+    {
+      serialize_text: action_name == 'show'
+    }
+  end
 end
