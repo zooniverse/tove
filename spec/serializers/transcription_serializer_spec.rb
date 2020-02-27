@@ -17,6 +17,10 @@ RSpec.describe TranscriptionSerializer, type: :serializer do
     expect(data_with_text).to have_key(:updated_at)
     expect(data_with_text).to have_key(:updated_by)
     expect(data_with_text).to have_key(:text)
+    expect(data_with_text).to have_key(:internal_id)
+    expect(data_with_text).to have_key(:total_lines)
+    expect(data_with_text).to have_key(:total_pages)
+    expect(data_with_text).to have_key(:low_consensus_lines)
   end
 
   it 'doesnt serialize text when serialize_text is not set' do
