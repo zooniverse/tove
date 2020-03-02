@@ -7,28 +7,28 @@ module DataExports
     class << self
       # Public: add metadata csv file to group folder
       def generate_group_file(transcriptions, output_folder)
-        @metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
+        metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
         compile_transcription_metadata(transcriptions)
-        generate_csv
+        generate_csv(metadata_file)
       end
 
       # Public: add metadata csv file to workflow folder
       def generate_workflow_file(workflow, output_folder)
-        @metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
+        metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
         compile_workflow_metadata(workflow)
-        generate_csv
+        generate_csv(metadata_file)
       end
 
       def generate_project_file(project, output_folder)
-        @metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
+        metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
         project.workflows.each do |w|
           compile_workflow_metadata(w)
         end
 
-        generate_csv
+        generate_csv(metadata_file)
       end
 
       private
@@ -67,8 +67,8 @@ module DataExports
         end
       end
 
-      def generate_csv
-        CSV.open(@metadata_file, 'wb') do |csv|
+      def generate_csv(metadata_file)
+        CSV.open(metadata_file, 'wb') do |csv|
           @metadata_rows.each { |row| csv << row }
         end
       end
