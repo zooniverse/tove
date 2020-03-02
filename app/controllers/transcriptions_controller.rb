@@ -32,9 +32,9 @@ class TranscriptionsController < ApplicationController
 
     if @transcription.status_previously_changed?
       if approving?
-        upload_files_to_storage
+        @transcription.upload_files_to_storage
       else
-        remove_files_from_storage
+        @transcription.remove_files_from_storage
       end
     end
 
@@ -116,23 +116,6 @@ class TranscriptionsController < ApplicationController
 
   def allowed_filters
     [:id, :workflow_id, :group_id, :flagged, :status]
-  end
-
-  def upload_files_to_storage
-    file_generator = DataExports::TranscriptionFileGenerator.new(@transcription)
-    file_generator.generate_transcription_files.each do |temp_file|
-      # get filename without the temfile's randomly generated unique string
-      basename = File.basename(temp_file)
-      filename = basename.split('-').first + File.extname(basename)
-      @transcription.files.attach(io: temp_file, filename: filename)
-
-      temp_file.close
-      temp_file.unlink
-    end
-  end
-
-  def remove_files_from_storage
-    @transcription.files.map(&:purge)
   end
 
   def update_attr_whitelist
