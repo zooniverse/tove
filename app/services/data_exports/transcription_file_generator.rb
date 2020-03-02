@@ -43,8 +43,8 @@ module DataExports
       frame_regex = /^frame/
 
       # if we find a frame, iterate through the lines of the frame
-      @transcription.text.filter { |key, _value| frame_regex.match(key) }
-                         .each_value do |value|
+      frames = @transcription.text.filter { |key, _value| frame_regex.match(key) }
+      frames.each_value do |value|
         value.each do |line|
           line_text = if line['edited_consensus_text'].present?
                         line['edited_consensus_text']
