@@ -27,8 +27,8 @@ module DataExports
 
         AggregateMetadataFileGenerator.generate_group_file(transcriptions, group_folder)
 
-        transcriptions.each do |t|
-          download_transcription_files(t, group_folder) if t.files.attached?
+        transcriptions.each do |transcription|
+          download_transcription_files(transcription, group_folder) if transcription.export_files.attached?
         end
 
         yield zip_files(directory_path, group_folder)

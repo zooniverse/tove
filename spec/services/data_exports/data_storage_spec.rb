@@ -14,7 +14,7 @@ RSpec.describe DataExports::DataStorage do
 
     context 'when stored files are found' do
       before(:each) do
-        transcription.files.attach(blank_file_blob)
+        transcription.export_files.attach(blank_file_blob)
       end
 
       it "produces a zip file named export.zip" do
@@ -29,7 +29,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_group_files' do
     before(:each) do
-      transcription.files.attach(blank_file_blob)
+      transcription.export_files.attach(blank_file_blob)
     end
 
     it "produces a zip file named export.zip" do
@@ -43,7 +43,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_workflow_files' do
     before(:each) do
-      transcription.files.attach(blank_file_blob)
+      transcription.export_files.attach(blank_file_blob)
     end
 
     it "produces a zip file named export.zip" do
@@ -57,7 +57,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_project_files' do
     before(:each) do
-      transcription.files.attach(blank_file_blob)
+      transcription.export_files.attach(blank_file_blob)
     end
 
     it "produces a zip file named export.zip" do

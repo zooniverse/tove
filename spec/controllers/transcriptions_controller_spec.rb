@@ -158,7 +158,7 @@ RSpec.describe TranscriptionsController, type: :controller do
         it 'attaches 4 data files to the transcription' do
           update_params[:data][:attributes][:status] = 'approved'
           patch :update, params: update_params
-          expect(transcription.files.count).to eq(4)
+          expect(transcription.export_files.count).to eq(4)
         end
       end
 
@@ -166,7 +166,7 @@ RSpec.describe TranscriptionsController, type: :controller do
         it 'removes attached data files from storage' do
           update_params[:data][:attributes][:status] = 'ready'
           patch :update, params: update_params
-          expect(transcription.files.attached?).to be_falsey
+          expect(transcription.export_files.attached?).to be_falsey
         end
       end
     end
@@ -279,7 +279,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let(:export_group_params) { { group_id: transcription.group_id, workflow_id: transcription.workflow_id } }
 
     before do
-      transcription.files.attach(blank_file_blob)
+      transcription.export_files.attach(blank_file_blob)
     end
 
     describe '#export' do

@@ -1,6 +1,6 @@
 class Transcription < ApplicationRecord
   belongs_to :workflow
-  has_many_attached :files
+  has_many_attached :export_files
 
   validates :status, presence: true
   validates :group_id, presence: true
@@ -19,7 +19,7 @@ class Transcription < ApplicationRecord
       # get filename without the temfile's randomly generated unique string
       basename = File.basename(temp_file)
       filename = basename.split('-').first + File.extname(basename)
-      files.attach(io: temp_file, filename: filename)
+      export_files.attach(io: temp_file, filename: filename)
 
       temp_file.close
       temp_file.unlink
@@ -27,7 +27,7 @@ class Transcription < ApplicationRecord
   end
 
   def remove_files_from_storage
-    files.map(&:purge)
+    export_files.map(&:purge)
   end
 
   private

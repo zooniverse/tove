@@ -138,7 +138,7 @@ RSpec.describe WorkflowsController, type: :controller do
     let(:export_params) { { id: workflow.id } }
 
     before do
-      transcription.files.attach(blank_file_blob)
+      transcription.export_files.attach(blank_file_blob)
     end
 
     it 'returns successfully' do

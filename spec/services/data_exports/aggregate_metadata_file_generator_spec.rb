@@ -12,7 +12,7 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
 
   before(:each) do
     transcription.files.attach(transcription_metadata_blob)
-    another_transcription.files.attach(transcription_metadata_blob)
+    another_transcription.export_files.attach(transcription_metadata_blob)
   end
 
   describe '#generate_group_file' do

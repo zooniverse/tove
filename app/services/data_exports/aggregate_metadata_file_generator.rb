@@ -45,7 +45,7 @@ module DataExports
         metadata_file_regex = /^transcription_metadata_.*\.csv$/
 
         transcriptions.each do |transcription|
-          transcription.files.each do |storage_file|
+          transcription.export_files.each do |storage_file|
             is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
             if is_transcription_metadata_file
               rows = CSV.parse(storage_file.download)
