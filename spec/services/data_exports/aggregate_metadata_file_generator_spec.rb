@@ -11,7 +11,7 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
   let(:csv_filepath) { File.join(parent_dir, 'transcriptions_metadata.csv')}
 
   before(:each) do
-    transcription.files.attach(transcription_metadata_blob)
+    transcription.export_files.attach(transcription_metadata_blob)
     another_transcription.export_files.attach(transcription_metadata_blob)
   end
 

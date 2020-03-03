@@ -8,7 +8,7 @@ module DataExports
     # Public: downloads all transcription files for a given transcription
     # returns path to zip file
     def zip_transcription_files(transcription)
-      if transcription.files.attached?
+      if transcription.export_files.attached?
         Dir.mktmpdir do |directory_path|
           transcription_folder = download_transcription_files(transcription, directory_path)
           yield zip_files(directory_path, transcription_folder)
@@ -74,7 +74,7 @@ module DataExports
       FileUtils.mkdir_p(transcription_folder)
 
       metadata_file_regex = /^transcription_metadata_.*\.csv$/
-      transcription.files.each do |storage_file|
+      transcription.export_files.each do |storage_file|
         is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
         unless is_transcription_metadata_file
           download_path = File.join(transcription_folder, storage_file.filename.to_s)
