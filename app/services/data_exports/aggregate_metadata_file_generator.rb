@@ -9,26 +9,27 @@ module DataExports
       def generate_group_file(transcriptions, output_folder)
         metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
-        compile_transcription_metadata(transcriptions)
-        generate_csv(metadata_file)
+        metadata_rows = compile_transcription_metadata(transcriptions)
+        generate_csv(metadata_file, metadata_rows)
       end
 
       # Public: add metadata csv file to workflow folder
       def generate_workflow_file(workflow, output_folder)
         metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
-        compile_workflow_metadata(workflow)
-        generate_csv(metadata_file)
+        metadata_rows = compile_workflow_metadata(workflow)
+        generate_csv(metadata_file, metadata_rows)
       end
 
       def generate_project_file(project, output_folder)
         metadata_file = File.join(output_folder, 'transcriptions_metadata.csv')
 
+        metadata_rows = []
         project.workflows.each do |w|
-          compile_workflow_metadata(w)
+          metadata_rows += compile_workflow_metadata(w)
         end
 
-        generate_csv(metadata_file)
+        generate_csv(metadata_file, metadata_rows)
       end
 
       private
@@ -40,7 +41,7 @@ module DataExports
       # group/workflow/project being processed
       # returns updated metadata_rows array
       def compile_transcription_metadata(transcriptions)
-        @metadata_rows = []
+        metadata_rows = []
         metadata_file_regex = /^transcription_metadata_.*\.csv$/
 
         transcriptions.each do |transcription|
@@ -50,26 +51,30 @@ module DataExports
               rows = CSV.parse(storage_file.download)
 
               # add header if it's the first transcription being added
-              @metadata_rows << rows[0] if @metadata_rows.empty?
+              metadata_rows << rows[0] if metadata_rows.empty?
               # add content regardless
-              @metadata_rows << rows[1]
+              metadata_rows << rows[1]
             end
           end
         end
+
+        metadata_rows
       end
 
       def compile_workflow_metadata(workflow)
-        @metadata_rows = []
+        metadata_rows = []
 
         workflow.transcription_group_data.each_key do |group_key|
           transcriptions = Transcription.where(group_id: group_key)
-          compile_transcription_metadata(transcriptions)
+          metadata_rows += compile_transcription_metadata(transcriptions)
         end
+
+        metadata_rows
       end
 
-      def generate_csv(metadata_file)
+      def generate_csv(metadata_file, metadata_rows)
         CSV.open(metadata_file, 'wb') do |csv|
-          @metadata_rows.each { |row| csv << row }
+          metadata_rows.each { |row| csv << row }
         end
       end
     end
