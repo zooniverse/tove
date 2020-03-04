@@ -43,7 +43,7 @@ RSpec.describe WorkflowsController, type: :controller do
           "updated_at" => '2019-12-16 00:00:00 UTC',
           "updated_by" => 'The Dark Master',
           "transcription_count" => 1
-        }, 
+        },
         "SECOND" => {
           "updated_at" => '2019-12-18 00:00:00 UTC',
           "updated_by" => 'The Grey Tiger',
@@ -127,6 +127,48 @@ RSpec.describe WorkflowsController, type: :controller do
         it 'returns the authorized workflow' do
           expect(response).to have_http_status(:ok)
           expect(json_data["id"]).to eql(workflow.id.to_s)
+        end
+      end
+    end
+  end
+
+  describe '#export' do
+    let (:workflow) { create(:workflow)}
+    let(:transcription) { create(:transcription, workflow: workflow) }
+    let(:export_params) { { id: workflow.id } }
+
+    before do
+      transcription.export_files.attach(blank_file_blob)
+    end
+
+    it 'returns successfully' do
+      get :export, params: export_params
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'should have a response with content-type of application/zip' do
+      get :export, params: export_params
+      expect(response.header["Content-Type"]).to eq("application/zip")
+    end
+
+    describe 'roles' do
+      context 'as a viewer' do
+        let(:viewer) { create(:user, roles: { workflow.project.id => ['tester']}) }
+        before { allow(controller).to receive(:current_user).and_return viewer }
+
+        it 'returns a 403 Forbidden when exporting a workflow' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as an editor' do
+        let(:editor) { create(:user, roles: { workflow.project.id => ['moderator']}) }
+        before { allow(controller).to receive(:current_user).and_return editor }
+
+        it 'returns successfully when exporting a workflow' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:ok)
         end
       end
     end

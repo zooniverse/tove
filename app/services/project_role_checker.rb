@@ -1,5 +1,5 @@
 class ProjectRoleChecker
-  attr_reader :user, :records, :viewer_project_ids
+  attr_reader :user, :records, :viewer_project_ids, :editor_project_ids
 
   EDITOR_ROLES = %w(owner collaborator expert scientist moderator)
   APPROVER_ROLES = %w(owner collaborator)
@@ -9,6 +9,7 @@ class ProjectRoleChecker
     @user = user
     @records = records
     @viewer_project_ids = get_viewer_project_ids
+    @editor_project_ids = get_editor_project_ids
   end
 
   def can_edit?
@@ -28,6 +29,10 @@ class ProjectRoleChecker
 
   def get_viewer_project_ids
     user_project_ids(user.roles, VIEWER_ROLES)
+  end
+
+  def get_editor_project_ids
+    user_project_ids(user.roles, EDITOR_ROLES)
   end
 
   private

@@ -159,6 +159,24 @@ RSpec.describe TranscriptionsController, type: :controller do
       expect(Transcription.find(transcription.id).updated_by).to eq(admin_user.login)
     end
 
+    context 'when transcription status changes' do
+      context 'when a transcription is approved' do
+        it 'attaches 4 data files to the transcription' do
+          update_params[:data][:attributes][:status] = 'approved'
+          patch :update, params: update_params
+          expect(transcription.export_files.count).to eq(4)
+        end
+      end
+
+      context 'when a transcription is unapproved' do
+        it 'removes attached data files from storage' do
+          update_params[:data][:attributes][:status] = 'ready'
+          patch :update, params: update_params
+          expect(transcription.export_files.attached?).to be_falsey
+        end
+      end
+    end
+
     context 'validates the input' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
@@ -255,6 +273,90 @@ RSpec.describe TranscriptionsController, type: :controller do
           update_params[:data][:attributes][:status] = "approved"
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+  end
+
+  context 'exporting transcriptions' do
+    let(:transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
+    let(:second_transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
+    let(:export_single_params) { { id: transcription.id } }
+    let(:export_group_params) { { group_id: transcription.group_id, workflow_id: transcription.workflow_id } }
+
+    before do
+      transcription.export_files.attach(blank_file_blob)
+    end
+
+    describe '#export' do
+      context 'exporting a single transcription' do
+        it 'returns successfully' do
+          get :export, params: export_single_params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'should have a response with content-type of application/zip' do
+          get :export, params: export_single_params
+          expect(response.header["Content-Type"]).to eq("application/zip")
+        end
+      end
+
+      describe 'roles' do
+        context 'as a viewer' do
+          let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+          before { allow(controller).to receive(:current_user).and_return viewer }
+
+          it 'returns a 403 Forbidden when exporting one transcription' do
+            get :export, params: export_single_params
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+
+        context 'as an editor' do
+          let(:editor) { create(:user, roles: { transcription.workflow.project.id => ['moderator']}) }
+          before { allow(controller).to receive(:current_user).and_return editor }
+
+          it 'returns successfully for a single transcription export' do
+            get :export, params: export_single_params
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    describe '#export_group' do
+      # TO DO: create example for no trans in group
+      context 'when group contains at least one transcription' do
+        it 'returns successfully with content-type of application/zip' do
+          get :export_group, params: export_group_params
+          expect(response).to have_http_status(:ok)
+          expect(response.header['Content-Type']).to eq('application/zip')
+        end
+
+        describe 'roles' do
+          context 'as a viewer' do
+            let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+            before { allow(controller).to receive(:current_user).and_return viewer }
+
+            it 'returns a 403 error' do
+              get :export_group, params: export_group_params
+              expect(response).to have_http_status(:forbidden)
+            end
+          end
+
+          context 'as an editor' do
+            it 'returns successfully' do
+              get :export_group, params: export_group_params
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+
+      context 'when group contains no transcriptions' do
+        it 'returns an error' do
+          get :export_group, params: { group_id: 'MICE_IN_TANKS', workflow_id: transcription.workflow_id }
+          expect(response).to have_http_status(:error)
         end
       end
     end

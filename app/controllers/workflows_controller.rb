@@ -10,6 +10,16 @@ class WorkflowsController < ApplicationController
     render jsonapi: @workflow
   end
 
+  def export
+    @workflow = Workflow.find(params[:id])
+    authorize @workflow
+
+    data_storage = DataExports::DataStorage.new
+    data_storage.zip_workflow_files(@workflow) do |zip_file|
+      send_export_file zip_file
+    end
+  end
+
   private
 
   def allowed_filters

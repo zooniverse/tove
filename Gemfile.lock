@@ -56,6 +56,22 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2)
+    azure-core (0.1.15)
+      faraday (~> 0.9)
+      faraday_middleware (~> 0.10)
+      nokogiri (~> 1.6)
+    azure-storage (0.15.0.preview)
+      azure-core (~> 0.1)
+      faraday (~> 0.9)
+      faraday_middleware (~> 0.10)
+      nokogiri (~> 1.6, >= 1.6.8)
+    azure-storage-blob (1.1.0)
+      azure-core (~> 0.1.13)
+      azure-storage-common (~> 1.0)
+      nokogiri (~> 1.6, >= 1.6.8)
+    azure-storage-common (1.1.0)
+      azure-core (~> 0.1.13)
+      nokogiri (~> 1.6, >= 1.6.8)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
     builder (3.2.3)
@@ -214,6 +230,7 @@ GEM
       rspec-mocks (~> 3.9.0)
       rspec-support (~> 3.9.0)
     rspec-support (3.9.0)
+    rubyzip (2.1.0)
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
     simplecov (0.17.1)
@@ -251,6 +268,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  azure-storage
+  azure-storage-blob
   bootsnap (>= 1.4.2)
   coveralls
   factory_bot_rails
@@ -267,6 +286,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.0.1)
   rspec-rails
+  rubyzip
   sentry-raven
   simplecov
   spring

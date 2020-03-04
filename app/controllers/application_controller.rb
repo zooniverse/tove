@@ -5,8 +5,8 @@ class ApplicationController < ActionController::Base
 
   attr_reader :current_user, :auth_token
   before_action :set_user
-  after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
+  after_action :verify_authorized, except: [:index]
+  after_action :verify_policy_scoped, only: [:index]
 
   include ErrorExtender
   include JSONAPI::Pagination
@@ -84,5 +84,11 @@ class ApplicationController < ActionController::Base
   def jsonapi_meta(resources)
     pagination = jsonapi_pagination_meta(resources)
     { pagination: pagination } if pagination.present?
+  end
+
+  def send_export_file(zip_file)
+    File.open(zip_file, 'r') do |f|
+      send_data f.read, filename: 'export.zip', type: 'application/zip'
+    end
   end
 end
