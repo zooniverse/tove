@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 2020_02_26_201500) do
     t.string "reducer"
     t.jsonb "parameters"
     t.integer "low_consensus_lines"
-    t.index ["group_id", "workflow_id"], name: "index_transcriptions_on_group_id_and_workflow_id"
+    t.index ["workflow_id", "group_id"], name: "index_transcriptions_on_workflow_id_and_group_id"
   end
 
   create_table "users", force: :cascade do |t|
