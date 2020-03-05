@@ -24,16 +24,8 @@ class TranscriptionsController < ApplicationController
 
   def update
     @transcription = Transcription.find(params[:id])
-    raise ActionController::BadRequest if type_invalid?
-    raise ActionController::BadRequest unless whitelisted_attributes?
-    raise ActiveRecord::StaleObjectError unless fresh?
-    raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}" if locked?
-
-    if approving?
-      authorize @transcription, :approve?
-    else
-      authorize @transcription
-    end
+    validate_update
+    authorize_update
 
     update_attrs['updated_by'] = current_user.login
     update_attrs['locked_by'] = current_user.login
@@ -91,6 +83,21 @@ class TranscriptionsController < ApplicationController
 
   def update_attrs
     @update_attrs ||= jsonapi_deserialize(params)
+  end
+
+  def validate_update
+    raise ActionController::BadRequest if type_invalid?
+    raise ActionController::BadRequest unless whitelisted_attributes?
+    raise ActiveRecord::StaleObjectError unless fresh?
+    raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}" if locked?
+  end
+
+  def authorize_update
+    if approving?
+      authorize @transcription, :approve?
+    else
+      authorize @transcription
+    end
   end
 
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
