@@ -1,6 +1,8 @@
 class TranscriptionsController < ApplicationController
   include JSONAPI::Deserialization
 
+  class TranscriptionLockedError < StandardError; end
+
   before_action :status_filter_to_int, only: :index
 
   def index
@@ -11,6 +13,11 @@ class TranscriptionsController < ApplicationController
   def show
     @transcription = Transcription.find(params[:id])
     authorize @transcription
+
+    if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
+      lock_transcription
+    end
+
     render jsonapi: @transcription
   end
 
@@ -18,6 +25,8 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     raise ActionController::BadRequest if type_invalid?
     raise ActionController::BadRequest unless whitelisted_attributes?
+    raise ActiveRecord::StaleObjectError unless fresh?
+    raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}" if locked?
 
     if approve?
       authorize @transcription, :approve?
@@ -26,8 +35,20 @@ class TranscriptionsController < ApplicationController
     end
 
     update_attrs['updated_by'] = current_user.login
+    update_attrs['locked_by'] = current_user.login
+    update_attrs['lock_timeout'] = DateTime.now + 3.hours
+
     @transcription.update!(update_attrs)
     render jsonapi: @transcription
+  end
+
+  def unlock
+    @transcription = Transcription.find(params[:id])
+    authorize @transcription, :update?
+
+    return unless @transcription.locked_by == current_user.login
+
+    @transcription.update!(locked_by: nil, lock_timeout: nil)
   end
 
   private
@@ -75,6 +96,21 @@ class TranscriptionsController < ApplicationController
 
   def approve?
     update_attrs["status"] == "approved"
+  end
+
+  def fresh?
+    # the 'If-Unmodified-Since' datetime will be sent over by client with ISO 8601 format, 3 digits of fractional seconds
+    @transcription.updated_at.iso8601(3) == request.headers['If-Unmodified-Since']
+  end
+
+  def locked?
+    @transcription.lock_timeout &&
+      DateTime.now < @transcription.lock_timeout &&
+      current_user.login != @transcription.locked_by
+  end
+
+  def lock_transcription
+    @transcription.update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
   end
 
   def allowed_filters
