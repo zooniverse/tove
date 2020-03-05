@@ -2,6 +2,7 @@ class TranscriptionsController < ApplicationController
   include JSONAPI::Deserialization
 
   class TranscriptionLockedError < StandardError; end
+  class NoExportableTranscriptionsError < StandardError; end
 
   before_action :status_filter_to_int, only: :index
 
@@ -28,7 +29,7 @@ class TranscriptionsController < ApplicationController
     raise ActiveRecord::StaleObjectError unless fresh?
     raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}" if locked?
 
-    if approve?
+    if approving?
       authorize @transcription, :approve?
     else
       authorize @transcription
@@ -39,6 +40,15 @@ class TranscriptionsController < ApplicationController
     update_attrs['lock_timeout'] = DateTime.now + 3.hours
 
     @transcription.update!(update_attrs)
+
+    if @transcription.status_previously_changed?
+      if approving?
+        @transcription.upload_files_to_storage
+      else
+        @transcription.remove_files_from_storage
+      end
+    end
+
     render jsonapi: @transcription
   end
 
@@ -49,6 +59,32 @@ class TranscriptionsController < ApplicationController
     return unless @transcription.locked_by == current_user.login
 
     @transcription.update!(locked_by: nil, lock_timeout: nil)
+  end
+
+  def export
+    @transcription = Transcription.find(params[:id])
+    authorize @transcription
+
+    data_storage = DataExports::DataStorage.new
+    data_storage.zip_transcription_files(@transcription) do |zip_file|
+      send_export_file zip_file
+    end
+  end
+
+  def export_group
+    workflow = Workflow.find(params[:workflow_id])
+    authorize workflow
+
+    @transcriptions = Transcription.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
+
+    if @transcriptions.empty?
+      raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
+    end
+
+    data_storage = DataExports::DataStorage.new
+    data_storage.zip_group_files(@transcriptions) do |zip_file|
+      send_export_file zip_file
+    end
   end
 
   private
@@ -94,7 +130,7 @@ class TranscriptionsController < ApplicationController
     update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
   end
 
-  def approve?
+  def approving?
     update_attrs["status"] == "approved"
   end
 
@@ -119,5 +155,11 @@ class TranscriptionsController < ApplicationController
 
   def update_attr_whitelist
     ["flagged", "text", "status"]
+  end
+
+  def jsonapi_serializer_params
+    {
+      serialize_text: action_name == 'show'
+    }
   end
 end

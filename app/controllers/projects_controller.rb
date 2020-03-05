@@ -10,6 +10,16 @@ class ProjectsController < ApplicationController
     render jsonapi: @project
   end
 
+  def export
+    @project = Project.find(params[:id])
+    authorize @project
+
+    data_storage = DataExports::DataStorage.new
+    data_storage.zip_project_files(@project) do |zip_file|
+      send_export_file zip_file
+    end
+  end
+
   private
 
   def allowed_filters

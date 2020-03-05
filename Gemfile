@@ -8,6 +8,12 @@ gem 'puma', '~> 4.3'
 gem 'panoptes-client'
 gem 'pundit'
 
+# Connect to Azure Storage with Rails Active Storage
+gem 'azure-storage'
+gem 'azure-storage-blob'
+
+gem 'rubyzip'
+
 # jsonapi.rb is a bundle that incorporates fast_jsonapi (serialization),
 # ransack (filtration), and some RSpec matchers along with some
 # boilerplate for pagination and error handling

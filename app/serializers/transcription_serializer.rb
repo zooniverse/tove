@@ -1,7 +1,10 @@
 class TranscriptionSerializer
   include FastJsonapi::ObjectSerializer
 
-  attributes :workflow_id, :group_id, :text, :status, :flagged, :updated_at, :updated_by
+  attributes :workflow_id, :group_id, :status, :flagged, :updated_at, :updated_by, :internal_id, :total_lines, :total_pages, :low_consensus_lines
+  attribute :text, if: proc { |_record, params|
+    params[:serialize_text] == true
+  }
   belongs_to :workflow
 
   attribute :locked_by do |transcription|

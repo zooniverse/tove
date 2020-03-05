@@ -98,4 +98,47 @@ RSpec.describe ProjectsController, type: :controller do
       end
     end
   end
+
+  describe '#export' do
+    let (:project) { create(:project, slug: "lizard_king/underground_fortress") }
+    let (:workflow) { create(:workflow, project: project)}
+    let(:transcription) { create(:transcription, :unedited_json_blob, workflow: workflow) }
+    let(:export_params) { { id: project.id } }
+
+    before do
+      transcription.export_files.attach(blank_file_blob)
+    end
+
+    it 'returns successfully' do
+      get :export, params: export_params
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'should have a response with content-type of application/zip' do
+      get :export, params: export_params
+      expect(response.header["Content-Type"]).to eq("application/zip")
+    end
+
+    describe 'roles' do
+      context 'as a viewer' do
+        let(:viewer) { create(:user, roles: { project.id => ['tester']}) }
+        before { allow(controller).to receive(:current_user).and_return viewer }
+
+        it 'returns a 403 Forbidden when exporting a project' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'as an editor' do
+        let(:editor) { create(:user, roles: { project.id => ['moderator']}) }
+        before { allow(controller).to receive(:current_user).and_return editor }
+
+        it 'returns successfully when exporting a project' do
+          get :export, params: export_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
 end

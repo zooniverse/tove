@@ -3,9 +3,15 @@ Rails.application.routes.draw do
 
   post '/import', to: 'caesar#import'
 
-  resources :projects, only: [:index, :show]
-  resources :workflows, only: [:index, :show]
+  resources :projects, only: [:index, :show] do
+    get 'export', on: :member
+  end
+  resources :workflows, only: [:index, :show] do
+    get 'export', on: :member
+  end
   resources :transcriptions, only: [:index, :show, :update] do
+    get 'export', on: :member
+    get 'export_group', on: :collection
     patch 'unlock', on: :member
   end
 end
