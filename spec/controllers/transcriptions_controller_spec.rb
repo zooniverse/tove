@@ -153,6 +153,10 @@ RSpec.describe TranscriptionsController, type: :controller do
           expect(response).to have_http_status(:ok)
           expect(json_data['id']).to eql(transcription.id.to_s)
         end
+
+        it 'does not lock the transcription' do
+          expect(Transcription.find(transcription.id).locked_by).to be_nil
+        end
       end
     end
   end
@@ -312,6 +316,16 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'removes the lock' do
         patch :unlock, params: unlock_params
         expect(Transcription.find(transcription.id).locked_by).to be_nil
+      end
+    end
+
+    context 'when unlocking user is different from locked by user' do
+      let(:transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
+      let(:unlock_params) { { id: transcription.id } }
+
+      it 'does not remove the lock' do
+        patch :unlock, params: unlock_params
+        expect(Transcription.find(transcription.id).locked_by).to eq(transcription.locked_by)
       end
     end
   end
