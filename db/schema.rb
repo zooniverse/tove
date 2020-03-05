@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_30_200403) do
+ActiveRecord::Schema.define(version: 2020_02_26_201500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 2020_01_30_200403) do
     t.string "reducer"
     t.jsonb "parameters"
     t.integer "low_consensus_lines"
+    t.index ["workflow_id", "group_id"], name: "index_transcriptions_on_workflow_id_and_group_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -75,6 +76,7 @@ ActiveRecord::Schema.define(version: 2020_01_30_200403) do
     t.string "display_name", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["project_id"], name: "index_workflows_on_project_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
