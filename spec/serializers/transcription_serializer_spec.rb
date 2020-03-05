@@ -28,7 +28,7 @@ RSpec.describe TranscriptionSerializer, type: :serializer do
 
   context 'when transcription is locked and lock has not expired' do
     it 'serializes locked by username' do
-      expect(serialized_data[:locked_by]).to eq(transcription.locked_by)
+      expect(data[:locked_by]).to eq(transcription.locked_by)
     end
   end
 
