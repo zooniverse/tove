@@ -24,7 +24,19 @@ Tove is the API for the [ALICE Text Editor](https://github.com/zooniverse/text-e
 
 ### Run app within a docker container
 
-Prepare the Docker containers:
+1. Install Docker and Docker Compose
+* Docker
+  * [OS X](https://docs.docker.com/installation/mac/) - Docker Machine
+  * [Ubuntu](https://docs.docker.com/installation/ubuntulinux/) - Docker
+  * [Windows](http://docs.docker.com/installation/windows/) - Boot2Docker
+
+* [Docker Compose](https://docs.docker.com/compose/)
+
+2. Clone the repo `git clone https://github.com/zooniverse/tove.git` 
+
+3. `cd` into the cloned folder   
+
+4. Prepare the Docker containers:
 
 ```
 docker-compose build
@@ -32,14 +44,13 @@ docker-compose run --rm app bundle exec rails db:setup
 docker-compose run --rm -e RAILS_ENV=test app bin/rails db:create
 ```
 
-Run tests with:
+5. Create and run the application containers with `docker-compose up`
 
+6. Run tests with:
 ```
 docker-compose run --rm -e RAILS_ENV=test app bundle exec rspec
 ```
-
 Or interactively / manually in a docker shell
-
 ```
 docker-compose run --rm -e RAILS_ENV=test app bash
 # from the bash prompt
