@@ -11,6 +11,7 @@ RSpec.describe ApplicationController, type: :controller do
     it 'sends StandardErrors to Sentry' do
       allow(controller).to receive(:current_user).and_return user
       expect(controller).to receive(:report_to_sentry).and_call_original
+      expect(controller).to receive(:render_jsonapi_internal_server_error).and_call_original
       expect(Raven).to receive(:capture_exception)
       get :index
       expect(response).to have_http_status(500)

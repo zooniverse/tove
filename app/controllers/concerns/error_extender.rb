@@ -1,8 +1,20 @@
 module ErrorExtender
   extend ActiveSupport::Concern
-  include JSONAPI::Errors
 
   included do
+    include JSONAPI::Errors
+
+    # call report_to_sentry before render_jsonapi_internal_server_error
+    method = instance_method(:render_jsonapi_internal_server_error)
+    define_method(:render_jsonapi_internal_server_error) do |*args, &block|
+      report_to_sentry(*args)
+      method.bind(self).(*args, &block)
+    end
+
+    if ::Rails.env.test?
+      rescue_handlers.unshift([StandardError.name, :render_jsonapi_internal_server_error])
+    end
+
     rescue_from ActionController::BadRequest, with: :render_jsonapi_bad_request
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
     rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
@@ -18,12 +30,6 @@ module ErrorExtender
       )
     end
     Raven.capture_exception(exception)
-  end
-
-  # Overriding this JSONAPI::Errors method to add Sentry reporting
-  def render_jsonapi_internal_server_error(exception)
-    report_to_sentry(exception)
-    super(exception)
   end
 
   def render_jsonapi_bad_request(exception)
