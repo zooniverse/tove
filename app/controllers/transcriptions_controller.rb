@@ -103,7 +103,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def type_invalid?
-    params[:data][:type] != "transcriptions"
+    params[:data][:type] != 'transcriptions'
   end
 
   def whitelisted_attributes?
@@ -111,15 +111,15 @@ class TranscriptionsController < ApplicationController
   end
 
   def approving?
-    update_attrs["status"] == "approved"
+    update_attrs['status'] == 'approved'
   end
 
   def allowed_filters
-    [:id, :workflow_id, :group_id, :flagged, :status, :internal_id]
+    %i[id workflow_id group_id flagged status internal_id updated_at update_by low_consesus_lines total_pages total_lines]
   end
 
   def update_attr_whitelist
-    ["flagged", "text", "status"]
+    ['flagged', 'text', 'status']
   end
 
   def jsonapi_serializer_params
