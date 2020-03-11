@@ -4,9 +4,9 @@ module ErrorExtender
   included do
     include JSONAPI::Errors
 
-    if ::Rails.env.test?
-      rescue_handlers.unshift([StandardError.name, :render_jsonapi_internal_server_error])
-    end
+    # we really only need to add this for the sake of the test environment, since jsonapi.rb omits it for env.test
+    # use `unshift` to place handler at start of handler array, so that it doesn't override prev handlers
+    rescue_handlers.unshift([StandardError.name, :render_jsonapi_internal_server_error])
 
     rescue_from ActionController::BadRequest, with: :render_jsonapi_bad_request
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
