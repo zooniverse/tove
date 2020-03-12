@@ -42,7 +42,7 @@ module ErrorExtender
   end
 
   def render_jsonapi_custom_not_found(exception, use_sentry: true)
-    report_to_sentry(exception)
+    report_to_sentry(exception) if use_sentry
     error = { status: '404', title: Rack::Utils::HTTP_STATUS_CODES[404], detail: exception.to_s }
     render jsonapi_errors: [error], status: :not_found
   end
