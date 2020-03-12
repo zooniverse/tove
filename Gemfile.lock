@@ -251,6 +251,7 @@ GEM
       tins (~> 1.0)
     thor (1.0.1)
     thread_safe (0.3.6)
+    timecop (0.9.1)
     tins (1.22.2)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
@@ -289,6 +290,7 @@ DEPENDENCIES
   simplecov
   spring
   spring-watcher-listen (~> 2.0.0)
+  timecop
 
 BUNDLED WITH
    1.17.2

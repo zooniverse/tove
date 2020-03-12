@@ -42,6 +42,7 @@ end
 group :test do
   gem 'simplecov'
   gem 'pundit-matchers'
+  gem 'timecop'
 end
 
 group :test, :development, :staging do

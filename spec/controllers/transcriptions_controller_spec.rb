@@ -1,11 +1,13 @@
+require 'timecop'
+
 RSpec.describe TranscriptionsController, type: :controller do
   let(:admin_user) { create :user, :admin }
   before { allow(controller).to receive(:current_user).and_return admin_user }
 
   describe '#index' do
     let!(:transcription) { create(:transcription, status: 1, internal_id: 11) }
-    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0) }
-    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2) }
+    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0, updated_at: '2020-20-20 20:00:00', updated_by: 'kar-aniyuki') }
+    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2, low_consensus_lines: 3, total_pages: 2, total_lines: 6) }
 
     it_has_behavior "pagination" do
       let(:another) { another_transcription }
@@ -107,6 +109,39 @@ RSpec.describe TranscriptionsController, type: :controller do
           get :index, params: { filter: { status_in: status_filter } }
           expect(json_data.size).to eq(2)
         end
+      end
+
+      it 'filters by updated by' do
+        get :index, params: { filter: { updated_by_eq: another_transcription.updated_by } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(another_transcription.id.to_s)
+      end
+
+      it 'filters by updated at' do
+        Timecop.travel(Time.now + 1.hour) do
+          transcription.update(updated_by: 'one-eyed-gremlin')
+        end
+        get :index, params: { filter: { updated_at_gt: Time.now + 1.hour } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(transcription.id.to_s)
+      end
+
+      it 'filters by low consensus lines' do
+        get :index, params: { filter: { low_consensus_lines_eq: separate_transcription.low_consensus_lines } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      it 'filters by total pages' do
+        get :index, params: { filter: { total_pages_eq: separate_transcription.total_pages } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      it 'filters by total lines' do
+        get :index, params: { filter: { total_lines_eq: separate_transcription.total_lines } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
       end
     end
   end
