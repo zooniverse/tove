@@ -51,7 +51,7 @@ class TranscriptionsController < ApplicationController
     end
 
   rescue DataExports::NoStoredFilesFoundError => e
-    render_jsonapi_custom_error(e)
+    render_jsonapi_custom_not_found(e)
   end
 
   def export_group
@@ -70,7 +70,7 @@ class TranscriptionsController < ApplicationController
     end
 
   rescue NoExportableTranscriptionsError => e
-    render_jsonapi_custom_error(e, use_sentry: false)
+    render_jsonapi_custom_not_found(e, use_sentry: false)
   end
 
   private

@@ -20,12 +20,6 @@ module ErrorExtender
     Raven.capture_exception(exception)
   end
 
-  def render_jsonapi_custom_error(exception, use_sentry: true)
-    report_to_sentry(exception) if use_sentry
-    error = { status: '500', title: exception.class.to_s, detail: exception.to_s }
-    render jsonapi_errors: [error], status: :internal_server_error
-  end
-
   # Overriding this JSONAPI::Errors method to add Sentry reporting
   def render_jsonapi_internal_server_error(exception)
     report_to_sentry(exception)
@@ -45,5 +39,11 @@ module ErrorExtender
   def render_jsonapi_not_authorized
     error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403] }
     render jsonapi_errors: [error], status: :forbidden
+  end
+
+  def render_jsonapi_custom_not_found(exception, use_sentry: true)
+    report_to_sentry(exception)
+    error = { status: '404', title: Rack::Utils::HTTP_STATUS_CODES[404], detail: exception.to_s }
+    render jsonapi_errors: [error], status: :not_found
   end
 end
