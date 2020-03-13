@@ -43,9 +43,9 @@ class Transcription < ApplicationRecord
     locked? && current_user.login != locked_by
   end
 
-  def fresh?(if_unmodified_since_date)
-    # the 'If-Unmodified-Since' datetime will be sent over by client with ISO 8601 format, 3 digits of fractional seconds
-    updated_at.iso8601(3) == if_unmodified_since_date
+  def fresh?(if_unmodified_since)
+    # defer to using datetime format used by Rails cache validation
+    DateTime.rfc2822(updated_at.rfc2822) == if_unmodified_since
   end
 
   private

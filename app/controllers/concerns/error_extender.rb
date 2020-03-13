@@ -27,7 +27,7 @@ module ErrorExtender
   end
 
   def render_jsonapi_bad_request(exception)
-    error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400] }
+    error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400], detail: exception.to_s }
     render jsonapi_errors: [error], status: :bad_request
   end
 

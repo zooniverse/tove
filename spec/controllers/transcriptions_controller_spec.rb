@@ -113,13 +113,18 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#show' do
     let!(:transcription) { create(:transcription) }
+    let(:user) { create(:user, :admin) }
+
+    before do
+      allow(controller).to receive(:current_user).and_return user
+      get :show, params: { id: transcription.id }
+    end
+
+    it 'serializes the updated_at date in the "Last-Modified" header' do
+      expect(response.header['Last-Modified']).to eq(transcription.updated_at.rfc2822)
+    end
 
     describe 'roles' do
-      before do
-        allow(controller).to receive(:current_user).and_return user
-        get :show, params: { id: transcription.id }
-      end
-
       context 'without any roles' do
         let(:user) { create(:user, roles: {} )}
         it 'returns a 403' do
@@ -166,7 +171,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }
 
     before(:each) do
-      request.headers['If-Unmodified-Since'] = transcription.updated_at.iso8601(3)
+      request.headers['If-Unmodified-Since'] = transcription.updated_at.rfc2822
     end
 
     it 'updates the resource' do
@@ -197,7 +202,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
     end
 
-    context 'validates the input' do
+    context 'validates the request' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
         patch :update, params: busted_params
@@ -225,6 +230,18 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'contains read-only data' do
         busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_id" } } }
         patch :update, params: busted_params
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'doesnt have the "If-Unmodified-Since" header set' do
+        request.headers['If-Unmodified-Since'] = ''
+        patch :update, params: update_params
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'the "If-Unmodified-Since" header doesnt have a valid date set' do
+        request.headers['If-Unmodified-Since'] = 'not a date'
+        patch :update, params: update_params
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -299,7 +316,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
     context 'when last modified date does not match' do
       it 'throws an error' do
-        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).iso8601(3)
+        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).rfc2822
         patch :update, params: update_params
         expect(response).to have_http_status(:error)
       end

@@ -3,6 +3,9 @@ class TranscriptionsController < ApplicationController
 
   class TranscriptionLockedError < StandardError; end
   class NoExportableTranscriptionsError < StandardError; end
+  class ValidationError < StandardError; end
+
+  rescue_from ValidationError, with: :render_jsonapi_bad_request
 
   before_action :status_filter_to_int, only: :index
 
@@ -19,6 +22,7 @@ class TranscriptionsController < ApplicationController
       @transcription.lock(current_user)
     end
 
+    response.set_header('Last-Modified', @transcription.updated_at.rfc2822)
     render jsonapi: @transcription
   end
 
@@ -88,7 +92,7 @@ class TranscriptionsController < ApplicationController
   def validate_update
     raise ActionController::BadRequest if type_invalid?
     raise ActionController::BadRequest unless whitelisted_attributes?
-    raise ActiveRecord::StaleObjectError unless @transcription.fresh?(request.headers['If-Unmodified-Since'])
+    raise ActiveRecord::StaleObjectError unless @transcription.fresh?(if_unmodified_since)
     if @transcription.locked_by_different_user? current_user
       raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}"
     end
@@ -139,21 +143,35 @@ class TranscriptionsController < ApplicationController
     update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
   end
 
-  def approving?
-    update_attrs["status"] == "approved"
+  def update_attr_whitelist
+    ["flagged", "text", "status"]
   end
 
   def allowed_filters
     [:id, :workflow_id, :group_id, :flagged, :status, :internal_id]
   end
 
-  def update_attr_whitelist
-    ["flagged", "text", "status"]
+  def approving?
+    update_attrs["status"] == "approved"
   end
 
   def jsonapi_serializer_params
     {
       serialize_text: action_name == 'show'
     }
+  end
+
+  def if_unmodified_since
+    since = request.headers['If-Unmodified-Since']
+
+    if since.blank?
+      raise ValidationError.new("Missing header 'If-Unmodified-Since', action cannot be performed.")
+    end
+
+    begin
+      Time.rfc2822(since)
+    rescue
+      raise ValidationError.new("The date found in 'If-Unmodified-Since' is not properly formed and cannot be processed.")
+    end
   end
 end
