@@ -8,7 +8,6 @@ class TranscriptionSerializer
   belongs_to :workflow
 
   attribute :locked_by do |transcription|
-    transcription.locked_by if transcription.lock_timeout? &&
-                               DateTime.now < transcription.lock_timeout
+    transcription.locked_by if transcription.locked?
   end
 end

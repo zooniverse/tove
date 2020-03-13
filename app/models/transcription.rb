@@ -30,7 +30,26 @@ class Transcription < ApplicationRecord
     export_files.map(&:purge)
   end
 
+  def lock(current_user)
+    update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
+  end
+
+  def locked?
+    lock_timeout && DateTime.now < lock_timeout
+  end
+
+  # Is transcription locked by a user that is not the current user?
+  def locked_by_different_user?(current_user)
+    locked? && current_user.login != locked_by
+  end
+
+  def fresh?(if_unmodified_since_date)
+    # the 'If-Unmodified-Since' datetime will be sent over by client with ISO 8601 format, 3 digits of fractional seconds
+    updated_at.iso8601(3) == if_unmodified_since_date
+  end
+
   private
+
   def text_json_is_not_nil
     if text.nil?
       errors.add(:text, "must be set to a json object")

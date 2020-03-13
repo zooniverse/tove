@@ -16,7 +16,7 @@ class TranscriptionsController < ApplicationController
     authorize @transcription
 
     if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
-      lock_transcription
+      @transcription.lock(current_user)
     end
 
     render jsonapi: @transcription
@@ -88,8 +88,10 @@ class TranscriptionsController < ApplicationController
   def validate_update
     raise ActionController::BadRequest if type_invalid?
     raise ActionController::BadRequest unless whitelisted_attributes?
-    raise ActiveRecord::StaleObjectError unless fresh?
-    raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}" if locked?
+    raise ActiveRecord::StaleObjectError unless @transcription.fresh?(request.headers['If-Unmodified-Since'])
+    if @transcription.locked_by_different_user? current_user
+      raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}"
+    end
   end
 
   def authorize_update
@@ -139,21 +141,6 @@ class TranscriptionsController < ApplicationController
 
   def approving?
     update_attrs["status"] == "approved"
-  end
-
-  def fresh?
-    # the 'If-Unmodified-Since' datetime will be sent over by client with ISO 8601 format, 3 digits of fractional seconds
-    @transcription.updated_at.iso8601(3) == request.headers['If-Unmodified-Since']
-  end
-
-  def locked?
-    @transcription.lock_timeout &&
-      DateTime.now < @transcription.lock_timeout &&
-      current_user.login != @transcription.locked_by
-  end
-
-  def lock_transcription
-    @transcription.update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
   end
 
   def allowed_filters

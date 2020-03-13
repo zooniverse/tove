@@ -318,7 +318,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       context 'when updating user and locked by user are the same' do
         let(:transcription) { create(:transcription, locked_by: admin_user.login, lock_timeout: (DateTime.now + 1.hours)) }
 
-        it 'allows update when updating user and locked by user are the same' do
+        it 'allows update' do
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
