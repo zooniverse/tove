@@ -1,3 +1,5 @@
+require 'timecop'
+
 RSpec.describe Transcription, type: :model do
   context 'validation' do
     it 'requires a workflow id' do
@@ -14,6 +16,25 @@ RSpec.describe Transcription, type: :model do
 
     it 'allows empty text' do
       expect(create(:transcription, text: {})).to be_valid
+    end
+  end
+
+  context 'locking' do
+    let!(:locked_transcription) { create(:transcription, locked_by: 'vegeta', lock_timeout: DateTime.now + 3.hours) }
+    let(:current_user) { build :user, :admin }
+
+    it 'confirms when a transcription is locked' do
+      expect(locked_transcription.locked?).to be_truthy
+    end
+
+    it 'confirms when a transcription is unlocked' do
+      Timecop.travel(DateTime.now + 4.hours) do
+        expect(Transcription.find(locked_transcription.id).locked?).to be_falsey
+      end
+    end
+
+    it 'confirms when a transcription is locked by another user' do
+      expect(locked_transcription.locked_by_different_user? current_user).to be_truthy
     end
   end
 end
