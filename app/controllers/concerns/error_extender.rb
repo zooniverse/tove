@@ -36,8 +36,8 @@ module ErrorExtender
     render jsonapi_errors: [error], status: :unauthorized
   end
 
-  def render_jsonapi_not_authorized
-    error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403] }
+  def render_jsonapi_not_authorized(exception)
+    error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403], detail: exception.to_s }
     render jsonapi_errors: [error], status: :forbidden
   end
 end

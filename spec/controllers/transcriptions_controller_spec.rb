@@ -360,6 +360,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
       it 'does not remove the lock' do
         patch :unlock, params: unlock_params
+        expect(response).to have_http_status(:forbidden)
         expect(Transcription.find(transcription.id).locked_by).to eq(transcription.locked_by)
       end
     end

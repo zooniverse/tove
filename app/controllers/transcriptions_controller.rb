@@ -4,8 +4,10 @@ class TranscriptionsController < ApplicationController
   class TranscriptionLockedError < StandardError; end
   class NoExportableTranscriptionsError < StandardError; end
   class ValidationError < StandardError; end
+  class ActionForbiddenError < StandardError; end
 
   rescue_from ValidationError, with: :render_jsonapi_bad_request
+  rescue_from ActionForbiddenError, with: :render_jsonapi_not_authorized
 
   before_action :status_filter_to_int, only: :index
 
@@ -51,8 +53,10 @@ class TranscriptionsController < ApplicationController
   def unlock
     @transcription = Transcription.find(params[:id])
     authorize @transcription, :update?
-
-    return unless @transcription.locked_by == current_user.login
+    if @transcription.locked_by != current_user.login
+      raise ActionForbiddenError,
+            "You are not allowed to unlock this transcription. Transcription is locked by #{@transcription.locked_by} and can only be unlocked by this user."
+    end
 
     @transcription.update!(locked_by: nil, lock_timeout: nil)
   end
@@ -74,7 +78,7 @@ class TranscriptionsController < ApplicationController
     @transcriptions = Transcription.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
 
     if @transcriptions.empty?
-      raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
+      raise NoExportableTranscriptionsError, "No exportable transcriptions found for group id '#{params[:group_id]}'"
     end
 
     data_storage = DataExports::DataStorage.new
@@ -165,13 +169,13 @@ class TranscriptionsController < ApplicationController
     since = request.headers['If-Unmodified-Since']
 
     if since.blank?
-      raise ValidationError.new("Missing header 'If-Unmodified-Since', action cannot be performed.")
+      raise ValidationError, 'Missing header "If-Unmodified-Since", action cannot be performed.'
     end
 
     begin
       Time.rfc2822(since)
     rescue
-      raise ValidationError.new("The date found in 'If-Unmodified-Since' is not properly formed and cannot be processed.")
+      raise ValidationError, 'The date found in "If-Unmodified-Since" is not properly formed and cannot be processed.'
     end
   end
 end
