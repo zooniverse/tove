@@ -9,7 +9,7 @@ RSpec.describe DataExports::DataStorage do
 
   describe '#zip_transcription_files' do
     it 'throws error when no stored files are found' do
-      expect { data_storage.zip_transcription_files(transcription) }.to raise_error(DataExports::NoStoredFilesFoundError)
+      expect { data_storage.zip_transcription_files(transcription) }.to raise_error(DataExports::DataStorage::NoStoredFilesFoundError)
     end
 
     context 'when stored files are found' do

@@ -49,8 +49,6 @@ class TranscriptionsController < ApplicationController
     data_storage.zip_transcription_files(@transcription) do |zip_file|
       send_export_file zip_file
     end
-  rescue DataExports::NoStoredFilesFoundError => e
-    render_jsonapi_not_found(e)
   end
 
   def export_group

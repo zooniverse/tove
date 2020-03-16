@@ -2,9 +2,10 @@ require 'fileutils'
 require 'securerandom'
 
 module DataExports
-  class NoStoredFilesFoundError < StandardError; end
-
   class DataStorage
+
+    class NoStoredFilesFoundError < StandardError; end
+
     # Public: downloads all transcription files for a given transcription
     # returns path to zip file
     def zip_transcription_files(transcription)
