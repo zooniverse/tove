@@ -10,7 +10,7 @@ module DataExports
     def zip_transcription_files(transcription)
       if transcription.export_files.attached?
         Dir.mktmpdir do |directory_path|
-          transcription_folder = download_transcription_files(transcription, directory_path)
+          transcription_folder = download_transcription_files(transcription, directory_path, single_transcription_export: true)
           yield zip_files(directory_path, transcription_folder)
         end
       else
@@ -69,14 +69,14 @@ module DataExports
     # @param transcription [Transcription]: the transcription we want to retrieve files for
     # @param directory_path [String]: path within which we will create the transcription file folder
     # returns location of generated transcription folder
-    def download_transcription_files(transcription, directory_path)
+    def download_transcription_files(transcription, directory_path, single_transcription_export: false)
       transcription_folder = File.join(directory_path, "transcription_#{transcription.id}")
       FileUtils.mkdir_p(transcription_folder)
 
       metadata_file_regex = /^transcription_metadata_.*\.csv$/
       transcription.export_files.each do |storage_file|
         is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
-        unless is_transcription_metadata_file
+        unless is_transcription_metadata_file && !single_transcription_export
           download_path = File.join(transcription_folder, storage_file.filename.to_s)
           file = File.open(download_path, 'w')
           file.write(storage_file.download)
