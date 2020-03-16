@@ -1,5 +1,3 @@
-require 'timecop'
-
 RSpec.describe TranscriptionsController, type: :controller do
   let(:admin_user) { create :user, :admin }
   before { allow(controller).to receive(:current_user).and_return admin_user }
@@ -118,10 +116,8 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       it 'filters by updated at' do
-        Timecop.travel(Time.now + 1.hour) do
-          transcription.update(updated_by: 'one-eyed-gremlin')
-        end
-        get :index, params: { filter: { updated_at_gt: Time.now + 1.hour } }
+        transcription.update_column(:updated_at, Time.now + 1.hour)
+        get :index, params: { filter: { updated_at_gteq: transcription.updated_at } }
         expect(json_data.size).to eq(1)
         expect(json_data.first).to have_id(transcription.id.to_s)
       end
