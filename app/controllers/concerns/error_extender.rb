@@ -8,7 +8,7 @@ module ErrorExtender
     rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
     rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_jsonapi_bad_request
     rescue_from TranscriptionsController::NoExportableTranscriptionsError, with: :render_jsonapi_not_found
-    rescue_from DataExports::NoStoredFilesFoundError, with: :render_jsonapi_not_found
+    rescue_from DataExports::DataStorage::NoStoredFilesFoundError, with: :render_jsonapi_not_found
 
     # override JSONAPI::Errors method to include exception message
     def render_jsonapi_not_found(exception)
