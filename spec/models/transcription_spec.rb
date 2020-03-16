@@ -1,5 +1,3 @@
-require 'timecop'
-
 RSpec.describe Transcription, type: :model do
   context 'validation' do
     it 'requires a workflow id' do
@@ -28,9 +26,8 @@ RSpec.describe Transcription, type: :model do
     end
 
     it 'confirms when a transcription is unlocked' do
-      Timecop.travel(DateTime.now + 4.hours) do
-        expect(Transcription.find(locked_transcription.id).locked?).to be_falsey
-      end
+      locked_transcription.update(lock_timeout: DateTime.now - 1.hour)
+      expect(Transcription.find(locked_transcription.id).locked?).to be_falsey
     end
 
     it 'confirms when a transcription is locked by another user' do
