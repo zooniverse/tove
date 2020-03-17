@@ -121,7 +121,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     it 'serializes the updated_at date in the "Last-Modified" header' do
-      expect(response.header['Last-Modified']).to eq(transcription.updated_at.rfc2822)
+      expect(response.header['Last-Modified']).to eq(transcription.updated_at.httpdate)
     end
 
     describe 'roles' do
@@ -171,7 +171,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }
 
     before(:each) do
-      request.headers['If-Unmodified-Since'] = transcription.updated_at.rfc2822
+      request.headers['If-Unmodified-Since'] = transcription.updated_at.httpdate
     end
 
     it 'updates the resource' do
@@ -316,7 +316,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
     context 'when last modified date does not match' do
       it 'throws an error' do
-        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).rfc2822
+        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).httpdate
         patch :update, params: update_params
         expect(response).to have_http_status(:error)
       end

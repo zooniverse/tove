@@ -45,7 +45,7 @@ class Transcription < ApplicationRecord
 
   def fresh?(if_unmodified_since)
     # defer to using datetime format used by Rails cache validation
-    DateTime.rfc2822(updated_at.rfc2822) == if_unmodified_since
+    if_unmodified_since >= updated_at.httpdate
   end
 
   private

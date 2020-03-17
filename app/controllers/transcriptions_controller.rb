@@ -24,7 +24,7 @@ class TranscriptionsController < ApplicationController
       @transcription.lock(current_user)
     end
 
-    response.set_header('Last-Modified', @transcription.updated_at.rfc2822)
+    response.last_modified = @transcription.updated_at
     render jsonapi: @transcription
   end
 
