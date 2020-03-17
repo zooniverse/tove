@@ -43,7 +43,7 @@ class Transcription < ApplicationRecord
     locked? && current_user.login != locked_by
   end
 
-  def fresh?(if_unmodified_since)
+  def is_fresh?(if_unmodified_since)
     # defer to using datetime format used by Rails cache validation
     if_unmodified_since >= updated_at.httpdate
   end

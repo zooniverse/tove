@@ -96,7 +96,7 @@ class TranscriptionsController < ApplicationController
   def validate_update
     raise ActionController::BadRequest if type_invalid?
     raise ActionController::BadRequest unless whitelisted_attributes?
-    raise ActiveRecord::StaleObjectError unless @transcription.fresh?(if_unmodified_since)
+    raise ActiveRecord::StaleObjectError unless @transcription.is_fresh?(if_unmodified_since)
     if @transcription.locked_by_different_user? current_user
       raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}"
     end
