@@ -34,6 +34,10 @@ class Transcription < ApplicationRecord
     update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
   end
 
+  def unlock
+    update!(locked_by: nil, lock_timeout: nil)
+  end
+
   def locked?
     lock_timeout && DateTime.now < lock_timeout
   end

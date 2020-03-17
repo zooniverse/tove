@@ -4,10 +4,7 @@ class TranscriptionsController < ApplicationController
   class TranscriptionLockedError < StandardError; end
   class NoExportableTranscriptionsError < StandardError; end
   class ValidationError < StandardError; end
-  class ActionForbiddenError < StandardError; end
-
-  rescue_from ValidationError, with: :render_jsonapi_bad_request
-  rescue_from ActionForbiddenError, with: :render_jsonapi_not_authorized
+  class LockedByAnotherUserError < StandardError; end
 
   before_action :status_filter_to_int, only: :index
 
@@ -54,11 +51,11 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     authorize @transcription, :update?
     if @transcription.locked_by != current_user.login
-      raise ActionForbiddenError,
+      raise LockedByAnotherUserError,
             "You are not allowed to unlock this transcription. Transcription is locked by #{@transcription.locked_by} and can only be unlocked by this user."
     end
 
-    @transcription.update!(locked_by: nil, lock_timeout: nil)
+    @transcription.unlock
   end
 
   def export
@@ -169,7 +166,7 @@ class TranscriptionsController < ApplicationController
     since = request.headers['If-Unmodified-Since']
 
     if since.blank?
-      raise ValidationError, 'Missing header "If-Unmodified-Since", action cannot be performed.'
+      raise ValidationError, "You must supply the 'If-Unmodified-Since' header and it must contain the resource's GET request 'Last-Modified' header value"
     end
 
     begin
