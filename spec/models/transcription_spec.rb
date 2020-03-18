@@ -31,7 +31,7 @@ RSpec.describe Transcription, type: :model do
     end
 
     it 'confirms when a transcription is locked by another user' do
-      expect(locked_transcription.locked_by_different_user? current_user).to be_truthy
+      expect(locked_transcription.locked_by_different_user? current_user.login).to be_truthy
     end
   end
 end
