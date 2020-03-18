@@ -29,17 +29,25 @@ module ErrorExtender
   end
 
   def render_jsonapi_bad_request(exception)
-    error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400], detail: exception.to_s }
+    error = error_object(400, exception)
     render jsonapi_errors: [error], status: :bad_request
   end
 
   def render_jsonapi_token_expired(exception)
-    error = { status: '401', title: Rack::Utils::HTTP_STATUS_CODES[401] }
+    error = error_object(401, exception)
     render jsonapi_errors: [error], status: :unauthorized
   end
 
   def render_jsonapi_not_authorized(exception)
-    error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403], detail: exception.to_s }
+    error = error_object(403, exception)
     render jsonapi_errors: [error], status: :forbidden
+  end
+
+  def error_object(status, exception)
+    {
+      status: status.to_s,
+      title: Rack::Utils::HTTP_STATUS_CODES[status],
+      detail: exception.to_s
+    }
   end
 end
