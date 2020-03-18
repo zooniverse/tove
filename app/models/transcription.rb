@@ -30,11 +30,11 @@ class Transcription < ApplicationRecord
     export_files.map(&:purge)
   end
 
-  def lock(current_user)
+  def lock!(current_user)
     update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
   end
 
-  def unlock
+  def unlock!
     update!(locked_by: nil, lock_timeout: nil)
   end
 
@@ -42,7 +42,6 @@ class Transcription < ApplicationRecord
     lock_timeout && DateTime.now < lock_timeout
   end
 
-  # Is transcription locked by a user that is not the current user?
   def locked_by_different_user?(current_user)
     locked? && current_user.login != locked_by
   end

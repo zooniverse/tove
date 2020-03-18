@@ -18,7 +18,7 @@ class TranscriptionsController < ApplicationController
     authorize @transcription
 
     if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
-      @transcription.lock(current_user)
+      @transcription.lock!(current_user)
     end
 
     response.last_modified = @transcription.updated_at
@@ -55,7 +55,7 @@ class TranscriptionsController < ApplicationController
             "You are not allowed to unlock this transcription. Transcription is locked by #{@transcription.locked_by} and can only be unlocked by this user."
     end
 
-    @transcription.unlock
+    @transcription.unlock!
   end
 
   def export
@@ -137,7 +137,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def type_invalid?
-    params[:data][:type] != "transcriptions"
+    params[:data][:type] != 'transcriptions'
   end
 
   def whitelisted_attributes?
@@ -145,15 +145,15 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_attr_whitelist
-    ["flagged", "text", "status"]
+    %w[flagged text status]
   end
 
   def allowed_filters
-    [:id, :workflow_id, :group_id, :flagged, :status, :internal_id]
+    %i[id workflow_id group_id flagged status internal_id]
   end
 
   def approving?
-    update_attrs["status"] == "approved"
+    update_attrs['status'] == 'approved'
   end
 
   def jsonapi_serializer_params
@@ -166,13 +166,13 @@ class TranscriptionsController < ApplicationController
     since = request.headers['If-Unmodified-Since']
 
     if since.blank?
-      raise ValidationError, "You must supply the 'If-Unmodified-Since' header and it must contain the resource's GET request 'Last-Modified' header value"
+      raise ValidationError, "You must supply the 'If-Unmodified-Since' header and it must contain the resource's GET request 'Last-Modified' header value."
     end
 
     begin
       Time.rfc2822(since)
     rescue
-      raise ValidationError, 'The date found in "If-Unmodified-Since" is not properly formed and cannot be processed.'
+      raise ValidationError, "#{since}: the value supplied in 'If-Unmodified-Since' header cannot be processed. The 'If-Unmodified-Since' header must contain the resource's GET request 'Last-Modified' header value."
     end
   end
 end
