@@ -50,7 +50,7 @@ class TranscriptionsController < ApplicationController
   def unlock
     @transcription = Transcription.find(params[:id])
     authorize @transcription, :update?
-    if @transcription.locked_by != current_user.login
+    if @transcription.locked_by_different_user? current_user.login
       raise LockedByAnotherUserError,
             "You are not allowed to unlock this transcription. Transcription is locked by #{@transcription.locked_by} and can only be unlocked by this user."
     end
