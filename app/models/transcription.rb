@@ -54,8 +54,6 @@ class Transcription < ApplicationRecord
   private
 
   def text_json_is_not_nil
-    if text.nil?
-      errors.add(:text, "must be set to a json object")
-    end
+    errors.add(:text, 'must be set to a json object') if text.nil?
   end
 end
