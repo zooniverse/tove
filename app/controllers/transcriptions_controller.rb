@@ -58,7 +58,7 @@ class TranscriptionsController < ApplicationController
     @transcriptions = Transcription.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
 
     if @transcriptions.empty?
-      raise NoExportableTranscriptionsError.new("No exportable transcriptions found for group id '#{params[:group_id]}'")
+      raise NoExportableTranscriptionsError, "No exportable transcriptions found for group id '#{params[:group_id]}'"
     end
 
     data_storage = DataExports::DataStorage.new
@@ -76,28 +76,26 @@ class TranscriptionsController < ApplicationController
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
   # so we must translate status terms to their integer value if they're present
   def status_filter_to_int
-    if params[:filter]
-      params[:filter].each do |key, value|
-        # filter key is comprised of <filterterm>_<relationship>
-        # e.g. id_eq, status_in, etc - check if filter term is status
-        if key.split('_').first == 'status'
-          # split status terms in case there is a list of them
-          status_terms = value.split(',')
-          status_enum_values = []
+    params[:filter]&.each do |key, value|
+      # filter key is comprised of <filterterm>_<relationship>
+      # e.g. id_eq, status_in, etc - check if filter term is status
+      next unless key.split('_').first == 'status'
 
-          # for each status term, try to convert to enum value,
-          # and add to list of converted enum values
-          status_terms.each do |term|
-            enum_value = Transcription.statuses[term]
-            status_enum_values.append(enum_value.to_s) if enum_value
-          end
+      # split status terms in case there is a list of them
+      status_terms = value.split(',')
+      status_enum_values = []
 
-          # if list of converted enum values is not empty,
-          # update params to reflect converted values
-          unless status_enum_values.empty?
-            params[:filter][key] = status_enum_values.join(',')
-          end
-        end
+      # for each status term, try to convert to enum value,
+      # and add to list of converted enum values
+      status_terms.each do |term|
+        enum_value = Transcription.statuses[term]
+        status_enum_values.append(enum_value.to_s) if enum_value
+      end
+
+      # if list of converted enum values is not empty,
+      # update params to reflect converted values
+      unless status_enum_values.empty?
+        params[:filter][key] = status_enum_values.join(',')
       end
     end
   end
@@ -119,7 +117,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_attr_whitelist
-    ['flagged', 'text', 'status']
+    %w[flagged text status reducer parameters]
   end
 
   def jsonapi_serializer_params
