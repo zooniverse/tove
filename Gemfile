@@ -27,7 +27,7 @@ gem 'rack-cors'
 gem 'sentry-raven'
 
 group :development, :test do
-  gem 'coveralls', require: false
+  gem 'coveralls', '~>0.8.23', :require => false
   gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false

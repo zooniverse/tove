@@ -16,13 +16,13 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
       end
 
       it 'generates a file containing raw data' do
-        raw_data_file = files.detect { |f|
+        raw_data_file = files.detect do |f|
           basename = File.basename(f)
           /^raw_data_.*\.json$/.match(basename)
-        }
+        end
 
         expect(File).to exist(raw_data_file.path)
-        expect(eval(raw_data_file.read)).to eq(transcription.text)
+        expect(raw_data_file.read).to eq(transcription.text.to_json)
       end
 
       it 'generates a file containing consensus text' do
@@ -99,7 +99,10 @@ RSpec.describe DataExports::TranscriptionFileGenerator do
           'page number',
           'column',
           'number of transcribers',
-          'line coordinates'
+          'line start x',
+          'line end x',
+          'line start y',
+          'line end y'
         ])
       end
     end
