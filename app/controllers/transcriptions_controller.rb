@@ -113,7 +113,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def allowed_filters
-    %i[id workflow_id group_id flagged status internal_id]
+    %i[id workflow_id group_id flagged status internal_id updated_at updated_by low_consensus_lines total_pages total_lines]
   end
 
   def update_attr_whitelist

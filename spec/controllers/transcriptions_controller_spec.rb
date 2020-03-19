@@ -4,8 +4,8 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#index' do
     let!(:transcription) { create(:transcription, status: 1, internal_id: 11) }
-    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0) }
-    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2) }
+    let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0, updated_at: '2020-20-20 20:00:00', updated_by: 'kar-aniyuki') }
+    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2, low_consensus_lines: 3, total_pages: 2, total_lines: 6) }
 
     it_has_behavior "pagination" do
       let(:another) { another_transcription }
@@ -107,6 +107,37 @@ RSpec.describe TranscriptionsController, type: :controller do
           get :index, params: { filter: { status_in: status_filter } }
           expect(json_data.size).to eq(2)
         end
+      end
+
+      it 'filters by updated by' do
+        get :index, params: { filter: { updated_by_eq: another_transcription.updated_by } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(another_transcription.id.to_s)
+      end
+
+      it 'filters by updated at' do
+        transcription.update_column(:updated_at, Time.now + 1.hour)
+        get :index, params: { filter: { updated_at_gteq: transcription.updated_at } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(transcription.id.to_s)
+      end
+
+      it 'filters by low consensus lines' do
+        get :index, params: { filter: { low_consensus_lines_eq: separate_transcription.low_consensus_lines } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      it 'filters by total pages' do
+        get :index, params: { filter: { total_pages_eq: separate_transcription.total_pages } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
+      end
+
+      it 'filters by total lines' do
+        get :index, params: { filter: { total_lines_eq: separate_transcription.total_lines } }
+        expect(json_data.size).to eq(1)
+        expect(json_data.first).to have_id(separate_transcription.id.to_s)
       end
     end
   end
@@ -289,15 +320,20 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     describe '#export' do
-      context 'exporting a single transcription' do
-        it 'returns successfully' do
-          get :export, params: export_single_params
-          expect(response).to have_http_status(:ok)
-        end
+      it 'returns successfully' do
+        get :export, params: export_single_params
+        expect(response).to have_http_status(:ok)
+      end
 
-        it 'should have a response with content-type of application/zip' do
-          get :export, params: export_single_params
-          expect(response.header["Content-Type"]).to eq("application/zip")
+      it 'should have a response with content-type of application/zip' do
+        get :export, params: export_single_params
+        expect(response.header["Content-Type"]).to eq("application/zip")
+      end
+
+      context 'when transcription has no attached export files' do
+        it 'returns a 404 not found' do
+          get :export, params: { id: second_transcription.id }
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -354,9 +390,9 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       context 'when group contains no transcriptions' do
-        it 'returns an error' do
+        it 'returns a 404 not found' do
           get :export_group, params: { group_id: 'MICE_IN_TANKS', workflow_id: transcription.workflow_id }
-          expect(response).to have_http_status(:error)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
