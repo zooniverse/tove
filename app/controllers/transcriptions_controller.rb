@@ -1,7 +1,10 @@
 class TranscriptionsController < ApplicationController
   include JSONAPI::Deserialization
 
+  class TranscriptionLockedError < StandardError; end
   class NoExportableTranscriptionsError < StandardError; end
+  class ValidationError < StandardError; end
+  class LockedByAnotherUserError < StandardError; end
 
   before_action :status_filter_to_int, only: :index
 
@@ -13,21 +16,24 @@ class TranscriptionsController < ApplicationController
   def show
     @transcription = Transcription.find(params[:id])
     authorize @transcription
+
+    if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
+      @transcription.lock!(current_user)
+    end
+
+    response.last_modified = @transcription.updated_at
     render jsonapi: @transcription
   end
 
   def update
     @transcription = Transcription.find(params[:id])
-    raise ActionController::BadRequest if type_invalid?
-    raise ActionController::BadRequest unless whitelisted_attributes?
-
-    if approving?
-      authorize @transcription, :approve?
-    else
-      authorize @transcription
-    end
+    validate_update
+    authorize_update
 
     update_attrs['updated_by'] = current_user.login
+    update_attrs['locked_by'] = current_user.login
+    update_attrs['lock_timeout'] = DateTime.now + 3.hours
+
     @transcription.update!(update_attrs)
 
     if @transcription.status_previously_changed?
@@ -39,6 +45,17 @@ class TranscriptionsController < ApplicationController
     end
 
     render jsonapi: @transcription
+  end
+
+  def unlock
+    @transcription = Transcription.find(params[:id])
+    authorize @transcription, :update?
+    if @transcription.locked_by_different_user? current_user.login
+      raise LockedByAnotherUserError,
+            "You are not allowed to unlock this transcription. Transcription is locked by #{@transcription.locked_by} and can only be unlocked by this user."
+    end
+
+    @transcription.unlock!
   end
 
   def export
@@ -71,6 +88,25 @@ class TranscriptionsController < ApplicationController
 
   def update_attrs
     @update_attrs ||= jsonapi_deserialize(params)
+  end
+
+  def validate_update
+    raise ActionController::BadRequest if type_invalid?
+    raise ActionController::BadRequest unless whitelisted_attributes?
+    unless @transcription.is_fresh?(if_unmodified_since)
+      raise ActiveRecord::StaleObjectError
+    end
+    if @transcription.locked_by_different_user? current_user.login
+      raise TranscriptionLockedError, "Transcription locked by #{@transcription.locked_by}"
+    end
+  end
+
+  def authorize_update
+    if approving?
+      authorize @transcription, :approve?
+    else
+      authorize @transcription
+    end
   end
 
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
@@ -124,5 +160,19 @@ class TranscriptionsController < ApplicationController
     {
       serialize_text: action_name == 'show'
     }
+  end
+
+  def if_unmodified_since
+    since = request.headers['If-Unmodified-Since']
+
+    if since.blank?
+      raise ValidationError, "You must supply the 'If-Unmodified-Since' header and it must contain the resource's GET request 'Last-Modified' header value."
+    end
+
+    begin
+      Time.rfc2822(since)
+    rescue StandardError
+      raise ValidationError, "#{since}: the value supplied in 'If-Unmodified-Since' header cannot be processed. The 'If-Unmodified-Since' header must contain the resource's GET request 'Last-Modified' header value."
+    end
   end
 end

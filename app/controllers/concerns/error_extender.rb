@@ -12,6 +12,8 @@ module ErrorExtender
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
     rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
     rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_jsonapi_bad_request
+    rescue_from TranscriptionsController::ValidationError, with: :render_jsonapi_bad_request
+    rescue_from TranscriptionsController::LockedByAnotherUserError, with: :render_jsonapi_not_authorized
     rescue_from TranscriptionsController::NoExportableTranscriptionsError, with: :render_jsonapi_not_found
     rescue_from DataExports::DataStorage::NoStoredFilesFoundError, with: :render_jsonapi_not_found
 
@@ -40,17 +42,25 @@ module ErrorExtender
   end
 
   def render_jsonapi_bad_request(exception)
-    error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400] }
+    error = error_object(400, exception)
     render jsonapi_errors: [error], status: :bad_request
   end
 
   def render_jsonapi_token_expired(exception)
-    error = { status: '401', title: Rack::Utils::HTTP_STATUS_CODES[401] }
+    error = error_object(401, exception)
     render jsonapi_errors: [error], status: :unauthorized
   end
 
-  def render_jsonapi_not_authorized
-    error = { status: '403', title: Rack::Utils::HTTP_STATUS_CODES[403] }
+  def render_jsonapi_not_authorized(exception)
+    error = error_object(403, exception)
     render jsonapi_errors: [error], status: :forbidden
+  end
+
+  def error_object(status, exception)
+    {
+      status: status.to_s,
+      title: Rack::Utils::HTTP_STATUS_CODES[status],
+      detail: exception.to_s
+    }
   end
 end

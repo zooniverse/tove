@@ -7,7 +7,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0, updated_at: '2020-20-20 20:00:00', updated_by: 'kar-aniyuki') }
     let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2, low_consensus_lines: 3, total_pages: 2, total_lines: 6) }
 
-    it_has_behavior "pagination" do
+    it_has_behavior 'pagination' do
       let(:another) { another_transcription }
     end
 
@@ -144,16 +144,21 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#show' do
     let!(:transcription) { create(:transcription) }
+    let(:user) { create(:user, :admin) }
+
+    before do
+      allow(controller).to receive(:current_user).and_return user
+      get :show, params: { id: transcription.id }
+    end
+
+    it 'serializes the updated_at date in the "Last-Modified" header' do
+      expect(response.header['Last-Modified']).to eq(transcription.updated_at.httpdate)
+    end
 
     describe 'roles' do
-      before do
-        allow(controller).to receive(:current_user).and_return user
-        get :show, params: { id: transcription.id }
-      end
-
       context 'without any roles' do
         let(:user) { create(:user, roles: {} )}
-        it "returns a 403" do
+        it 'returns a 403' do
           expect(response).to have_http_status(:forbidden)
         end
       end
@@ -164,13 +169,29 @@ RSpec.describe TranscriptionsController, type: :controller do
           expect(response).to have_http_status(:ok)
           expect(json_data).to have_id(transcription.id.to_s)
         end
+
+        it 'locks the transcription' do
+          expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
+      end
+
+      context 'as an editor' do
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['expert'] }) }
+
+        it 'locks the transcription' do
+          expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
       end
 
       context 'as a viewer' do
         let(:user) { create(:user, roles: {transcription.workflow.project.id => ['tester']}) }
         it 'returns the authorized workflow' do
           expect(response).to have_http_status(:ok)
-          expect(json_data["id"]).to eql(transcription.id.to_s)
+          expect(json_data['id']).to eql(transcription.id.to_s)
+        end
+
+        it 'does not lock the transcription' do
+          expect(Transcription.find(transcription.id).locked_by).to be_nil
         end
       end
     end
@@ -179,6 +200,10 @@ RSpec.describe TranscriptionsController, type: :controller do
   describe '#update' do
     let!(:transcription) { create(:transcription) }
     let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }
+
+    before(:each) do
+      request.headers['If-Unmodified-Since'] = transcription.updated_at.httpdate
+    end
 
     it 'updates the resource' do
       patch :update, params: update_params
@@ -208,7 +233,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
     end
 
-    context 'validates the input' do
+    context 'validates the request' do
       it 'is not valid JSON:API' do
         busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
         patch :update, params: busted_params
@@ -236,6 +261,18 @@ RSpec.describe TranscriptionsController, type: :controller do
       it 'contains read-only data' do
         busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_id" } } }
         patch :update, params: busted_params
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'doesnt have the "If-Unmodified-Since" header set' do
+        request.headers['If-Unmodified-Since'] = ''
+        patch :update, params: update_params
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'the "If-Unmodified-Since" header doesnt have a valid date set' do
+        request.headers['If-Unmodified-Since'] = 'not a date'
+        patch :update, params: update_params
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -305,6 +342,57 @@ RSpec.describe TranscriptionsController, type: :controller do
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
         end
+      end
+    end
+
+    context 'when last modified date does not match' do
+      it 'throws an error' do
+        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).httpdate
+        patch :update, params: update_params
+        expect(response).to have_http_status(:error)
+      end
+    end
+
+    context 'when transcription is locked' do
+      context 'when updating user is different from locked by user' do
+        let(:transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
+
+        it 'prevents update' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:error)
+        end
+      end
+
+      context 'when updating user and locked by user are the same' do
+        let(:transcription) { create(:transcription, locked_by: admin_user.login, lock_timeout: (DateTime.now + 1.hours)) }
+
+        it 'allows update' do
+          patch :update, params: update_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
+
+  describe '#unlock' do
+    context 'when unlocking user is same as locked by user' do
+      let(:transcription) { create(:transcription, locked_by: admin_user.login, lock_timeout: (DateTime.now + 1.hours)) }
+      let(:unlock_params) { { id: transcription.id } }
+
+      it 'removes the lock' do
+        patch :unlock, params: unlock_params
+        expect(Transcription.find(transcription.id).locked_by).to be_nil
+      end
+    end
+
+    context 'when unlocking user is different from locked by user' do
+      let(:transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
+      let(:unlock_params) { { id: transcription.id } }
+
+      it 'does not remove the lock' do
+        patch :unlock, params: unlock_params
+        expect(response).to have_http_status(:forbidden)
+        expect(Transcription.find(transcription.id).locked_by).to eq(transcription.locked_by)
       end
     end
   end

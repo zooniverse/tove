@@ -30,10 +30,30 @@ class Transcription < ApplicationRecord
     export_files.map(&:purge)
   end
 
+  def lock!(current_user)
+    update!(locked_by: current_user.login, lock_timeout: DateTime.now + 3.hours)
+  end
+
+  def unlock!
+    update!(locked_by: nil, lock_timeout: nil)
+  end
+
+  def locked?
+    lock_timeout && DateTime.now < lock_timeout
+  end
+
+  def locked_by_different_user?(current_user_login)
+    locked? && current_user_login != locked_by
+  end
+
+  def is_fresh?(if_unmodified_since)
+    # defer to using datetime format used by Rails cache validation
+    if_unmodified_since >= updated_at.httpdate
+  end
+
   private
+
   def text_json_is_not_nil
-    if text.nil?
-      errors.add(:text, "must be set to a json object")
-    end
+    errors.add(:text, 'must be set to a json object') if text.nil?
   end
 end

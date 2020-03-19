@@ -6,4 +6,8 @@ class TranscriptionSerializer
     params[:serialize_text] == true
   }
   belongs_to :workflow
+
+  attribute :locked_by do |transcription|
+    transcription.locked_by if transcription.locked?
+  end
 end

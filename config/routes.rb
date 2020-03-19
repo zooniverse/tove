@@ -12,5 +12,6 @@ Rails.application.routes.draw do
   resources :transcriptions, only: [:index, :show, :update] do
     get 'export', on: :member
     get 'export_group', on: :collection
+    patch 'unlock', on: :member
   end
 end
