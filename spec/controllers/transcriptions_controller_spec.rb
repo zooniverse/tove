@@ -320,15 +320,20 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     describe '#export' do
-      context 'exporting a single transcription' do
-        it 'returns successfully' do
-          get :export, params: export_single_params
-          expect(response).to have_http_status(:ok)
-        end
+      it 'returns successfully' do
+        get :export, params: export_single_params
+        expect(response).to have_http_status(:ok)
+      end
 
-        it 'should have a response with content-type of application/zip' do
-          get :export, params: export_single_params
-          expect(response.header["Content-Type"]).to eq("application/zip")
+      it 'should have a response with content-type of application/zip' do
+        get :export, params: export_single_params
+        expect(response.header["Content-Type"]).to eq("application/zip")
+      end
+
+      context 'when transcription has no attached export files' do
+        it 'returns a 404 not found' do
+          get :export, params: { id: second_transcription.id }
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -385,9 +390,9 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       context 'when group contains no transcriptions' do
-        it 'returns an error' do
+        it 'returns a 404 not found' do
           get :export_group, params: { group_id: 'MICE_IN_TANKS', workflow_id: transcription.workflow_id }
-          expect(response).to have_http_status(:error)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end

@@ -12,6 +12,14 @@ module ErrorExtender
     rescue_from Panoptes::Client::AuthenticationExpired, with: :render_jsonapi_token_expired
     rescue_from Pundit::NotAuthorizedError, with: :render_jsonapi_not_authorized
     rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_jsonapi_bad_request
+    rescue_from TranscriptionsController::NoExportableTranscriptionsError, with: :render_jsonapi_not_found
+    rescue_from DataExports::DataStorage::NoStoredFilesFoundError, with: :render_jsonapi_not_found
+
+    # override JSONAPI::Errors method to include exception message
+    def render_jsonapi_not_found(exception)
+      error = { status: '404', title: Rack::Utils::HTTP_STATUS_CODES[404], detail: exception.to_s }
+      render jsonapi_errors: [error], status: :not_found
+    end
 
     # Overriding this JSONAPI::Errors method to add Sentry reporting
     def render_jsonapi_internal_server_error(exception)
