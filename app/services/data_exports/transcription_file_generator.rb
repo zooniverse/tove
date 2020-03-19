@@ -1,4 +1,5 @@
 require 'csv'
+require 'json'
 
 module DataExports
   class TranscriptionFileGenerator
@@ -21,7 +22,7 @@ module DataExports
     # returns tempfile
     def write_raw_data_to_file
       file = Tempfile.new(["raw_data_#{@transcription.id}-", '.json'])
-      file.write(@transcription.text)
+      file.write(@transcription.text.to_json)
       file.rewind
 
       file
@@ -49,13 +50,13 @@ module DataExports
           line_text = if line['edited_consensus_text'].present?
                         line['edited_consensus_text']
                       else
-                        line_text = line['consensus_text']
+                        line['consensus_text']
                       end
 
-          full_consensus_text.concat line_text + '\n'
+          full_consensus_text.concat line_text + "\n"
         end
         # new line after every frame
-        full_consensus_text.concat '\n'
+        full_consensus_text.concat "\n"
       end
 
       full_consensus_text
@@ -141,7 +142,10 @@ module DataExports
         'page number',
         'column',
         'number of transcribers',
-        'line coordinates'
+        'line start x',
+        'line end x',
+        'line start y',
+        'line end y'
       ]
 
       frame_regex = /^frame/
@@ -154,13 +158,8 @@ module DataExports
           line_number = line_index + 1
           column = line['gutter_label'] + 1
           num_transcribers = line['user_ids'].count
-          line_coordinates = {
-            'clusters_x': line['clusters_x'],
-            'clusters_y': line['clusters_y']
-          }
           line_edited = line['edited_consensus_text'].present?
           consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
-
           csv_lines << [
             consensus_text,
             line_number,
@@ -173,7 +172,10 @@ module DataExports
             page,
             column,
             num_transcribers,
-            line_coordinates
+            line['clusters_x'][0],
+            line['clusters_x'][1],
+            line['clusters_y'][0],
+            line['clusters_y'][1]
           ]
         end
       end

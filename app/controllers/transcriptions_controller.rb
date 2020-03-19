@@ -112,9 +112,9 @@ class TranscriptionsController < ApplicationController
   # Ransack filtering doesn't handle filtering by enum term (e.g. 'ready'),
   # so we must translate status terms to their integer value if they're present
   def status_filter_to_int
-    # filter key is comprised of <filterterm>_<relationship>
-    # e.g. id_eq, status_in, etc - check if filter term is status
     params[:filter]&.each do |key, value|
+      # filter key is comprised of <filterterm>_<relationship>
+      # e.g. id_eq, status_in, etc - check if filter term is status
       next unless key.split('_').first == 'status'
 
       # split status terms in case there is a list of them
@@ -144,16 +144,16 @@ class TranscriptionsController < ApplicationController
     update_attrs.keys.all? { |key| update_attr_whitelist.include? key }
   end
 
-  def update_attr_whitelist
-    %w[flagged text status]
+  def approving?
+    update_attrs['status'] == 'approved'
   end
 
   def allowed_filters
-    %i[id workflow_id group_id flagged status internal_id]
+    %i[id workflow_id group_id flagged status internal_id updated_at updated_by low_consensus_lines total_pages total_lines]
   end
 
-  def approving?
-    update_attrs['status'] == 'approved'
+  def update_attr_whitelist
+    %w[flagged text status reducer parameters]
   end
 
   def jsonapi_serializer_params
