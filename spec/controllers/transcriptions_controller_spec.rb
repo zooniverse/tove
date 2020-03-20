@@ -356,14 +356,6 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
     end
 
-    context 'when last modified date does not match' do
-      it 'throws an error' do
-        request.headers['If-Unmodified-Since'] = (transcription.updated_at - 1.hours).httpdate
-        patch :update, params: update_params
-        expect(response).to have_http_status(:error)
-      end
-    end
-
     context 'when transcription is locked' do
       context 'when updating user is different from locked by user' do
         let(:transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
