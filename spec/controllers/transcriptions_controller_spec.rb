@@ -280,6 +280,12 @@ RSpec.describe TranscriptionsController, type: :controller do
         patch :update, params: update_params
         expect(response).to have_http_status(:bad_request)
       end
+
+      it 'has been updated since the "If-Unmodified-Since" date', :focus do
+        request.headers['If-Unmodified-Since'] = (DateTime.now - 1.hour).httpdate
+        patch :update, params: update_params
+        expect(response).to have_http_status(:conflict)
+      end
     end
 
     describe 'roles' do
