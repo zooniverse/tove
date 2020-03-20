@@ -5,7 +5,7 @@ RSpec.describe TranscriptionsController, type: :controller do
   describe '#index' do
     let!(:transcription) { create(:transcription, status: 1, internal_id: 11) }
     let!(:another_transcription) { create(:transcription, workflow: transcription.workflow, status: 0, updated_at: '2020-20-20 20:00:00', updated_by: 'kar-aniyuki') }
-    let!(:separate_transcription) { create(:transcription, group_id: "HONK1", flagged: true, status: 2, low_consensus_lines: 3, total_pages: 2, total_lines: 6) }
+    let!(:separate_transcription) { create(:transcription, group_id: 'HONK1', flagged: true, status: 2, low_consensus_lines: 3, total_pages: 2, total_lines: 6) }
 
     it_has_behavior 'pagination' do
       let(:another) { another_transcription }
@@ -15,8 +15,8 @@ RSpec.describe TranscriptionsController, type: :controller do
       before { allow(controller).to receive(:current_user).and_return user }
 
       context 'without any roles' do
-        let(:user) { create(:user, roles: {} )}
-        it "returns return an empty response" do
+        let(:user) { create(:user, roles: {}) }
+        it 'returns return an empty response' do
           get :index
           expect(response).to have_http_status(:ok)
           expect(json_data.size).to eq(0)
@@ -33,19 +33,19 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       context 'as a viewer' do
-        let(:user) { create(:user, roles: {transcription.workflow.project.id => ['tester']}) }
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
         it 'returns the authorized workflow' do
           get :index
           expect(response).to have_http_status(:ok)
           expect(json_data.first).to have_type('transcription')
           expect(json_data.first).to have_attributes(:status, :flagged)
-          expect(json_data.first["id"]).to eql(transcription.id.to_s)
+          expect(json_data.first['id']).to eql(transcription.id.to_s)
           expect(json_data.size).to eq(2)
         end
       end
     end
 
-    describe "filtration" do
+    describe 'filtration' do
       it 'filters by workflow_id' do
         get :index, params: { filter: { workflow_id_eq: separate_transcription.workflow_id } }
         expect(json_data.size).to eq(1)
@@ -87,7 +87,7 @@ RSpec.describe TranscriptionsController, type: :controller do
         it 'filters by single status id' do
           get :index, params: { filter: { status_eq: another_transcription.status_before_type_cast } }
           expect(json_data.size).to eq(1)
-          expect(json_data.first["attributes"]["status"]).to eq(another_transcription.status)
+          expect(json_data.first['attributes']['status']).to eq(another_transcription.status)
         end
 
         it 'filters by multiple status ids' do
@@ -97,9 +97,9 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
 
         it 'filters by status term' do
-          get :index, params: { filter: { status_eq: another_transcription.status }}
+          get :index, params: { filter: { status_eq: another_transcription.status } }
           expect(json_data.size).to eq(1)
-          expect(json_data.first["attributes"]["status"]).to eq(another_transcription.status)
+          expect(json_data.first['attributes']['status']).to eq(another_transcription.status)
         end
 
         it 'filters by multiple status terms' do
@@ -157,7 +157,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
     describe 'roles' do
       context 'without any roles' do
-        let(:user) { create(:user, roles: {} )}
+        let(:user) { create(:user, roles: {}) }
         it 'returns a 403' do
           expect(response).to have_http_status(:forbidden)
         end
@@ -184,7 +184,7 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       context 'as a viewer' do
-        let(:user) { create(:user, roles: {transcription.workflow.project.id => ['tester']}) }
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
         it 'returns the authorized workflow' do
           expect(response).to have_http_status(:ok)
           expect(json_data['id']).to eql(transcription.id.to_s)
@@ -199,7 +199,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
   describe '#update' do
     let!(:transcription) { create(:transcription) }
-    let(:update_params) { { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "flagged": 1 } } } }
+    let(:update_params) { { id: transcription.id, "data": { "type": 'transcriptions', "attributes": { "flagged": 1 } } } }
 
     before(:each) do
       request.headers['If-Unmodified-Since'] = transcription.updated_at.httpdate
@@ -208,6 +208,11 @@ RSpec.describe TranscriptionsController, type: :controller do
     it 'updates the resource' do
       patch :update, params: update_params
       expect(transcription.reload.flagged).to be_truthy
+    end
+
+    it 'serializes the updated_at date in the "Last-Modified" header' do
+      patch :update, params: update_params
+      expect(response.header['Last-Modified']).to eq(transcription.reload.updated_at.httpdate)
     end
 
     it 'saves updated_by user login to record' do
@@ -235,31 +240,31 @@ RSpec.describe TranscriptionsController, type: :controller do
 
     context 'validates the request' do
       it 'is not valid JSON:API' do
-        busted_params = { id: transcription.id, "data": { "nothing": "garbage" } }
+        busted_params = { id: transcription.id, "data": { "nothing": 'garbage' } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'does not exist' do
-        busted_params = { id: 9999, "data": { "type": "transcriptions", "attributes": { "flagged": true } } }
+        busted_params = { id: 9999, "data": { "type": 'transcriptions', "attributes": { "flagged": true } } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:not_found)
       end
 
       it 'is the wrong type' do
-        busted_params = { id: transcription.id, "data": { "type": "projects", "attributes": { "flagged": true } } }
+        busted_params = { id: transcription.id, "data": { "type": 'projects', "attributes": { "flagged": true } } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'contains an invalid attribute' do
-        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "garf": true } } }
+        busted_params = { id: transcription.id, "data": { "type": 'transcriptions', "attributes": { "garf": true } } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'contains read-only data' do
-        busted_params = { id: transcription.id, "data": { "type": "transcriptions", "attributes": { "group_id": "fake_id" } } }
+        busted_params = { id: transcription.id, "data": { "type": 'transcriptions', "attributes": { "group_id": 'fake_id' } } }
         patch :update, params: busted_params
         expect(response).to have_http_status(:bad_request)
       end
@@ -281,8 +286,8 @@ RSpec.describe TranscriptionsController, type: :controller do
       before { allow(controller).to receive(:current_user).and_return user }
 
       context 'without any roles' do
-        let(:user) { create(:user, roles: {} )}
-        it "returns a 403 Forbidden" do
+        let(:user) { create(:user, roles: {}) }
+        it 'returns a 403 Forbidden' do
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
         end
@@ -296,49 +301,49 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
 
         it 'allows approval' do
-          update_params[:data][:attributes][:status] = "approved"
+          update_params[:data][:attributes][:status] = 'approved'
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'as an approver' do
-        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['owner']}) }
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['owner'] }) }
         it 'updates the resource' do
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
 
         it 'allows approval' do
-          update_params[:data][:attributes][:status] = "approved"
+          update_params[:data][:attributes][:status] = 'approved'
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'as an editor' do
-        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['scientist']}) }
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['scientist'] }) }
         it 'updates the resource' do
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
 
         it 'forbids approval' do
-          update_params[:data][:attributes][:status] = "approved"
+          update_params[:data][:attributes][:status] = 'approved'
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
         end
       end
 
       context 'as a viewer' do
-        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
         it 'returns a 403 Forbidden' do
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
         end
 
         it 'forbids approval' do
-          update_params[:data][:attributes][:status] = "approved"
+          update_params[:data][:attributes][:status] = 'approved'
           patch :update, params: update_params
           expect(response).to have_http_status(:forbidden)
         end
@@ -366,7 +371,18 @@ RSpec.describe TranscriptionsController, type: :controller do
       context 'when updating user and locked by user are the same' do
         let(:transcription) { create(:transcription, locked_by: admin_user.login, lock_timeout: (DateTime.now + 1.hours)) }
 
+        before(:each) do
+          patch :update, params: update_params
+        end
+
         it 'allows update' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'allows subsequent updates' do
+          request.headers['If-Unmodified-Since'] = response.header['Last-Modified']
+          controller.instance_variable_set(:@update_attrs, nil) # reset instance variable
+
           patch :update, params: update_params
           expect(response).to have_http_status(:ok)
         end
@@ -398,8 +414,8 @@ RSpec.describe TranscriptionsController, type: :controller do
   end
 
   context 'exporting transcriptions' do
-    let(:transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
-    let(:second_transcription) { create(:transcription, group_id: 'FROG_LADS_777' ) }
+    let(:transcription) { create(:transcription, group_id: 'FROG_LADS_777') }
+    let(:second_transcription) { create(:transcription, group_id: 'FROG_LADS_777') }
     let(:export_single_params) { { id: transcription.id } }
     let(:export_group_params) { { group_id: transcription.group_id, workflow_id: transcription.workflow_id } }
 
@@ -415,7 +431,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
       it 'should have a response with content-type of application/zip' do
         get :export, params: export_single_params
-        expect(response.header["Content-Type"]).to eq("application/zip")
+        expect(response.header['Content-Type']).to eq('application/zip')
       end
 
       context 'when transcription has no attached export files' do
@@ -427,7 +443,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
       describe 'roles' do
         context 'as a viewer' do
-          let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+          let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
           before { allow(controller).to receive(:current_user).and_return viewer }
 
           it 'returns a 403 Forbidden when exporting one transcription' do
@@ -437,7 +453,7 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
 
         context 'as an editor' do
-          let(:editor) { create(:user, roles: { transcription.workflow.project.id => ['moderator']}) }
+          let(:editor) { create(:user, roles: { transcription.workflow.project.id => ['moderator'] }) }
           before { allow(controller).to receive(:current_user).and_return editor }
 
           it 'returns successfully for a single transcription export' do
@@ -459,7 +475,7 @@ RSpec.describe TranscriptionsController, type: :controller do
 
         describe 'roles' do
           context 'as a viewer' do
-            let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester']}) }
+            let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
             before { allow(controller).to receive(:current_user).and_return viewer }
 
             it 'returns a 403 error' do
