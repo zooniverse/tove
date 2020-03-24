@@ -16,6 +16,7 @@ module ErrorExtender
     rescue_from TranscriptionsController::LockedByAnotherUserError, with: :render_jsonapi_not_authorized
     rescue_from TranscriptionsController::NoExportableTranscriptionsError, with: :render_jsonapi_not_found
     rescue_from DataExports::DataStorage::NoStoredFilesFoundError, with: :render_jsonapi_not_found
+    rescue_from ActiveRecord::StaleObjectError, with: :render_jsonapi_conflict
 
     # override JSONAPI::Errors method to include exception message
     def render_jsonapi_not_found(exception)
@@ -54,6 +55,11 @@ module ErrorExtender
   def render_jsonapi_not_authorized(exception)
     error = error_object(403, exception)
     render jsonapi_errors: [error], status: :forbidden
+  end
+
+  def render_jsonapi_conflict(exception)
+    error = error_object(409, exception)
+    render jsonapi_errors: [error], status: :conflict
   end
 
   def error_object(status, exception)

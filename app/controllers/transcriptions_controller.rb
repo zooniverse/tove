@@ -44,6 +44,7 @@ class TranscriptionsController < ApplicationController
       end
     end
 
+    response.last_modified = @transcription.updated_at
     render jsonapi: @transcription
   end
 
