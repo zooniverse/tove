@@ -154,7 +154,7 @@ class TranscriptionsController < ApplicationController
   end
 
   def update_attr_whitelist
-    %w[flagged text status reducer parameters]
+    %w[flagged text status reducer parameters frame_order]
   end
 
   def jsonapi_serializer_params
