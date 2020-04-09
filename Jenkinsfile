@@ -33,6 +33,14 @@ pipeline {
         sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-staging.tmpl | kubectl --context azure apply --record -f -"
       }
     }
+
+    stage('Deploy production to Kubernetes') {
+      when { branch 'master' }
+      agent any
+      steps {
+        sh "sed 's/__IMAGE_TAG__/${GIT_COMMIT}/g' kubernetes/deployment-production.tmpl | kubectl --context azure apply --record -f -"
+      }
+    }
   }
 
   post {

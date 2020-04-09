@@ -20,4 +20,4 @@ staging:
 
 production:
   <<: *default
-  database: tove_production
+  url: <%= Rails.application.credentials.db_url %>

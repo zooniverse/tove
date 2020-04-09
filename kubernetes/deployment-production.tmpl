@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tove-production-app
+  labels:
+    app: tove-production-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tove-production-app
+  template:
+    metadata:
+      labels:
+        app: tove-production-app
+    spec:
+      containers:
+        - name: tove-production-app
+          image: zooniverse/tove:__IMAGE_TAG__
+          env:
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: RAILS_ENV
+              value: production
+            - name: RAILS_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tove-production
+                  key: rails-master-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tove-production-app
+spec:
+  selector:
+    app: tove-production-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
