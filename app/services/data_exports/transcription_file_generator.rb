@@ -46,14 +46,14 @@ module DataExports
       if @transcription.frame_order.present?
         full_consensus_text = retrieve_text_by_frame_order(@transcription.frame_order, frames)
       else
-        full_consensus_text = retrieve_frame_text_default_order(frames)
+        full_consensus_text = retrieve_text_default_order(frames)
       end
 
       full_consensus_text
     end
 
     # helper function for consensus_text
-    def retrieve_frame_text_default_order(frames)
+    def retrieve_text_default_order(frames)
       full_consensus_text = ''
 
       frames.each_value do |frame|
@@ -158,7 +158,21 @@ module DataExports
     # array of csv lines
     def transcription_line_metadata
       csv_lines = []
-      csv_lines << [
+      csv_lines << line_metadata_csv_headers
+
+      frame_regex = /^frame/
+      frames = @transcription.text.filter { |key, _value| frame_regex.match(key) }
+      if @transcription.frame_order.present?
+        csv_lines = retrieve_line_data_by_frame_order(@transcription.frame_order, frames, csv_lines)
+      else
+        csv_lines = retrieve_line_data_by_default_order(frames, csv_lines)
+      end
+
+      csv_lines
+    end
+
+    def line_metadata_csv_headers
+      [
         'consensus text',
         'line number',
         'line slope',
@@ -175,37 +189,52 @@ module DataExports
         'line start y',
         'line end y'
       ]
+    end
 
-      frame_regex = /^frame/
-      @transcription.text.filter { |key, _value| frame_regex.match(key) }
-                    .each_with_index do |(_key, value), page_index|
-        # if we find a frame, iterate through the lines of the frame
+    def retrieve_line_data_by_default_order(frames, csv_lines)
+      frames.each_with_index do |(_key, frame), page_index|
         page = page_index + 1
+        csv_lines = add_frame_to_line_metadata(frame, page, csv_lines)
+      end
 
-        value.each_with_index do |line, line_index|
-          line_number = line_index + 1
-          column = line['gutter_label'] + 1
-          num_transcribers = line['user_ids'].count
-          line_edited = line['edited_consensus_text'].present?
-          consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
-          csv_lines << [
-            consensus_text,
-            line_number,
-            line['line_slope'],
-            line['consensus_score'],
-            line_edited,
-            line['original_transcriber'],
-            line['line_editor'],
-            line['low_consensus'],
-            page,
-            column,
-            num_transcribers,
-            line['clusters_x'][0],
-            line['clusters_x'][1],
-            line['clusters_y'][0],
-            line['clusters_y'][1]
-          ]
-        end
+      csv_lines
+    end
+
+    def retrieve_line_data_by_frame_order(frame_order, frames, csv_lines)
+      frame_order.each_with_index do |frame_label, page_index|
+        page = page_index + 1
+        frame = frames[frame_label]
+        csv_lines = add_frame_to_line_metadata(frame, page, csv_lines)
+      end
+
+      csv_lines
+    end
+
+    def add_frame_to_line_metadata(frame, page, csv_lines)
+      # iterate through the lines of the frame
+      frame.each_with_index do |line, line_index|
+        line_number = line_index + 1
+        column = line['gutter_label'] + 1
+        num_transcribers = line['user_ids'].count
+        line_edited = line['edited_consensus_text'].present?
+        consensus_text = line_edited ? line['edited_consensus_text'] : line['consensus_text']
+        csv_lines << [
+          consensus_text,
+          line_number,
+          line['line_slope'],
+          line['consensus_score'],
+          line_edited,
+          line['original_transcriber'],
+          line['line_editor'],
+          line['low_consensus'],
+          page,
+          column,
+          num_transcribers,
+          line['clusters_x'][0],
+          line['clusters_x'][1],
+          line['clusters_y'][0],
+          line['clusters_y'][1]
+        ]
       end
 
       csv_lines
