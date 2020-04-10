@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :transcription do
     workflow
-    group_id { "GROUP1A" }
-    text { { "checkout_this": "metadata" } }
+    group_id { 'GROUP1A' }
+    text { { 'checkout_this': 'metadata' } }
     status { 1 }
   end
 
@@ -802,4 +802,7 @@ FactoryBot.define do
     }
   end
 
+  trait :frame_order_set do
+    frame_order { ['frame1', 'frame0'] }
+  end
 end

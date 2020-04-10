@@ -40,26 +40,54 @@ module DataExports
 
     # Private: retrieves and returns consensus text
     def consensus_text
-      full_consensus_text = ''
       frame_regex = /^frame/
 
-      # if we find a frame, iterate through the lines of the frame
       frames = @transcription.text.filter { |key, _value| frame_regex.match(key) }
-      frames.each_value do |value|
-        value.each do |line|
-          line_text = if line['edited_consensus_text'].present?
-                        line['edited_consensus_text']
-                      else
-                        line['consensus_text']
-                      end
-
-          full_consensus_text.concat line_text + "\n"
-        end
-        # new line after every frame
-        full_consensus_text.concat "\n"
+      if @transcription.frame_order.present?
+        full_consensus_text = retrieve_text_by_frame_order(@transcription.frame_order, frames)
+      else
+        full_consensus_text = retrieve_frame_text_default_order(frames)
       end
 
       full_consensus_text
+    end
+
+    # helper function for consensus_text
+    def retrieve_frame_text_default_order(frames)
+      full_consensus_text = ''
+
+      frames.each_value do |frame|
+        full_consensus_text = add_frame_to_consensus_text(frame, full_consensus_text)
+      end
+
+      full_consensus_text
+    end
+
+    # helper function for consensus_text
+    def retrieve_text_by_frame_order(frame_order, frames)
+      full_consensus_text = ''
+
+      frame_order.each do |frame_label|
+        frame = frames[frame_label]
+        full_consensus_text = add_frame_to_consensus_text(frame, full_consensus_text)
+      end
+
+      full_consensus_text
+    end
+
+    # helper function for consensus_text
+    def add_frame_to_consensus_text(frame, full_consensus_text)
+      frame.each do |line|
+        line_text = if line['edited_consensus_text'].present?
+                      line['edited_consensus_text']
+                    else
+                      line['consensus_text']
+                    end
+
+        full_consensus_text.concat line_text + "\n"
+      end
+      # new line after every frame
+      full_consensus_text.concat "\n"
     end
 
     # Private: creates transcription metadata file,
@@ -150,7 +178,7 @@ module DataExports
 
       frame_regex = /^frame/
       @transcription.text.filter { |key, _value| frame_regex.match(key) }
-                         .each_with_index do |(key, value), page_index|
+                    .each_with_index do |(_key, value), page_index|
         # if we find a frame, iterate through the lines of the frame
         page = page_index + 1
 
