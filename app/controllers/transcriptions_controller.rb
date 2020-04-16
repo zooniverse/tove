@@ -17,7 +17,8 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     authorize @transcription
 
-    if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
+    if TranscriptionPolicy.new(current_user, @transcription).has_update_rights? &&
+       !@transcription.locked?
       @transcription.lock!(current_user)
     end
 
