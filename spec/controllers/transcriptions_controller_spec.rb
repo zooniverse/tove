@@ -143,19 +143,34 @@ RSpec.describe TranscriptionsController, type: :controller do
   end
 
   describe '#show' do
-    let!(:transcription) { create(:transcription) }
+    let!(:transcription) { create(:transcription, status: 'unseen') }
     let(:user) { create(:user, :admin) }
 
     before do
       allow(controller).to receive(:current_user).and_return user
-      get :show, params: { id: transcription.id }
     end
 
     it 'serializes the updated_at date in the "Last-Modified" header' do
+      get :show, params: { id: transcription.id }
       expect(response.header['Last-Modified']).to eq(transcription.updated_at.httpdate)
     end
 
+    it 'updates status to \'in progress\' if status is \'unseen\'' do
+      get :show, params: { id: transcription.id }
+      expect(json_data['attributes']['status']).to eq('in_progress')
+    end
+
+    it 'does not change status when status is not \'unseen\'' do
+      approved_transcription = create(:transcription, status: 'approved')
+      get :show, params: { id: approved_transcription.id }
+      expect(json_data['attributes']['status']).to eq('approved')
+    end
+
     describe 'roles' do
+      before do
+        get :show, params: { id: transcription.id }
+      end
+
       context 'without any roles' do
         let(:user) { create(:user, roles: {}) }
         it 'returns a 403' do

@@ -17,6 +17,11 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     authorize @transcription
 
+    if @transcription.status == 'unseen'
+      @transcription.status = 'in_progress'
+      @transcription.save!
+    end
+
     if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
       @transcription.lock!(current_user)
     end
