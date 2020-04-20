@@ -22,6 +22,11 @@ class TranscriptionsController < ApplicationController
       @transcription.lock!(current_user)
     end
 
+    if @transcription.status == 'unseen'
+      @transcription.status = 'in_progress'
+      @transcription.save!
+    end
+
     response.last_modified = @transcription.updated_at
     render jsonapi: @transcription
   end
