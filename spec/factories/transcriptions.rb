@@ -314,20 +314,6 @@ FactoryBot.define do
         "consensus_score": 1.0
       }],
       "frame1": [{
-        "user_ids": [1857.0, 1857.0],
-        "clusters_x": [874.9671737389912, 1206.417934347478],
-        "clusters_y": [55.59727782225781, 123.14411529223378],
-        "line_slope": 11.518659344879472,
-        "slope_label": 1,
-        "gutter_label": 0,
-        "number_views": 2,
-        "clusters_text": [],
-        "extract_index": [0, 0],
-        "gold_standard": [false, false],
-        "low_consensus": true,
-        "consensus_text": "",
-        "consensus_score": 0.0
-      }, {
         "user_ids": [1325796.0, 1325796.0],
         "clusters_x": [921.6460722404647, 1315.224450618843],
         "clusters_y": [265.9831649406416, 265.9831649406416],
@@ -800,9 +786,5 @@ FactoryBot.define do
         "low_consensus_lines": 14
       }
     }
-  end
-
-  trait :frame_order_set do
-    frame_order { ['frame1', 'frame0'] }
   end
 end
