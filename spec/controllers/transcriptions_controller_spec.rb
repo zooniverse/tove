@@ -176,8 +176,9 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
 
         it 'does not lock the transcription if it is already locked' do
-          get :show, params: { id: locked_transcription.id }
-          expect(json_data['attributes']['locked_by']).to eq(locked_transcription.locked_by)
+          expect do
+            get :show, params: { id: transcription.id }
+          end.not_to change { locked_transcription.locked_by }
         end
       end
 
@@ -205,10 +206,10 @@ RSpec.describe TranscriptionsController, type: :controller do
       context 'as an editor' do
         let(:user) do
           editor_roles =
-          {
-            transcription.workflow.project.id => ['expert'],
-            locked_transcription.workflow.project.id => ['expert']
-          }
+            {
+              transcription.workflow.project.id => ['expert'],
+              locked_transcription.workflow.project.id => ['expert']
+            }
           create(:user, roles: editor_roles)
         end
 
