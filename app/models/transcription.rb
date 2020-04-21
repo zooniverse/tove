@@ -42,6 +42,10 @@ class Transcription < ApplicationRecord
     lock_timeout && DateTime.now < lock_timeout
   end
 
+  def unlocked?
+    !locked?
+  end
+
   def locked_by_different_user?(current_user_login)
     locked? && current_user_login != locked_by
   end
