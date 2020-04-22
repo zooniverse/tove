@@ -167,20 +167,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     describe 'roles' do
-      shared_examples 'lockable transcription' do
-        let(:locked_transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
-
-        it 'locks the transcription if not already locked' do
-          get :show, params: { id: transcription.id }
-          expect(json_data['attributes']['locked_by']).to eq(user.login)
-        end
-
-        it 'does not lock the transcription if it is already locked' do
-          expect do
-            get :show, params: { id: transcription.id }
-          end.not_to change { locked_transcription.locked_by }
-        end
-      end
+      let(:locked_transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
 
       context 'without any roles' do
         let(:user) { create(:user, roles: {}) }
@@ -200,7 +187,16 @@ RSpec.describe TranscriptionsController, type: :controller do
           expect(json_data).to have_id(transcription.id.to_s)
         end
 
-        it_behaves_like 'lockable transcription'
+        it 'locks the transcription if not already locked' do
+          get :show, params: { id: transcription.id }
+          expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
+
+        it 'does not lock the transcription if it is already locked' do
+          expect do
+            get :show, params: { id: transcription.id }
+          end.not_to(change { locked_transcription.locked_by })
+        end
       end
 
       context 'as an editor' do
@@ -212,7 +208,16 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
         let(:user) { create(:user, roles: editor_roles) }
 
-        it_behaves_like 'lockable transcription'
+        it 'locks the transcription if not already locked' do
+          get :show, params: { id: transcription.id }
+          expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
+
+        it 'does not lock the transcription if it is already locked' do
+          expect do
+            get :show, params: { id: transcription.id }
+          end.not_to(change { locked_transcription.locked_by })
+        end
       end
 
       context 'as a viewer' do
