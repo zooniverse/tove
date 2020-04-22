@@ -204,14 +204,13 @@ RSpec.describe TranscriptionsController, type: :controller do
       end
 
       context 'as an editor' do
-        let(:user) do
-          editor_roles =
-            {
-              transcription.workflow.project.id => ['expert'],
-              locked_transcription.workflow.project.id => ['expert']
-            }
-          create(:user, roles: editor_roles)
+        let(:editor_roles) do
+          {
+            transcription.workflow.project.id => ['expert'],
+            locked_transcription.workflow.project.id => ['expert']
+          }
         end
+        let(:user) { create(:user, roles: editor_roles) }
 
         it_behaves_like 'lockable transcription'
       end
