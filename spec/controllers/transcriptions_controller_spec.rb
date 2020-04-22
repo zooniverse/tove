@@ -167,45 +167,70 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     describe 'roles' do
-      before do
-        get :show, params: { id: transcription.id }
-      end
+      let(:locked_transcription) { create(:transcription, locked_by: 'kar-aniyuki', lock_timeout: (DateTime.now + 1.hours)) }
 
       context 'without any roles' do
         let(:user) { create(:user, roles: {}) }
+
         it 'returns a 403' do
+          get :show, params: { id: transcription.id }
           expect(response).to have_http_status(:forbidden)
         end
       end
 
       context 'as an admin' do
         let(:user) { create(:user, :admin) }
+
         it 'returns the full scope' do
+          get :show, params: { id: transcription.id }
           expect(response).to have_http_status(:ok)
           expect(json_data).to have_id(transcription.id.to_s)
         end
 
-        it 'locks the transcription' do
+        it 'locks the transcription if not already locked' do
+          get :show, params: { id: transcription.id }
           expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
+
+        it 'does not lock the transcription if it is already locked' do
+          expect do
+            get :show, params: { id: transcription.id }
+          end.not_to(change { locked_transcription.locked_by })
         end
       end
 
       context 'as an editor' do
-        let(:user) { create(:user, roles: { transcription.workflow.project.id => ['expert'] }) }
+        let(:editor_roles) do
+          {
+            transcription.workflow.project.id => ['expert'],
+            locked_transcription.workflow.project.id => ['expert']
+          }
+        end
+        let(:user) { create(:user, roles: editor_roles) }
 
-        it 'locks the transcription' do
+        it 'locks the transcription if not already locked' do
+          get :show, params: { id: transcription.id }
           expect(json_data['attributes']['locked_by']).to eq(user.login)
+        end
+
+        it 'does not lock the transcription if it is already locked' do
+          expect do
+            get :show, params: { id: transcription.id }
+          end.not_to(change { locked_transcription.locked_by })
         end
       end
 
       context 'as a viewer' do
         let(:user) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
+
         it 'returns the authorized workflow' do
+          get :show, params: { id: transcription.id }
           expect(response).to have_http_status(:ok)
           expect(json_data['id']).to eql(transcription.id.to_s)
         end
 
         it 'does not lock the transcription' do
+          get :show, params: { id: transcription.id }
           expect(Transcription.find(transcription.id).locked_by).to be_nil
         end
       end

@@ -17,13 +17,13 @@ class TranscriptionsController < ApplicationController
     @transcription = Transcription.find(params[:id])
     authorize @transcription
 
+    if @transcription.unlocked? && transcription_policy.has_update_rights?
+      @transcription.lock!(current_user)
+    end
+
     if @transcription.status == 'unseen'
       @transcription.status = 'in_progress'
       @transcription.save!
-    end
-
-    if TranscriptionPolicy.new(current_user, @transcription).has_update_rights?
-      @transcription.lock!(current_user)
     end
 
     response.last_modified = @transcription.updated_at
@@ -180,5 +180,9 @@ class TranscriptionsController < ApplicationController
     rescue StandardError
       raise ValidationError, "#{since}: the value supplied in 'If-Unmodified-Since' header cannot be processed. The 'If-Unmodified-Since' header must contain the resource's GET request 'Last-Modified' header value."
     end
+  end
+
+  def transcription_policy
+    @policy ||= TranscriptionPolicy.new(current_user, @transcription)
   end
 end
