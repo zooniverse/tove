@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_04_215522) do
+ActiveRecord::Schema.define(version: 2020_04_09_204659) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(version: 2020_03_04_215522) do
     t.integer "low_consensus_lines"
     t.string "locked_by"
     t.datetime "lock_timeout"
+    t.string "frame_order", default: [], array: true
     t.index ["workflow_id", "group_id"], name: "index_transcriptions_on_workflow_id_and_group_id"
   end
 

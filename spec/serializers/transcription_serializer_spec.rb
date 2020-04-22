@@ -3,9 +3,9 @@ RSpec.describe TranscriptionSerializer, type: :serializer do
   let(:serializer) { described_class.new(transcription) }
   let(:data) { serializer.to_hash[:data][:attributes] }
 
-  let(:serializer_include_text) {
-    described_class.new(transcription, { params: { serialize_text: true }})
-  }
+  let(:serializer_include_text) do
+    described_class.new(transcription, params: { serialize_text: true })
+  end
   let(:data_with_text) { serializer_include_text.to_hash[:data][:attributes] }
 
   it 'serializes the expected attributes' do
@@ -22,6 +22,7 @@ RSpec.describe TranscriptionSerializer, type: :serializer do
     expect(data_with_text).to have_key(:low_consensus_lines)
     expect(data_with_text).to have_key(:reducer)
     expect(data_with_text).to have_key(:parameters)
+    expect(data_with_text).to have_key(:frame_order)
   end
 
   it 'doesnt serialize text when serialize_text is not set' do
