@@ -59,9 +59,9 @@ class CaesarImporter
       id: subject_info[:id],
       status: 'unseen',
       text: data,
-      metadata: subject_info[:metadata],
-      group_id: subject_info[:metadata][:group_id] || 'default',
-      internal_id: subject_info[:metadata][:internal_id] || subject_info[:id],
+      metadata: subject_metadata,
+      group_id: subject_metadata[:group_id] || 'default',
+      internal_id: subject_metadata[:internal_id] || subject_info[:id],
       low_consensus_lines: data[:low_consensus_lines],
       total_lines: data[:transcribed_lines],
       reducer: data[:reducer],
@@ -82,5 +82,9 @@ class CaesarImporter
     unless reducible[:type] == 'Workflow'
       raise ReducibleError, 'Reducible must be a workflow'
     end
+  end
+
+  def subject_metadata
+    @metadata ||= subject_info[:metadata].transform_keys { |k| k.downcase }
   end
 end

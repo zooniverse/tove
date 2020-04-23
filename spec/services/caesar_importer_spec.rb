@@ -121,6 +121,24 @@ RSpec.describe CaesarImporter, type: :service do
         t = Transcription.find(transcription_attrs[:id])
         transcription_attrs.each { |key, value| expect(t.send(key)).to eq(value) }
       end
+
+      describe 'mixed-case metadata fields' do
+        let(:new_metadata) { { 'group_ID' => "15584", 'internal_ID' => "commonwealth:2z10z979z"}.with_indifferent_access }
+        let(:new_subject) { { id: 999, metadata: new_metadata } }
+        let(:new_importer) { described_class.new(
+          id: 123,
+          reducible: {id: parsed_workflow[:id], type: 'Workflow'},
+          data: data,
+          subject: new_subject
+        )}
+
+        it 'correctly imports group and internal ids' do
+          new_importer.process
+          t = Transcription.find(transcription_attrs[:id])
+          expect(t.group_id).to eq("15584")
+          expect(t.internal_id).to eq("commonwealth:2z10z979z")
+        end
+      end
     end
 
     context 'when a transcription with the same id exists' do
