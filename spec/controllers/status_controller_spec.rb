@@ -9,7 +9,7 @@ RSpec.describe StatusController, type: :controller do
 
     it 'returns the commit id' do
       get :show
-      expect(response.body).to eq({:commit_id => 'example-id-3f8b092f285a'}.to_json)
+      expect(response.body).to eq({:revision => 'example-id-3f8b092f285a'}.to_json)
     end
   end
 end
