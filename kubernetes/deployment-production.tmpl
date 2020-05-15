@@ -17,6 +17,13 @@ spec:
       containers:
         - name: tove-production-app
           image: zooniverse/tove:__IMAGE_TAG__
+          resources:
+            requests:
+              memory: "200Mi"
+              cpu: "10m"
+            limits:
+              memory: "200Mi"
+              cpu: "500m"
           env:
             - name: RAILS_LOG_TO_STDOUT
               value: "true"
