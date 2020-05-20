@@ -25,6 +25,14 @@ RSpec.describe Workflow, type: :model do
   let!(:transcription_three) do
     create(:transcription,
            workflow: workflow,
+           group_id: 'FIRST',
+           status: 1,
+           updated_at: '2019-1-09 00:00:00 UTC',
+           updated_by: 'Astrailis')
+  end
+  let!(:transcription_four) do
+    create(:transcription,
+           workflow: workflow,
            group_id: 'SECOND',
            status: 0,
            updated_by: 'Dove')
@@ -32,7 +40,7 @@ RSpec.describe Workflow, type: :model do
 
   describe '#transcription_group_data' do
     it 'counts transcriptions per group' do
-      expect(workflow.transcription_group_data['FIRST'][:transcription_count]).to eq(2)
+      expect(workflow.transcription_group_data['FIRST'][:transcription_count]).to eq(3)
     end
     it 'gets the date of the most recently updated transcription' do
       expect(workflow.transcription_group_data['FIRST'][:updated_at]).to eq('2019-12-16 00:00:00 UTC')

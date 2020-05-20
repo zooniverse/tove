@@ -23,7 +23,7 @@ class Workflow < ApplicationRecord
       # construct the resulting data record results
       transcription_group_data[group_id] =
         {
-          updated_at: transcription.max_date,
+          updated_at: transcription.updated_at,
           updated_by: transcription.updated_by,
           transcription_count: group_transcription_count
         }
@@ -43,8 +43,7 @@ class Workflow < ApplicationRecord
   # we also sort the group transcriptions so the first record is the latest transcription
   def ordered_transcription_groups
     transcriptions
-      .select( "group_id, updated_by, max(updated_at) as max_date")
-      .group(:group_id, :updated_by)
-      .order("max_date DESC, group_id")
+      .select('id, group_id, updated_by, updated_at')
+      .order('updated_at DESC, group_id')
   end
 end
