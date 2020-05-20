@@ -52,7 +52,7 @@ RSpec.describe Workflow, type: :model do
 
   describe '#total_transcriptions' do
     it 'counts total transcriptions in workflow' do
-      expect(workflow.total_transcriptions).to eq(3)
+      expect(workflow.total_transcriptions).to eq(4)
     end
   end
 end
