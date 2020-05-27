@@ -6,6 +6,10 @@ class TranscriptionsController < ApplicationController
   class ValidationError < StandardError; end
   class LockedByAnotherUserError < StandardError; end
 
+  rescue_from ValidationError, with: :render_jsonapi_bad_request
+  rescue_from LockedByAnotherUserError, with: :render_jsonapi_not_authorized
+  rescue_from NoExportableTranscriptionsError, with: :render_jsonapi_not_found
+
   before_action :status_filter_to_int, only: :index
 
   def index
