@@ -31,6 +31,8 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'factory_bot_rails'
   gem 'jsonapi-rspec', require: false
+  gem 'pry-byebug'
+  gem 'pry-rails'
 end
 
 group :development do
@@ -42,11 +44,6 @@ end
 group :test do
   gem 'simplecov'
   gem 'pundit-matchers'
-end
-
-group :test, :development, :staging do
-  gem 'pry-byebug'
-  gem 'pry-rails'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
