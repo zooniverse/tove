@@ -1,4 +1,4 @@
-FROM ruby:2.6.5-stretch
+FROM ruby:2.6-stretch
 WORKDIR /app
 ENV PORT=80
 ARG RAILS_ENV
