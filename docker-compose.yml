@@ -11,16 +11,21 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        RAILS_ENV: development
+        RAILS_ENV: 'staging'
     volumes:
+      # - ./config/database.yml:/app/config/database.yml
+      # - ./config/credentials/staging.key:/app/config/credentials/staging.key
+      # - ./config/credentials/staging.yml.en:/app/config/credentials/staging.yml.en
       - ./:/app
       - gem_cache:/usr/local/bundle
     ports:
       - "3000:80"
     environment:
-      - "RAILS_ENV=development"
+      - "RAILS_ENV=staging"
       - "DATABASE_URL=postgresql://tove:tove@postgres/tove_development"
       - "DATABASE_URL_TEST=postgresql://tove:tove@postgres/tove_test"
+      - "RAILS_LOG_TO_STDOUT=true"
+      - "RAILS_MAX_THREADS=1"
     links:
       - postgres:postgres
 

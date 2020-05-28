@@ -16,8 +16,9 @@ test:
 
 staging:
   <<: *default
-  url: <%= Rails.application.credentials.db_url %>
+  url: <%= ENV['DATABASE_URL'] %>
+  # url: <%= Rails.application.credentials.db_url %>
 
 production:
   <<: *default
-  url: <%= Rails.application.credentials.db_url %>
+  # url: <%= Rails.application.credentials.db_url %>
