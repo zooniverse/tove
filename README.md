@@ -81,6 +81,12 @@ Users with edit permissions have the ability to download transcription data for 
 
 Connecting to Blob Storage in Tove is handled by [Rails Active Storage](https://guides.rubyonrails.org/active_storage_overview.html). Calls to upload transcription data to storage, or remove it from storage occur within the Transcription Controller.
 
+For reference for future apps that may want to set up Rails Active Storage, here are the steps that were taken to get this set up:
+1. Add gems `azure-storage` and `azure-storage-blob` to Gemfile.
+2. In the transcription model, add the line `has_many_attached :export_files`. We will now use `export_files` to handle the uploading and removing of files.
+3. Add methods on the transcription model to upload and remove files from storage. We have called them `upload_files_to_storage` and `remove_files_from_storage`. Within the upload method, the key line is: `export_files.attach(io: temp_file, filename: filename)`<br/> within the remove method, the key line is:`export_files.map(&:purge)`
+4. The methods on the transcription model are called when a transcription is either approved (`upload_files_to_storage`) or unapproved (`remove_files_from_storage`). Note that files are not uploaded directly from the browser, which differs from how Panoptes uploads work.
+
 </p>
 <p>
 
