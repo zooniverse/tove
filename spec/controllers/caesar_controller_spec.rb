@@ -18,7 +18,6 @@ RSpec.describe CaesarController, type: :controller do
     end
 
     it 'returns a 400 if there is an error' do
-      expect(Raven).to receive(:capture_exception)
       post :import, as: :json, body: {just: 'garbage'}.to_json
       expect(response).to have_http_status(:bad_request)
     end
