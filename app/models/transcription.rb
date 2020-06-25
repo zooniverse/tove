@@ -39,7 +39,7 @@ class Transcription < ApplicationRecord
   end
 
   def locked?
-    lock_timeout && DateTime.now < lock_timeout
+    locked_by && lock_timeout && DateTime.now < lock_timeout
   end
 
   def unlocked?
