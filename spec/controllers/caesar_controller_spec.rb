@@ -1,6 +1,8 @@
 RSpec.describe CaesarController, type: :controller do
 
   describe '#import' do
+    let(:tagged_logger_double) { double }
+
     it 'instantiates an importer and calls #process' do
       expect(CaesarImporter).to receive(:new).and_call_original
       expect_any_instance_of(CaesarImporter).to receive(:process)
@@ -18,9 +20,25 @@ RSpec.describe CaesarController, type: :controller do
     end
 
     it 'returns a 400 if there is an error' do
+      allow(controller).to receive(:report_error_with_rate_limit).and_return(true)
       expect(Raven).to receive(:capture_exception)
+
       post :import, as: :json, body: {just: 'garbage'}.to_json
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'logs error info if there is an error' do
+      expect(ActiveSupport::TaggedLogging)
+        .to receive(:new)
+        .with(Logger)
+        .and_return(tagged_logger_double)
+
+      allow(tagged_logger_double)
+        .to receive(:tagged)
+        .and_yield
+
+      expect(tagged_logger_double).to receive(:warn)
+      post :import, as: :json, body: {just: 'garbage'}.to_json
     end
   end
 end
