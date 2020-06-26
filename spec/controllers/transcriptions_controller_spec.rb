@@ -479,6 +479,13 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
       end
 
+      it 'should render internal server error without logging to sentry for UndefinedConversionError' do
+        # we dont want to log to sentry at controller level because it's already done within DataStorage class
+        allow(controller).to receive(:export) { raise Encoding::UndefinedConversionError }
+        expect(Raven).not_to receive(:capture_exception)
+        get :export, params: export_single_params
+      end
+
       describe 'roles' do
         context 'as a viewer' do
           let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }
