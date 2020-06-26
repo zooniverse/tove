@@ -9,6 +9,10 @@ class TranscriptionsController < ApplicationController
   rescue_from ValidationError, with: :render_jsonapi_bad_request
   rescue_from LockedByAnotherUserError, with: :render_jsonapi_not_authorized
   rescue_from NoExportableTranscriptionsError, with: :render_jsonapi_not_found
+  rescue_from Encoding::UndefinedConversionError do |exception|
+    # in this case, we already logged to sentry from within DataStorage class
+    render_jsonapi_internal_server_error(exception, use_sentry: false)
+  end
 
   before_action :status_filter_to_int, only: :index
 

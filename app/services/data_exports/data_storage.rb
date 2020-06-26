@@ -12,7 +12,7 @@ module DataExports
       if transcription.export_files.attached?
         Dir.mktmpdir do |directory_path|
           transcription_folder = download_transcription_files(transcription, directory_path, single_transcription_export: true)
-          yield zip_files(directory_path, transcription_folder)
+          yield zip_files(directory_path, transcription_folder) if block_given?
         end
       else
         raise NoStoredFilesFoundError.new("No stored files found for transcription id '#{transcription.id}'")
@@ -78,14 +78,28 @@ module DataExports
       transcription.export_files.each do |storage_file|
         is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
         unless is_transcription_metadata_file && !single_transcription_export
-          download_path = File.join(transcription_folder, storage_file.filename.to_s)
-          file = File.open(download_path, 'w')
-          file.write(storage_file.download)
-          file.close
+          download_file_from_storage(storage_file, transcription_folder)
         end
       end
 
       transcription_folder
+    end
+
+    # download a single transcription file from storage to disk
+    # helper method for `download_transcription_files`
+    def download_file_from_storage(storage_file, transcription_folder)
+      download_path = File.join(transcription_folder, storage_file.filename.to_s)
+      file = File.open(download_path, 'w')
+      begin
+        file.write(storage_file.download.force_encoding('UTF-8'))
+      rescue Encoding::UndefinedConversionError => exception
+        file.close
+        # build new exception with message including the problematic file
+        message = exception.message + ". Filename: #{storage_file.filename}, Blob path: #{storage_file.key}, Blob id: #{storage_file.blob_id}"
+        Raven.capture_exception(Encoding::UndefinedConversionError.new(message))
+        raise
+      end
+      file.close
     end
 
     # download workflow's transcription files from storage to disk

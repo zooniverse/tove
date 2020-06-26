@@ -24,6 +24,16 @@ RSpec.describe DataExports::DataStorage do
           expect(File).to exist(zip_file)
         end
       end
+
+      it "reports to sentry when there is an UndefinedConversionError" do
+        bad_encoding_file = instance_double(File)
+        allow(bad_encoding_file).to receive(:write) { raise Encoding::UndefinedConversionError }
+        allow(bad_encoding_file).to receive(:close)
+        allow(File).to receive(:open) { bad_encoding_file }
+
+        expect(Raven).to receive(:capture_exception)
+        expect { data_storage.zip_transcription_files(transcription) }.to raise_error(Encoding::UndefinedConversionError)
+      end
     end
   end
 
