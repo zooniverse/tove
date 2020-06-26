@@ -15,7 +15,7 @@ class CaesarController < ActionController::Base
       logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
       logger.tagged('DUP_ID') { logger.warn exception }
 
-      Raven.capture_exception(exception) if rand(100) == 1
+      Raven.capture_exception(exception) if report_error_with_rate_limit
       error = { status: '400', title: Rack::Utils::HTTP_STATUS_CODES[400] }
       render jsonapi_errors: [error], status: :bad_request
     else
@@ -23,4 +23,9 @@ class CaesarController < ActionController::Base
     end
   end
 
+  private
+
+  def report_error_with_rate_limit
+    rand(100) == 1
+  end
 end
