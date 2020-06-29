@@ -96,8 +96,7 @@ module DataExports
         file.close
         # build new exception with message including the problematic file
         message = exception.message + ". Filename: #{storage_file.filename}, Blob path: #{storage_file.key}, Blob id: #{storage_file.blob_id}"
-        Raven.capture_exception(Encoding::UndefinedConversionError.new(message))
-        raise
+        raise Encoding::UndefinedConversionError.new(message)
       end
       file.close
     end

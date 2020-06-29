@@ -22,8 +22,8 @@ module ErrorExtender
     end
 
     # Overriding this JSONAPI::Errors method to add Sentry reporting
-    def render_jsonapi_internal_server_error(exception, use_sentry: true)
-      report_to_sentry(exception) if use_sentry
+    def render_jsonapi_internal_server_error(exception)
+      report_to_sentry(exception)
       super(exception)
     end
   end

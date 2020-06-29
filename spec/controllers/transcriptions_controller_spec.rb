@@ -479,10 +479,9 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
       end
 
-      it 'should render internal server error without logging to sentry for UndefinedConversionError' do
-        # we dont want to log to sentry at controller level because it's already done within DataStorage class
+      it 'should report internal server error to sentry in the case of a UndefinedConversionError' do
         allow(controller).to receive(:export) { raise Encoding::UndefinedConversionError }
-        expect(Raven).not_to receive(:capture_exception)
+        expect(Raven).to receive(:capture_exception)
         get :export, params: export_single_params
       end
 
