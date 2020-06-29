@@ -12,7 +12,7 @@ module DataExports
       if transcription.export_files.attached?
         Dir.mktmpdir do |directory_path|
           transcription_folder = download_transcription_files(transcription, directory_path, single_transcription_export: true)
-          yield zip_files(directory_path, transcription_folder) if block_given?
+          yield zip_files(directory_path, transcription_folder)
         end
       else
         raise NoStoredFilesFoundError.new("No stored files found for transcription id '#{transcription.id}'")
@@ -93,12 +93,12 @@ module DataExports
       begin
         file.write(storage_file.download.force_encoding('UTF-8'))
       rescue Encoding::UndefinedConversionError => exception
-        file.close
         # build new exception with message including the problematic file
         message = exception.message + ". Filename: #{storage_file.filename}, Blob path: #{storage_file.key}, Blob id: #{storage_file.blob_id}"
         raise Encoding::UndefinedConversionError.new(message)
+      ensure
+        file.close
       end
-      file.close
     end
 
     # download workflow's transcription files from storage to disk
