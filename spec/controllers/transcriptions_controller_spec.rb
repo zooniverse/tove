@@ -479,6 +479,12 @@ RSpec.describe TranscriptionsController, type: :controller do
         end
       end
 
+      it 'should report internal server error to sentry in the case of a UndefinedConversionError' do
+        allow(controller).to receive(:export) { raise Encoding::UndefinedConversionError }
+        expect(Raven).to receive(:capture_exception)
+        get :export, params: export_single_params
+      end
+
       describe 'roles' do
         context 'as a viewer' do
           let(:viewer) { create(:user, roles: { transcription.workflow.project.id => ['tester'] }) }

@@ -9,6 +9,7 @@ class TranscriptionsController < ApplicationController
   rescue_from ValidationError, with: :render_jsonapi_bad_request
   rescue_from LockedByAnotherUserError, with: :render_jsonapi_not_authorized
   rescue_from NoExportableTranscriptionsError, with: :render_jsonapi_not_found
+  rescue_from Encoding::UndefinedConversionError, with: :render_jsonapi_internal_server_error
 
   before_action :status_filter_to_int, only: :index
 

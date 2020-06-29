@@ -78,14 +78,27 @@ module DataExports
       transcription.export_files.each do |storage_file|
         is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
         unless is_transcription_metadata_file && !single_transcription_export
-          download_path = File.join(transcription_folder, storage_file.filename.to_s)
-          file = File.open(download_path, 'w')
-          file.write(storage_file.download)
-          file.close
+          download_file_from_storage(storage_file, transcription_folder)
         end
       end
 
       transcription_folder
+    end
+
+    # download a single transcription file from storage to disk
+    # helper method for `download_transcription_files`
+    def download_file_from_storage(storage_file, transcription_folder)
+      download_path = File.join(transcription_folder, storage_file.filename.to_s)
+      file = File.open(download_path, 'w')
+      begin
+        file.write(storage_file.download.force_encoding('UTF-8'))
+      rescue Encoding::UndefinedConversionError => exception
+        # build new exception with message including the problematic file
+        message = exception.message + ". Filename: #{storage_file.filename}, Blob path: #{storage_file.key}, Blob id: #{storage_file.blob_id}"
+        raise Encoding::UndefinedConversionError.new(message)
+      ensure
+        file.close
+      end
     end
 
     # download workflow's transcription files from storage to disk

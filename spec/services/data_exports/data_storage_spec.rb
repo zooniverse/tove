@@ -24,6 +24,15 @@ RSpec.describe DataExports::DataStorage do
           expect(File).to exist(zip_file)
         end
       end
+
+      it "generates a custom message with file details when there is an UndefinedConversionError" do
+        bad_encoding_file = instance_double(File)
+        allow(bad_encoding_file).to receive(:write) { raise Encoding::UndefinedConversionError.new('xCB from ASCII-8BIT to UTF-8') }
+        allow(bad_encoding_file).to receive(:close)
+        allow(File).to receive(:open) { bad_encoding_file }
+
+        expect { data_storage.zip_transcription_files(transcription) {} }.to raise_error(Encoding::UndefinedConversionError, /^xCB from ASCII-8BIT to UTF-8. Filename: transcription_file.txt, Blob path: [a-zA-Z0-9]*, Blob id: [0-9]*$/)
+      end
     end
   end
 
