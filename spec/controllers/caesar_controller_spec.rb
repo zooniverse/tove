@@ -20,14 +20,12 @@ RSpec.describe CaesarController, type: :controller do
     end
 
     it 'returns a 400 if there is an error' do
-      allow(controller).to receive(:report_error_with_rate_limit).and_return(true)
       expect(Raven).to receive(:capture_exception)
-
       post :import, as: :json, body: {just: 'garbage'}.to_json
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'logs error info if there is an error' do
+    it 'raises and logs an ActiveRecord::RecordNotUnique error on repeated imports' do
       expect(ActiveSupport::TaggedLogging)
         .to receive(:new)
         .with(Logger)
@@ -38,7 +36,9 @@ RSpec.describe CaesarController, type: :controller do
         .and_yield
 
       expect(tagged_logger_double).to receive(:warn)
-      post :import, as: :json, body: {just: 'garbage'}.to_json
+      post :import, as: :json, body: File.read(Rails.root.join("spec/fixtures/caesar_payload.json"))
+      post :import, as: :json, body: File.read(Rails.root.join("spec/fixtures/caesar_payload.json"))
+      expect(response).to have_http_status(:no_content)
     end
   end
 end
