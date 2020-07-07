@@ -34,6 +34,15 @@ spec:
                 secretKeyRef:
                   name: tove-staging
                   key: rails-master-key
+          volumeMounts:
+          - mountPath: /tmp
+            name: tove-staging-app-data
+      volumes:
+        - name: tove-staging-app-data
+          hostPath:
+            # directory location on host node temp disk
+            path: /mnt/tove-staging-app-data
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
