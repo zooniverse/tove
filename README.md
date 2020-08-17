@@ -112,6 +112,9 @@ Hence, the step of sending the zip file to the client must happen within a yield
 
 </details>
 
+### Caesar Configuration
+Reference the [ALICE Caesar Setup](https://docs.google.com/document/d/1_q-aLOKp9cBFHWAHXn8UfCapeC0UH0BHqljDD574pJI/edit#heading=h.n5fz20bg66wf) doc for instructions on configuring Caesar with ALICE/Tove.
+
 ## Namesake
 
 >“You seem very clever at explaining words, Sir,” said Alice. “Would you kindly tell me the meaning of the poem ‘Jabberwocky’?”
