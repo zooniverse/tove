@@ -94,12 +94,12 @@ GEM
     factory_bot_rails (5.1.1)
       factory_bot (~> 5.1.0)
       railties (>= 4.2.0)
-    faraday (0.17.3)
+    faraday (0.17.4)
       multipart-post (>= 1.2, < 3)
     faraday-panoptes (0.3.0)
       faraday (~> 0.9)
       faraday_middleware (~> 0.10)
-    faraday_middleware (0.13.1)
+    faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
@@ -136,7 +136,7 @@ GEM
     nokogiri (1.11.2)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    panoptes-client (1.0.0)
+    panoptes-client (1.1.0)
       deprecate
       faraday
       faraday-panoptes (~> 0.3.0)
