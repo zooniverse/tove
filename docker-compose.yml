@@ -5,6 +5,8 @@ services:
     environment:
       - "POSTGRES_USER=tove"
       - "POSTGRES_PASSWORD=tove"
+    ports:
+      - "5432:5432"
 
   app:
     build:
