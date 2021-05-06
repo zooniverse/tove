@@ -38,7 +38,7 @@ RSpec.describe TranscriptionsController, type: :controller do
           get :index
           expect(response).to have_http_status(:ok)
           expect(json_data.first).to have_type('transcription')
-          expect(json_data.first).to have_attributes(:status, :flagged)
+          expect(json_data.first).to have_jsonapi_attributes(:status, :flagged)
           expect(json_data.first['id']).to eql(transcription.id.to_s)
           expect(json_data.size).to eq(2)
         end
