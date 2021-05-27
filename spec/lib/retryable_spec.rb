@@ -18,8 +18,8 @@ RSpec.describe Retryable do
   let(:dummy_class) { DummyClass.new }
 
   before(:each) do
-    # No retry timing randomness
-    allow_any_instance_of(Retryable).to receive(:sleep_interval).and_return(0)
+    # Calculate the sleep_interval with a constant rand() value
+    allow(Kernel).to receive(:rand).and_return(0.0)
     dummy_class.extend(Retryable)
   end
 
