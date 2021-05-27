@@ -1,10 +1,12 @@
 require 'csv'
+require 'retryable'
 
 module DataExports
   # Helper class for aggregating metadata from individual transcriptions
   # within a group/workflow/project into a single csv file
   class AggregateMetadataFileGenerator
     class << self
+      include Retryable
       # Public: add metadata csv file to group folder
       def generate_group_file(transcriptions, output_folder)
         metadata_rows = compile_transcription_metadata(transcriptions)
@@ -42,8 +44,12 @@ module DataExports
           transcription.export_files.each do |storage_file|
             is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
             if is_transcription_metadata_file
-              rows = CSV.parse(storage_file.download)
-
+              tmp_file = with_retries(
+                rescue_class: [Faraday::TimeoutError, Errno::ECONNREFUSED]
+              ) do
+                storage_file.download
+              end
+              rows = CSV.parse(tmp_file)
               # add header if it's the first transcription being added
               metadata_rows << rows[0] if metadata_rows.empty?
               # add content regardless

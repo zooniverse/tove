@@ -1,8 +1,10 @@
 require 'fileutils'
 require 'securerandom'
+require 'retryable'
 
 module DataExports
   class DataStorage
+    include Retryable
 
     class NoStoredFilesFoundError < StandardError; end
 
@@ -91,7 +93,9 @@ module DataExports
       download_path = File.join(transcription_folder, storage_file.filename.to_s)
       file = File.open(download_path, 'w')
       begin
-        file.write(storage_file.download.force_encoding('UTF-8'))
+        with_retries(
+          rescue_class: [Faraday::TimeoutError, Errno::ECONNREFUSED]
+        ) { file.write(storage_file.download.force_encoding('UTF-8')) }
       rescue Encoding::UndefinedConversionError => exception
         # build new exception with message including the problematic file
         message = exception.message + ". Filename: #{storage_file.filename}, Blob path: #{storage_file.key}, Blob id: #{storage_file.blob_id}"
