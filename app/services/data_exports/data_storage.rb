@@ -38,6 +38,30 @@ module DataExports
       end
     end
 
+    # Extremely hacky workaround for getting a group's worth of transcriptions out at a time.
+    # Use this on the console to save a transcription group export locally, then kubectl cp them out of the pod directly.
+    # This also regens the files if the transcription is approved. Should take a while and might fail!
+    # This'll go away very soon but will buy some time.
+    def save_transcription_files_locally(transcriptions)
+      group_id = transcriptions.first.group_id
+      workflow_id = transcriptions.first.workflow_id
+      directory_path = "/tmp/saved/"
+
+      group_folder = File.join(directory_path, "wf_#{ workflow_id }_group_#{ group_id }")
+      FileUtils.mkdir_p(group_folder)
+
+      transcriptions.each do |transcription|
+        transcription.upload_files_to_storage if transcription.approved?
+        download_transcription_files(transcription, group_folder) if transcription.export_files.attached?
+      end
+
+      AggregateMetadataFileGenerator.generate_group_file(transcriptions, group_folder)
+
+      zip_file_path = File.join(directory_path, "wf_#{ workflow_id }_group_#{ group_id }_export.zip")
+      zip_generator = ZipFileGenerator.new(group_folder, zip_file_path)
+      zip_generator.write
+    end
+
     # Public : downloads all files for a given workflow
     # returns path to zip file
     def zip_workflow_files(workflow)
