@@ -45,7 +45,7 @@ module DataExports
             is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
             if is_transcription_metadata_file
               tmp_file = with_retries(
-                rescue_class: [Faraday::TimeoutError, Errno::ECONNREFUSED]
+                rescue_class: [Faraday::ConnectionFailed, Faraday::TimeoutError, Errno::ECONNREFUSED]
               ) do
                 storage_file.download
               end

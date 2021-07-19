@@ -5,7 +5,7 @@ RSpec.describe Retryable do
   class DummyClass
     def process
       with_retries(
-        rescue_class: [Faraday::TimeoutError, Errno::ECONNREFUSED]
+        rescue_class: [Faraday::ConnectionFailed, Faraday::TimeoutError, Errno::ECONNREFUSED]
       ) { self.call_me_maybe }
     end
 
