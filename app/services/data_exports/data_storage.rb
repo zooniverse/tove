@@ -40,9 +40,10 @@ module DataExports
 
     # Extremely hacky workaround for getting a group's worth of transcriptions out at a time.
     # Use this on the console to save a transcription group export locally, then kubectl cp them out of the pod directly.
-    # This also regens the files if the transcription is approved. Should take a while and might fail!
+    # This also (optionally) regens the files if the transcription is approved.
+    # Regenning files is heavy and could cause issues on large sets, be careful.
     # This'll go away very soon but will buy some time.
-    def save_transcription_files_locally(transcriptions)
+    def save_transcription_files_locally(transcriptions, regen: false)
       group_id = transcriptions.first.group_id
       workflow_id = transcriptions.first.workflow_id
       directory_path = "/tmp/saved/"
@@ -51,7 +52,7 @@ module DataExports
       FileUtils.mkdir_p(group_folder)
 
       transcriptions.each do |transcription|
-        transcription.upload_files_to_storage if transcription.approved?
+        transcription.upload_files_to_storage if regen && transcription.approved?
         download_transcription_files(transcription, group_folder) if transcription.export_files.attached?
       end
 
