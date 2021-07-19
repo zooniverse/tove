@@ -119,7 +119,7 @@ module DataExports
       file = File.open(download_path, 'w')
       begin
         with_retries(
-          rescue_class: [Faraday::TimeoutError, Errno::ECONNREFUSED]
+          rescue_class: [Faraday::ConnectionFailed, Faraday::TimeoutError, Errno::ECONNREFUSED]
         ) { file.write(storage_file.download.force_encoding('UTF-8')) }
       rescue Encoding::UndefinedConversionError => exception
         # build new exception with message including the problematic file
