@@ -101,7 +101,7 @@ GEM
       faraday_middleware (~> 0.10)
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.15.0)
+    ffi (1.15.3)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     i18n (1.8.10)
@@ -117,7 +117,7 @@ GEM
       rack
       ransack
     jwt (1.5.6)
-    listen (3.2.1)
+    listen (3.6.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     loofah (2.9.1)
@@ -193,7 +193,7 @@ GEM
       activerecord (>= 5.2.4)
       activesupport (>= 5.2.4)
       i18n
-    rb-fsevent (0.10.4)
+    rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rspec-core (3.10.1)
@@ -257,7 +257,7 @@ DEPENDENCIES
   factory_bot_rails
   jsonapi-rspec
   jsonapi.rb
-  listen (>= 3.0.5, < 3.3)
+  listen (>= 3.0.5, < 3.7)
   panoptes-client
   pg (>= 0.18, < 2.0)
   pry-byebug
