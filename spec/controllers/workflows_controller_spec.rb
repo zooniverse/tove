@@ -139,6 +139,7 @@ RSpec.describe WorkflowsController, type: :controller do
 
     before do
       transcription.export_files.attach(blank_file_blob)
+      allow(DataExports::AggregateMetadataFileGenerator).to receive(:generate_workflow_file).and_return(true)
     end
 
     it 'returns successfully' do

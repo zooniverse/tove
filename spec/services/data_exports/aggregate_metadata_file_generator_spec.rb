@@ -13,6 +13,15 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
   before(:each) do
     transcription.export_files.attach(transcription_metadata_blob)
     another_transcription.export_files.attach(transcription_metadata_blob)
+
+    # Create transcription metadata files that exist during an export
+    File.open("#{ parent_dir }/transcription_metadata_#{ transcription.id }.csv", 'w') do |f|
+      f.puts transcription.export_files.first.download
+    end
+
+    File.open("#{ parent_dir }/transcription_metadata_#{ another_transcription.id }.csv", 'w') do |f|
+      f.puts another_transcription.export_files.first.download
+    end
   end
 
   describe '#generate_group_file' do

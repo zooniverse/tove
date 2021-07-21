@@ -28,11 +28,11 @@ module DataExports
         group_folder = File.join(directory_path, "group_#{transcriptions.first.group_id}")
         FileUtils.mkdir_p(group_folder)
 
-        AggregateMetadataFileGenerator.generate_group_file(transcriptions, group_folder)
-
         transcriptions.each do |transcription|
           download_transcription_files(transcription, group_folder) if transcription.export_files.attached?
         end
+
+        AggregateMetadataFileGenerator.generate_group_file(transcriptions, group_folder)
 
         yield zip_files(directory_path, group_folder)
       end
@@ -81,11 +81,11 @@ module DataExports
         project_folder = File.join(directory_path, "project_#{project.id}")
         FileUtils.mkdir_p(project_folder)
 
-        AggregateMetadataFileGenerator.generate_project_file(project, project_folder)
-
         project.workflows.each do |w|
           download_workflow_files(w, project_folder)
         end
+
+        AggregateMetadataFileGenerator.generate_project_file(project, project_folder)
 
         yield zip_files(directory_path, project_folder)
       end
@@ -103,10 +103,7 @@ module DataExports
 
       metadata_file_regex = /^transcription_metadata_.*\.csv$/
       transcription.export_files.each do |storage_file|
-        is_transcription_metadata_file = metadata_file_regex.match storage_file.filename.to_s
-        unless is_transcription_metadata_file && !single_transcription_export
-          download_file_from_storage(storage_file, transcription_folder)
-        end
+        download_file_from_storage(storage_file, transcription_folder)
       end
 
       transcription_folder
