@@ -83,7 +83,8 @@ class TranscriptionsController < ApplicationController
     workflow = Workflow.find(params[:workflow_id])
     authorize workflow
 
-    @transcriptions = Transcription.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
+    # Load attached export files as an include with a single extra query
+    @transcriptions = Transcription.with_attached_export_files.where(group_id: params[:group_id], workflow_id: params[:workflow_id])
 
     if @transcriptions.empty?
       raise NoExportableTranscriptionsError, "No exportable transcriptions found for group id '#{params[:group_id]}'"

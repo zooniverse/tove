@@ -509,6 +509,7 @@ RSpec.describe TranscriptionsController, type: :controller do
     end
 
     describe '#export_group' do
+      before { allow(DataExports::AggregateMetadataFileGenerator).to receive(:generate_group_file).and_return(true) }
       # TO DO: create example for no trans in group
       context 'when group contains at least one transcription' do
         it 'returns successfully with content-type of application/zip' do
