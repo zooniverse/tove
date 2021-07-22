@@ -42,7 +42,7 @@ module DataExports
         transcriptions.each do |transcription|
           # Assumes that all transcription metadata files exist, since this step always comes after
           # a full download and we don't want the db/storage costs of checking/downloading
-          metadata_filename = "#{ group_folder }/transcription_metadata_#{ transcription.id }.csv"
+          metadata_filename = "#{ group_folder }/transcription_#{ transcription.id }/transcription_metadata_#{ transcription.id }.csv"
           rows = CSV.read(metadata_filename)
           # add header if it's the first transcription being added
           metadata_rows << rows[0] if metadata_rows.empty?
