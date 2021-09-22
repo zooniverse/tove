@@ -1,7 +1,7 @@
 require 'csv'
 
 RSpec.describe DataExports::AggregateMetadataFileGenerator do
-  let (:project) { create(:project, slug: "lizard_king/underground_fortress") }
+  let(:project) { create(:project, slug: "lizard_king/underground_fortress") }
   let(:workflow) { create(:workflow, project: project)}
   let(:transcription) { create(:transcription, :unedited_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
   let(:another_transcription) { create(:transcription, :unedited_json_blob, workflow: workflow, group_id: "ROACH_WARRIORS") }
@@ -14,12 +14,17 @@ RSpec.describe DataExports::AggregateMetadataFileGenerator do
     transcription.export_files.attach(transcription_metadata_blob)
     another_transcription.export_files.attach(transcription_metadata_blob)
 
+    transcription_group.each do |t|
+      transcription_folder = File.join(parent_dir, "transcription_#{t.id}")
+      FileUtils.mkdir_p(transcription_folder)
+    end
+
     # Create transcription metadata files that exist during an export
-    File.open("#{ parent_dir }/transcription_metadata_#{ transcription.id }.csv", 'w') do |f|
+    File.open("#{ parent_dir }/transcription_#{ transcription.id }/transcription_metadata_#{ transcription.id }.csv", 'w') do |f|
       f.puts transcription.export_files.first.download
     end
 
-    File.open("#{ parent_dir }/transcription_metadata_#{ another_transcription.id }.csv", 'w') do |f|
+    File.open("#{ parent_dir }/transcription_#{ another_transcription.id }/transcription_metadata_#{ another_transcription.id }.csv", 'w') do |f|
       f.puts another_transcription.export_files.first.download
     end
   end
