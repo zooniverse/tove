@@ -213,7 +213,7 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.10.2)
-    rubyzip (2.3.0)
+    rubyzip (2.3.2)
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
     simplecov (0.16.1)
