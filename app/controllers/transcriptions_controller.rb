@@ -102,11 +102,13 @@ class TranscriptionsController < ApplicationController
     meta = {}
     pagination = jsonapi_pagination_meta(resources)
     meta['pagination'] = pagination if pagination.present?
-    meta['approved_count_fraction'] = approved_count_fraction
+    meta['approved_count_fraction'] = approved_count_fraction unless approved_count_fraction.nil?
     meta
   end
 
   def approved_count_fraction
+    return if @transcriptions.nil?
+
     approved_count = 0
     @transcriptions.each do |trans|
       approved_count += 1 if trans['status'] == 'approved'
