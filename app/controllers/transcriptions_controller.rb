@@ -97,6 +97,22 @@ class TranscriptionsController < ApplicationController
   end
 
   private
+  
+  def jsonapi_meta(resources)
+    meta = {}
+    pagination = jsonapi_pagination_meta(resources)
+    meta['pagination'] = pagination if pagination.present?
+    meta['approved'] = approved_fraction
+    meta
+  end
+
+  def approved_fraction
+    approved_count = 0 
+    @transcriptions.each do |trans|
+      approved_count += 1 if trans['status'] == 'approved'
+    end
+    "#{approved_count}/#{@transcriptions.size}"
+  end
 
   def update_attrs
     @update_attrs ||= jsonapi_deserialize(params)
