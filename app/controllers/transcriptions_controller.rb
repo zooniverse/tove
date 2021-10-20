@@ -97,14 +97,15 @@ class TranscriptionsController < ApplicationController
   end
 
   def jsonapi_render(collection, filters)
-    super(collection, filters, method(:func_after_filter))
+    jsonapi_filter(collection, filters) do |filtered|
+      @approved_count = filtered.result.where(status: 'approved').count
+      jsonapi_paginate(filtered.result) do |paginated|
+        render jsonapi: paginated
+      end
+    end
   end
 
   private
-
-  def func_after_filter(filtered)
-    @approved_count = filtered.result.where(status: 'approved').count
-  end
 
   def jsonapi_meta(resources)
     return super(resources) if @approved_count.nil?

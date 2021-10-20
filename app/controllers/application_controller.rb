@@ -12,9 +12,8 @@ class ApplicationController < ActionController::Base
   include JSONAPI::Pagination
   include JSONAPI::Filtering
 
-  def jsonapi_render(collection, filters, func_after_filter = nil)
+  def jsonapi_render(collection, filters)
     jsonapi_filter(collection, filters) do |filtered|
-      func_after_filter&.call(filtered) unless func_after_filter.nil?
       jsonapi_paginate(filtered.result) do |paginated|
         render jsonapi: paginated
       end
