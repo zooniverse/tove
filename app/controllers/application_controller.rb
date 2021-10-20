@@ -81,9 +81,11 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def jsonapi_meta(resources)
+  def jsonapi_meta(resources, extras = {})
+    meta = {}
     pagination = jsonapi_pagination_meta(resources)
-    { pagination: pagination } if pagination.present?
+    meta[:pagination] = pagination if pagination.present?
+    meta.merge(extras)
   end
 
   def send_export_file(zip_file)
