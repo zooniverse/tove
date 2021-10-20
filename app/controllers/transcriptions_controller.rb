@@ -97,13 +97,12 @@ class TranscriptionsController < ApplicationController
   end
 
   private
-
+  
   def jsonapi_meta(resources)
-    meta = {}
-    pagination = jsonapi_pagination_meta(resources)
-    meta['pagination'] = pagination if pagination.present?
-    meta['approved_count'] = approved_count unless approved_count.nil?
-    meta
+    return super(resources) if approved_count.nil?
+
+    approved_count_hash = { approved_count: approved_count }
+    super(resources, approved_count_hash)
   end
 
   def approved_count

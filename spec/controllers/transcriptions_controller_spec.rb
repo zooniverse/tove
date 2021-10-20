@@ -47,9 +47,9 @@ RSpec.describe TranscriptionsController, type: :controller do
           get :index
           expect(response).to have_http_status(:ok)
           response_meta = JSON.parse(response.body)['meta']
-          expect(response_meta['approved_count_fraction']).not_to be_nil
-          expected_fraction = "#{Transcription.where(status: 0).count}/#{response_meta['pagination']['records']}"
-          expect(response_meta['approved_count_fraction']).to eq(expected_fraction)
+          expect(response_meta['approved_count']).not_to be_nil
+          expected_approved_count = Transcription.where(status: 0).count
+          expect(response_meta['approved_count']).to eq(expected_approved_count)
         end
       end
     end
