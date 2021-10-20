@@ -106,6 +106,19 @@ class TranscriptionsController < ApplicationController
   end
 
   private
+  
+  def jsonapi_meta(resources)
+    return super(resources) if approved_count.nil?
+
+    approved_count_hash = { approved_count: approved_count }
+    super(resources, approved_count_hash)
+  end
+
+  def approved_count
+    return if @transcriptions.nil?
+
+    @transcriptions.where(status: 'approved').size
+  end
 
   def jsonapi_meta(resources)
     return super(resources) if @approved_count.nil?
