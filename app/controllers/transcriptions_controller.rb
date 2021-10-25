@@ -96,19 +96,22 @@ class TranscriptionsController < ApplicationController
     end
   end
 
-  private
-  
-  def jsonapi_meta(resources)
-    return super(resources) if approved_count.nil?
-
-    approved_count_hash = { approved_count: approved_count }
-    super(resources, approved_count_hash)
+  def jsonapi_render(collection, filters)
+    jsonapi_filter(collection, filters) do |filtered|
+      @approved_count = filtered.result.where(status: 'approved').count
+      jsonapi_paginate(filtered.result) do |paginated|
+        render jsonapi: paginated
+      end
+    end
   end
 
-  def approved_count
-    return if @transcriptions.nil?
+  private
 
-    @transcriptions.where(status: 'approved').size
+  def jsonapi_meta(resources)
+    return super(resources) if @approved_count.nil?
+
+    approved_count_hash = { approved_count: @approved_count }
+    super(resources, approved_count_hash)
   end
 
   def update_attrs
