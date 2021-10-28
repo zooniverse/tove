@@ -1,9 +1,11 @@
 name: ZooniCI
 
-on: [workflow_dispatch]
+on:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
     - name: Login to GitHub Container Registry
@@ -18,7 +20,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: zooniverse/tove:latest
         secrets: |
           GIT_AUTH_TOKEN=${{ secrets.MYTOKEN }}
 
