@@ -1,0 +1,39 @@
+name: ZooniCI
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: zooniverse/tove:latest
+        secrets: |
+          GIT_AUTH_TOKEN=${{ secrets.MYTOKEN }}
+
+    # Preview of Kubernetes deployment
+    # # Set the target AKS cluster.
+    # - uses: Azure/aks-set-context@v1
+    #   with:
+    #     creds: '${{ secrets.AZURE_AKS }}'
+    #     cluster-name: microservices
+    #     resource-group: kubernetes
+
+    # - uses: Azure/k8s-deploy@v1.4
+    #   with:
+    #     manifests: |
+    #       manifests/deployment.yml
+    #       manifests/service.yml
+    #     images: |
+    #       demo.azurecr.io/k8sdemo:${{ github.sha }}
