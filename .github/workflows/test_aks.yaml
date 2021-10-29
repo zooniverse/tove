@@ -1,0 +1,22 @@
+name: Test GHA-AKS
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set the target AKS cluster
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_AKS }}'
+        cluster-name: microservices
+        resource-group: kubernetes
+
+    # Not yet
+    # - name: Apply Test Template
+    # - uses: Azure/k8s-deploy@v1.4
+    #   with:
+    #     manifests: kubernetes/test_aks.yaml
