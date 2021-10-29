@@ -5,11 +5,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_push:
+  build-and-push:
     runs-on: ubuntu-latest
+    name: Build and Push to GH CR
     steps:
     - name: Checkout repo to get .git folder
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v1
