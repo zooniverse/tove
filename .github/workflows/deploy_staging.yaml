@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Push to GH CR
     steps:
+    - name: Obtain Latest Git ONLY within container for checkout
+      run: |
+        apt-get update
+        apt-get install -y git
     - name: Checkout repo to get .git folder
       uses: actions/checkout@v2
 
