@@ -24,7 +24,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: zooniverse/tove:${{ github.sha }}
+        tags: ghcr.io/zooniverse/tove:${{ github.sha }}
 
     # Preview of Kubernetes deployment
     # # Set the target AKS cluster.
