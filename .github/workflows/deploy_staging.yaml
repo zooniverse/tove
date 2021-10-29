@@ -17,7 +17,7 @@ jobs:
 
     - name: Create commit.txt
       run: |
-        git log --format="%H" -n 1 > commit_id.txt
+        echo ${{ github.sha }} > commit_id.txt
 
     - name: Build and push
       id: docker_build
