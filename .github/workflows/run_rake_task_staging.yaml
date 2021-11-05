@@ -30,8 +30,6 @@ jobs:
 
       - name: Modify template
         run: |
-          export DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)
-          export JOB_NAME='tove-rake-task-staging-${{ github.run_number }}'
           sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-rake-task-staging.tmpl \
             | sed "s/__JOB_NAME__/$JOB_NAME/g" \
             | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g"
