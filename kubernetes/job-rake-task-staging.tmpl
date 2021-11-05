@@ -6,18 +6,18 @@ spec:
   template:
     spec:
       containers:
-      - name: tove-db-migrate-staging
+      - name: tove-rake-task-staging
         image: zooniverse/tove:__IMAGE_TAG__
         command: ["bundle",  "exec", "rake", __RAKE_TASK_NAME__]
         envFrom:
-          - name: RAILS_LOG_TO_STDOUT
-            value: "true"
-          - name: RAILS_ENV
-            value: staging
-          - name: RAILS_MASTER_KEY
-            valueFrom:
-              secretKeyRef:
-                name: tove-staging
-                key: rails-master-key
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: RAILS_ENV
+          value: staging
+        - name: RAILS_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tove-staging
+              key: rails-master-key
       restartPolicy: Never
   backoffLimit: 1
