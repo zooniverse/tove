@@ -22,6 +22,12 @@ jobs:
           cluster-name: microservices
           resource-group: kubernetes
 
+
+      - name: Set environment variables
+        run: |
+          echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
+          echo "JOB_NAME='tove-rake-task-staging-${{ github.run_number }}'" >> $GITHUB_ENV
+
       - name: Modify template
         run: |
           export DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)
