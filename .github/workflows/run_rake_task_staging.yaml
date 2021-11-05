@@ -32,11 +32,15 @@ jobs:
 
       - name: Print template
         run: |
-          cat ./kubernetes/run_rake_task_staging.yaml
+          cat ./kubernetes/run_rake_task_staging.tmpl
+          echo "DEPLOYED IMAGE TAG:"
+          echo $DEPLOYED_IMAGE_TAG
+          echo "JOB NAME:"
+          echo $JOB_NAME
 
       # - name: Apply template
-        # run: |
-          # kubectl --context azure apply --record -f ./kubenetes/run_rake_task_staging.yaml
+      #   run: |
+      #     kubectl --context azure apply --record -f ./kubenetes/run_rake_task_staging.tmpl
 
       # - name: Wait for completion
       #   run: kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME
