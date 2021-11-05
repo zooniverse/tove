@@ -12,6 +12,9 @@ jobs:
   run_rake_task:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Set the target AKS cluster
         uses: Azure/aks-set-context@v1
         with:
