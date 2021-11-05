@@ -1,6 +1,7 @@
 name: Run Rake Task
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       rake_task:
