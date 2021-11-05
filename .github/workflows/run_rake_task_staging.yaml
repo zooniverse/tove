@@ -33,7 +33,7 @@ jobs:
           sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-rake-task-staging.tmpl \
             | sed "s/__JOB_NAME__/$JOB_NAME/g" \
             | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g" \
-            | kubectl apply --record -f -
+            | kubectl apply -f -
 
       - name: Wait for completion
         run: kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME
