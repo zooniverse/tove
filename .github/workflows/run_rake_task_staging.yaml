@@ -32,7 +32,7 @@ jobs:
 
       - name: Print template
         run: |
-          cat ./kubernetes/job_rake_task_staging.tmpl
+          cat ./kubernetes/job-rake-task-staging.tmpl
           echo "DEPLOYED IMAGE TAG:"
           echo $DEPLOYED_IMAGE_TAG
           echo "JOB NAME:"
