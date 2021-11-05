@@ -28,32 +28,21 @@ jobs:
           echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
           echo "JOB_NAME='tove-rake-task-staging-${{ github.run_number }}'" >> $GITHUB_ENV
 
-      - name: Modify template
+      - name: Modify & apply template
         run: |
           sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-rake-task-staging.tmpl \
             | sed "s/__JOB_NAME__/$JOB_NAME/g" \
-            | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g"
+            | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g" \
+            | kubectl --context azure apply --record -f -
 
-      - name: Print template
+      - name: Wait for completion
+        run: kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME
+        env:
+          JOB_NAME: $JOB_NAME
+
+      - name: Log output
         run: |
-          cat ./kubernetes/job-rake-task-staging.tmpl
-          echo "DEPLOYED IMAGE TAG:"
-          echo $DEPLOYED_IMAGE_TAG
-          echo "JOB NAME:"
-          echo $JOB_NAME
-
-      # - name: Apply template
-      #   run: |
-      #     kubectl --context azure apply --record -f ./kubenetes/run_rake_task_staging.tmpl
-
-      # - name: Wait for completion
-      #   run: kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME
-      #   env:
-      #     JOB_NAME: gha-aks-test-${{ github.run_number }}
-
-      # - name: Log output
-      #   run: |
-      #     kubectl describe job/$JOB_NAME
-      #     kubectl logs $(kubectl get pods --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
-      #   env:
-      #     JOB_NAME: gha-aks-test-${{ github.run_number }}
+          kubectl describe job/$JOB_NAME
+          kubectl logs $(kubectl get pods --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
+        env:
+          JOB_NAME: $JOB_NAME
