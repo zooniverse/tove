@@ -15,9 +15,9 @@ spec:
         - name: RAILS_ENV
           value: staging
         - name: RAILS_MASTER_KEY
-        envFrom:
-        - secretRef:
-            name: tove-staging
-            key: rails-master-key
+          valueFrom:
+            secretKeyRef:
+              name: tove-staging
+              key: rails-master-key
       restartPolicy: Never
   backoffLimit: 1
