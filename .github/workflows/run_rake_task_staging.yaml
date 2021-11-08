@@ -22,7 +22,6 @@ jobs:
           cluster-name: microservices
           resource-group: kubernetes
 
-
       - name: Set environment variables
         run: |
           echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
@@ -35,14 +34,25 @@ jobs:
             | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g" \
             | kubectl apply -f -
 
-      - name: Wait for completion
-        run: kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME
-        env:
-          JOB_NAME: $JOB_NAME
+      - name: Wait for completion or failure
+        run: |
+          kubectl wait --for=condition=complete job/$JOB_NAME & completion_pid=$!
+          kubectl wait --for=condition=failed job/$JOB_NAME && exit 1 & failure_pid=$!
+          wait -n $completion_pid $failure_pid
+          exit_code=$?
+          echo "JOB_EXIT_CODE=$exit_code" >> $GITHUB_ENV
+          exit $exit_code
 
       - name: Log output
+        if: always()
         run: |
           kubectl describe job/$JOB_NAME
           kubectl logs $(kubectl get pods --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
-        env:
-          JOB_NAME: $JOB_NAME
+
+      - name: Clean up job if successful
+        if: always()
+        run: |
+          if [ $JOB_EXIT_CODE -eq 0 ]
+          then
+            kubectl delete job $JOB_NAME
+          fi
