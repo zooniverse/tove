@@ -1,4 +1,4 @@
-name: Run Rake Task
+name: Run Rake Task (Staging)
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: 'routes'
 
 jobs:
-  run_rake_task:
+  run_rake_task_staging:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
