@@ -56,3 +56,46 @@ jobs:
           then
             kubectl delete job $JOB_NAME
           fi
+
+      - name: Slack notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          fields: took
+          status: custom
+          custom_payload: |
+            {
+              "channel": "#ops",
+              "icon_emoji": ":octocat:",
+              "username": "Rake Action",
+              "attachments": [{
+                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                "mrkdwn_in": ["text"],
+                "author_name": "${{ github.actor }}",
+                "author_link": "https://github.com/${{ github.actor }}/",
+                "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
+                "title": "Tove Staging Rake task complete",
+                "title_link": "https://github.com/zooniverse/tove/actions/${{ github.run_id }}",
+                "fields": [
+                    {
+                        "title": "Status",
+                        "value": '${{ job.status }}' === 'success' ? `:white_check_mark: Success in ${process.env.AS_TOOK}` : '${{ job.status }}' === 'failure' ? ':x: Failed' : ':warning: Warning',
+                        "short": true
+                    },
+                    {
+                        "title": "Triggered by",
+                        "value": "${{ github.event_name }}",
+                        "short": true
+                    },
+                    {
+                        "title": "Run Link",
+                        "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                ],
+                "thumb_url": "https://raw.githubusercontent.com/zooniverse/Brand/master/style%20guide/logos/zooniverse-emblem/zooniverse-logo-teal.png",
+                "footer": "<https://github.com/${{ github.repository }}|${{ github.repository }}> #${{ github.run_number }}",
+                "footer_icon": "https://www.zooniverse.org/favicon.ico"
+              }]
+            }
