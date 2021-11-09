@@ -35,10 +35,10 @@ jobs:
 
       - uses: actions/cache@v1
         with:
-          path: /home/runner/bundle
-          key: bundle-${{ hashFiles('**/Gemfile.lock') }}
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
-            bundle-
+            ${{ runner.os }}-gem-
 
       - name: Check for focused specs
         run: ./scripts/no_focus.sh
