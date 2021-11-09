@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-to-staging:
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     steps:
     - name: Login to GitHub Container Registry
