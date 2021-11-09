@@ -33,13 +33,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: actions/cache@v1
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gem-
-
       - name: Check for focused specs
         run: ./scripts/no_focus.sh
 
