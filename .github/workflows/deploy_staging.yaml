@@ -20,9 +20,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Create commit.txt
+      run: |
+        echo ${{ github.sha }} > commit_id.txt
+
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
+        context: .
         push: true
         tags: |
           ghcr.io/zooniverse/tove:${{ github.sha }}
