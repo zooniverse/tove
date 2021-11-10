@@ -1,0 +1,101 @@
+name: Run Task (Staging)
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Task to run
+        required: true
+        default: 'routes'
+
+jobs:
+  run_task_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set the target AKS cluster
+        uses: Azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_AKS }}'
+          cluster-name: microservices
+          resource-group: kubernetes
+
+      - name: Set environment variables
+        run: |
+          echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
+          echo "JOB_NAME=tove-task-staging-${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Modify & apply template
+        run: |
+          sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-task-staging.tmpl \
+            | sed "s/__JOB_NAME__/$JOB_NAME/g" \
+            | sed "s/__TASK_NAME__/${{ github.event.inputs.task }}/g" \
+            | kubectl apply -f -
+
+      - name: Wait for completion or failure
+        run: |
+          kubectl wait --for=condition=complete job/$JOB_NAME & completion_pid=$!
+          kubectl wait --for=condition=failed job/$JOB_NAME && exit 1 & failure_pid=$!
+          wait -n $completion_pid $failure_pid
+          exit_code=$?
+          echo "JOB_EXIT_CODE=$exit_code" >> $GITHUB_ENV
+          exit $exit_code
+
+      - name: Log output
+        if: always()
+        run: |
+          kubectl describe job/$JOB_NAME
+          kubectl logs --selector=job-name=$JOB_NAME
+
+      - name: Clean up job if successful
+        if: always()
+        run: |
+          if [ $JOB_EXIT_CODE -eq 0 ]
+          then
+            kubectl delete job $JOB_NAME
+          fi
+
+      - name: Slack notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          fields: took
+          status: custom
+          custom_payload: |
+            {
+              "channel": "#ops",
+              "icon_emoji": ":octocat:",
+              "username": "Rails Task",
+              "attachments": [{
+                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                "mrkdwn_in": ["text"],
+                "author_name": "${{ github.actor }}",
+                "author_link": "https://github.com/${{ github.actor }}/",
+                "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
+                "title": "Tove Staging task complete",
+                "title_link": "https://github.com/zooniverse/tove/actions/${{ github.run_id }}",
+                "fields": [
+                    {
+                        "title": "Status",
+                        "value": '${{ job.status }}' === 'success' ? `:white_check_mark: Success in ${process.env.AS_TOOK}` : '${{ job.status }}' === 'failure' ? ':x: Failed' : ':warning: Warning',
+                        "short": true
+                    },
+                    {
+                        "title": "Triggered by",
+                        "value": "${{ github.event_name }}",
+                        "short": true
+                    },
+                    {
+                        "title": "Run Link",
+                        "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                ],
+                "thumb_url": "https://raw.githubusercontent.com/zooniverse/Brand/master/style%20guide/logos/zooniverse-emblem/zooniverse-logo-teal.png",
+                "footer": "<https://github.com/${{ github.repository }}|${{ github.repository }}> #${{ github.run_number }}",
+                "footer_icon": "https://www.zooniverse.org/favicon.ico"
+              }]
+            }

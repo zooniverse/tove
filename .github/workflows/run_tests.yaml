@@ -1,4 +1,5 @@
 name: Run Tests
+
 on:
   pull_request:
   workflow_dispatch:
@@ -9,6 +10,7 @@ env:
 
 jobs:
   tests:
+    name: Run Tests
     runs-on: ubuntu-latest
     services:
       postgres:
