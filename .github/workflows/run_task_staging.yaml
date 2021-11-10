@@ -1,15 +1,15 @@
-name: Run Rake Task (Staging)
+name: Run Task (Staging)
 
 on:
   workflow_dispatch:
     inputs:
-      rake_task:
-        description: Rake task to run
+      task:
+        description: Task to run
         required: true
         default: 'routes'
 
 jobs:
-  run_rake_task_staging:
+  run_task_staging:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,13 +25,13 @@ jobs:
       - name: Set environment variables
         run: |
           echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
-          echo "JOB_NAME=tove-rake-task-staging-${{ github.run_number }}" >> $GITHUB_ENV
+          echo "JOB_NAME=tove-task-staging-${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Modify & apply template
         run: |
-          sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-rake-task-staging.tmpl \
+          sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-task-staging.tmpl \
             | sed "s/__JOB_NAME__/$JOB_NAME/g" \
-            | sed "s/__RAKE_TASK_NAME__/${{ github.event.inputs.rake_task }}/g" \
+            | sed "s/__TASK_NAME__/${{ github.event.inputs.task }}/g" \
             | kubectl apply -f -
 
       - name: Wait for completion or failure
@@ -69,14 +69,14 @@ jobs:
             {
               "channel": "#ops",
               "icon_emoji": ":octocat:",
-              "username": "Rake Action",
+              "username": "Rails Task",
               "attachments": [{
                 "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
                 "mrkdwn_in": ["text"],
                 "author_name": "${{ github.actor }}",
                 "author_link": "https://github.com/${{ github.actor }}/",
                 "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-                "title": "Tove Staging Rake task complete",
+                "title": "Tove Staging task complete",
                 "title_link": "https://github.com/zooniverse/tove/actions/${{ github.run_id }}",
                 "fields": [
                     {

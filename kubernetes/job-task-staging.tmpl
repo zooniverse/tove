@@ -6,9 +6,9 @@ spec:
   template:
     spec:
       containers:
-      - name: tove-rake-task-staging
+      - name: tove-task-staging
         image: zooniverse/tove:__IMAGE_TAG__
-        command: ["bundle",  "exec", "rake", __RAKE_TASK_NAME__]
+        command: ["bundle",  "exec", "rails", __TASK_NAME__]
         env:
         - name: RAILS_LOG_TO_STDOUT
           value: "true"
