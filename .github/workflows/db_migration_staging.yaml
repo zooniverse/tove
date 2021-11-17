@@ -1,4 +1,4 @@
-name: Run Database Migration (Staging)
+name: Run DB Migration (Staging)
 
 on:
   pull_request:
