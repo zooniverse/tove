@@ -20,6 +20,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Get current deploy
+      run: |
+        echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
+
+    - name: Check if deploy is necessary
+      run: |
+        if [ $DEPLOYED_IMAGE_TAG = ${{ github.sha }} ]; then
+          echo "::warning::Deployed image matches latest commit, no new code to deploy. "
+          exit 0
+        fi
+
     - name: Create commit.txt
       run: |
         echo ${{ github.sha }} > commit_id.txt
