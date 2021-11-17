@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: tove-task-staging
-        image: zooniverse/tove:__IMAGE_TAG__
+        image: ghcr.io/zooniverse/tove:__IMAGE_TAG__
         command: ["bundle",  "exec", "rails", __TASK_NAME__]
         env:
         - name: RAILS_LOG_TO_STDOUT
