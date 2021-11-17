@@ -43,12 +43,12 @@ jobs:
           kubectl describe job/$JOB_NAME
           kubectl logs --selector=job-name=$JOB_NAME
 
-      - name: Clean up job if successful
-        if: always()
-        run: |
-          if [ $JOB_EXIT_CODE -eq 0 ]; then
-            kubectl delete job $JOB_NAME
-          fi
+      # - name: Clean up job if successful
+      #   if: always()
+      #   run: |
+      #     if [ $JOB_EXIT_CODE -eq 0 ]; then
+      #       kubectl delete job $JOB_NAME
+      #     fi
 
       - name: Slack notification
         uses: 8398a7/action-slack@v3
