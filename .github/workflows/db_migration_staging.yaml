@@ -1,6 +1,7 @@
 name: Run Database Migration (Staging)
 
 on:
+  pull_request:
   workflow_dispatch:
 
 jobs:
