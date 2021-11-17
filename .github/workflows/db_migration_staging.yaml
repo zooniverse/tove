@@ -30,8 +30,8 @@ jobs:
 
       - name: Wait for completion or failure
         run: |
-          kubectl wait --for=condition=complete job/$JOB_NAME & completion_pid=$!
-          kubectl wait --for=condition=failed job/$JOB_NAME && exit 1 & failure_pid=$!
+          kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME & completion_pid=$!
+          kubectl wait --for=condition=failed --timeout=86400s job/$JOB_NAME && exit 1 & failure_pid=$!
           wait -n $completion_pid $failure_pid
           exit_code=$?
           echo "JOB_EXIT_CODE=$exit_code" >> $GITHUB_ENV
