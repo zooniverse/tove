@@ -26,7 +26,7 @@ jobs:
 
     - name: Check if deploy is necessary
       run: |
-        if [ $DEPLOYED_IMAGE_TAG = ${{ github.sha }} ]; then
+        if [ $DEPLOYED_IMAGE_TAG == ${{ github.sha }} ]; then
           echo "::warning::Deployed image matches latest commit, no new code to deploy. "
           exit 0
         fi
