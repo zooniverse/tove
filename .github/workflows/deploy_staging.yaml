@@ -35,7 +35,7 @@ jobs:
       run: |
         if [ $DEPLOYED_IMAGE_TAG == ${{ github.sha }} ]; then
           echo "::warning::Deployed image matches latest commit, no new code to deploy. "
-          exit 0
+          exit 1
         fi
 
     - name: Create commit.txt
