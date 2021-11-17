@@ -20,6 +20,13 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set the target AKS cluster
+      uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_AKS }}'
+        cluster-name: microservices
+        resource-group: kubernetes
+
     - name: Get current deploy
       run: |
         echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-staging-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
@@ -48,13 +55,6 @@ jobs:
           ghcr.io/zooniverse/tove:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-    - name: Set the target AKS cluster
-      uses: Azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_AKS }}'
-        cluster-name: microservices
-        resource-group: kubernetes
 
     - name: Modify & apply template
       run: |
