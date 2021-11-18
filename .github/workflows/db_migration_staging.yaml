@@ -40,8 +40,10 @@ jobs:
       - name: Log output
         if: always()
         run: |
+          echo "Job Description:"
           kubectl describe job/$JOB_NAME
-          kubectl logs --selector=job-name=$JOB_NAME
+          echo "Pod Logs:"
+          kc logs $(kc get pods --selector=$JOB_NAME -o=jsonpath='{$.items[*].metadata.name}')
 
       # - name: Clean up job if successful
       #   if: always()
