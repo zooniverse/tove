@@ -61,6 +61,12 @@ jobs:
         sed "s/__IMAGE_TAG__/${{ github.sha }}/g" ./kubernetes/deployment-staging.tmpl \
           | kubectl apply -f -
 
+    - name: Get associated PR info
+      run: |
+        response=$(curl https://api.github.com/repos/zooniverse/tove/commits/${{ github.sha }}/pulls)
+        echo "PR_URL=$(jq -r '.[].html_url' <<< "${response}")" >> $GITHUB_ENV
+        echo "PR_TITLE=$(jq -r '.[].title' <<< "${response}")" >> $GITHUB_ENV
+
     - name: Slack notification
       uses: 8398a7/action-slack@v3
       if: always()
@@ -95,7 +101,7 @@ jobs:
                   },
                   {
                       "title": "Initiated by",
-                      "value": "<https://github.com/${{ github.repository }}/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>"
+                      "value": "<${{ env.PR_URL }}>|${{ env.PR_TITLE }}>"
                   },
                   {
                       "title": "Run Link",
