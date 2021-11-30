@@ -6,9 +6,9 @@ spec:
   template:
     spec:
       containers:
-      - name: tove-task-staging
+      - name: tove-db-migrate-staging
         image: ghcr.io/zooniverse/tove:__IMAGE_TAG__
-        command: ["bundle",  "exec", "rails", __TASK_NAME__]
+        command: ["bundle",  "exec", "rails", "db:migrate"]
         env:
         - name: RAILS_LOG_TO_STDOUT
           value: "true"
