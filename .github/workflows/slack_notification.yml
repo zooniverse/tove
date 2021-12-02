@@ -1,28 +1,28 @@
 name: Send Slack notification
 
 on:
-    # Run this workflow from other workflows
-    workflow_call:
-      inputs:
-        commit_id:
-          description: 'HEAD commit hash'
-          required: true
-          type: string
-        job_name:
-          description: 'Job name to report on'
-          required: true
-          type: string
-        status:
-          description: 'Job status'
-          required: true
-          type: string
-        title_link:
-          description: 'Notification title link'
-          required: true
-          type: string
-      secrets:
-        slack_webhook_url:
-          required: true
+  # Run this workflow from other workflows
+  workflow_call:
+    inputs:
+      commit_id:
+        description: 'HEAD commit hash'
+        required: true
+        type: string
+      job_name:
+        description: 'Job name to report on'
+        required: true
+        type: string
+      status:
+        description: 'Job status'
+        required: true
+        type: string
+      title_link:
+        description: 'Notification title link'
+        required: true
+        type: string
+    secrets:
+      slack_webhook_url:
+        required: true
 
 jobs:
   slack_notification:
