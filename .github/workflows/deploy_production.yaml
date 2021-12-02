@@ -2,8 +2,8 @@ name: Deploy to Production
 
 on:
   push:
-      tags:
-        - production-release
+    tags:
+      - production-release
   workflow_dispatch:
 
 jobs:

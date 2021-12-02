@@ -2,14 +2,14 @@ name: Deploy to Staging
 
 on:
   push:
-      branches:
-        - master
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
   deploy_staging:
     name: Deploy to Staging
-    uses: zooniverse/tove/.github/workflows/deploy_app.yml@production-release
+    uses: zooniverse/tove/.github/workflows/deploy_app.yaml@production-release
     with:
       commit_id: ${{ github.sha }}
       environment: staging
@@ -17,7 +17,7 @@ jobs:
       creds: ${{ secrets.AZURE_AKS }}
   slack_notification:
     name: Slack notification
-    uses: zooniverse/tove/.github/workflows/slack_notification.yml@production-release
+    uses: zooniverse/tove/.github/workflows/slack_notification.yaml@production-release
     needs: deploy-staging
     if: always()
     with:
