@@ -9,7 +9,7 @@ on:
 jobs:
   deploy_production:
     name: Deploy to Production
-    uses: zooniverse/tove/.github/workflows/deploy_app.yml@production-release
+    uses: zooniverse/tove/.github/workflows/deploy_app.yaml@production-release
     with:
       commit_id: ${{ github.sha }}
       environment: production
