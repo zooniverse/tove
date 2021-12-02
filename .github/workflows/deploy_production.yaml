@@ -9,7 +9,7 @@ on:
 jobs:
   deploy_production:
     name: Deploy to Production
-    uses: zooniverse/tove/.github/workflows/deploy_app.yml@production-release
+    uses: zooniverse/tove/.github/workflows/deploy_app.yaml@production-release
     with:
       commit_id: ${{ github.sha }}
       environment: production
@@ -17,12 +17,12 @@ jobs:
       creds: ${{ secrets.AZURE_AKS }}
   slack_notification:
     name: Slack notification
-    uses: zooniverse/tove/.github/workflows/slack_notification.yml@production-release
-    needs: deploy-production
+    uses: zooniverse/tove/.github/workflows/slack_notification.yaml@production-release
+    needs: deploy_production
     if: always()
     with:
       commit_id: ${{ github.sha }}
-      job_name: Deploy to Production / deploy-app
+      job_name: Deploy to Production / deploy_app
       status: ${{ needs.deploy_production.result }}
       title_link: "https://alice.zooniverse.org"
     secrets:
