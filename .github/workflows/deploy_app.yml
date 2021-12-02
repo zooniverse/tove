@@ -1,0 +1,74 @@
+name: Deploy App
+
+on:
+  # Run this workflow from other workflows
+  workflow_call:
+    inputs:
+      commit_id:
+        description: 'HEAD commit hash'
+        required: true
+        type: string
+      environment:
+        description: 'environment to affect'
+        required: true
+        type: string
+    secrets:
+      creds:
+        required: true
+
+jobs:
+  deploy_app:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set the target AKS cluster
+      uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.creds }}'
+        cluster-name: microservices
+        resource-group: kubernetes
+
+    - name: Get current deploy
+      run: |
+        echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-${{ inputs.environment }}-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
+
+    - name: Check if deploy is necessary
+      run: |
+        if [ $DEPLOYED_IMAGE_TAG == ${{ inputs.commit_id }} ]; then
+          echo "::warning::Deployed image matches latest commit, no new code to deploy. "
+          exit 1
+        fi
+
+    - name: Create commit.txt
+      run: |
+        echo ${{ inputs.commit_id }} > commit_id.txt
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      if: ${{ inputs.environment == 'staging' }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      if: ${{ inputs.environment == 'staging' }}
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/zooniverse/tove:${{ inputs.commit_id }}
+          ghcr.io/zooniverse/tove:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Modify & apply template
+      run: |
+        sed "s/__IMAGE_TAG__/${{ inputs.commit_id }}/g" ./kubernetes/deployment-${{ inputs.environment }}.tmpl \
+          | kubectl apply -f -
