@@ -2,100 +2,28 @@ name: Deploy to Production
 
 on:
   push:
-      tags:
-        - production-release
+    tags:
+      - production-release
   workflow_dispatch:
 
 jobs:
-  deploy-production:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set the target AKS cluster
-      uses: Azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_AKS }}'
-        cluster-name: microservices
-        resource-group: kubernetes
-
-    - name: Get current deploy
-      run: |
-        echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-production-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
-
-    - name: Check if deploy is necessary
-      run: |
-        if [ $DEPLOYED_IMAGE_TAG == ${{ github.sha }} ]; then
-          echo "::warning::Deployed image matches latest commit, no new code to deploy. "
-          exit 1
-        fi
-
-    - name: Create commit.txt
-      run: |
-        echo ${{ github.sha }} > commit_id.txt
-
-    - name: Modify & apply template
-      run: |
-        sed "s/__IMAGE_TAG__/${{ github.sha }}/g" ./kubernetes/deployment-production.tmpl \
-          | kubectl apply -f -
-
-    - name: Get associated PR info
-      run: |
-        response=$(curl https://api.github.com/repos/zooniverse/tove/commits/${{ github.sha }}/pulls)
-        echo "PR_URL=$(jq -r '.[].html_url' <<< "${response}")" >> $GITHUB_ENV
-        echo "PR_TITLE=$(jq -r '.[].title' <<< "${response}")" >> $GITHUB_ENV
-
-    - name: Slack notification
-      uses: 8398a7/action-slack@v3
-      if: always()
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      with:
-        fields: took
-        status: custom
-        custom_payload: |
-          {
-            "channel": "#deploys",
-            "icon_emoji": ":octocat:",
-            "username": "Deploy Action",
-            "attachments": [{
-              "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-              "mrkdwn_in": ["text"],
-              "author_name": "${{ github.actor }}",
-              "author_link": "https://github.com/${{ github.actor }}/",
-              "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-              "title": "Tove Production deploy complete",
-              "title_link": "https://alice.preview.zooniverse.org",
-              "fields": [
-                  {
-                      "title": "Status",
-                      "value": '${{ job.status }}' === 'success' ? `:white_check_mark: Success in ${process.env.AS_TOOK}` : '${{ job.status }}' === 'failure' ? ':x: Failed' : ':warning: Warning',
-                      "short": true
-                  },
-                  {
-                      "title": "Triggered by",
-                      "value": "${{ github.event_name }}",
-                      "short": true
-                  },
-                  {
-                      "title": "Initiated by",
-                      "value": "<${{ env.PR_URL }}>|${{ env.PR_TITLE }}>"
-                  },
-                  {
-                      "title": "Run Link",
-                      "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  }
-              ],
-              "thumb_url": "https://raw.githubusercontent.com/zooniverse/Brand/master/style%20guide/logos/zooniverse-emblem/zooniverse-logo-teal.png",
-              "footer": "<https://github.com/${{ github.repository }}|${{ github.repository }}> #${{ github.run_number }}",
-              "footer_icon": "https://www.zooniverse.org/favicon.ico"
-            }]
-          }
+  deploy_production:
+    name: Deploy to Production
+    uses: zooniverse/tove/.github/workflows/deploy_app.yml@production-release
+    with:
+      commit_id: ${{ github.sha }}
+      environment: production
+    secrets:
+      creds: ${{ secrets.AZURE_AKS }}
+  slack_notification:
+    name: Slack notification
+    uses: zooniverse/tove/.github/workflows/slack_notification.yml@production-release
+    needs: deploy-production
+    if: always()
+    with:
+      commit_id: ${{ github.sha }}
+      job_name: Deploy to Production / deploy-app
+      status: ${{ needs.deploy_production.result }}
+      title_link: "https://alice.zooniverse.org"
+    secrets:
+      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
