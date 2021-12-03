@@ -53,7 +53,7 @@ jobs:
                 "author_name": "${{ github.actor }}",
                 "author_link": "https://github.com/${{ github.actor }}/",
                 "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-                "title": "${{ inputs.title }}",
+                "title": "Tove ? deploy complete",
                 "title_link": "${{ inputs.title_link }}",
                 "fields": [
                     {
