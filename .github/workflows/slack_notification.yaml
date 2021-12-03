@@ -16,10 +16,6 @@ on:
         description: 'Job status'
         required: true
         type: string
-      title:
-        description: 'Title of message'
-        required: true
-        type: string
       title_link:
         description: 'Notification title link'
         required: true
