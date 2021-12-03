@@ -24,6 +24,7 @@ jobs:
       commit_id: ${{ github.sha }}
       job_name: Deploy to Staging / deploy_app
       status: ${{ needs.deploy_staging.result }}
+      title: "Tove Staging deploy complete"
       title_link: "https://alice.preview.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
