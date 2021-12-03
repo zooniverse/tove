@@ -16,12 +16,12 @@ on:
         description: 'Job status'
         required: true
         type: string
-      title:
-        description: 'Notification title'
-        required: true
-        type: string
       title_link:
         description: 'Notification title link'
+        required: true
+        type: string
+      title:
+        description: 'Notification title'
         required: true
         type: string
     secrets:
