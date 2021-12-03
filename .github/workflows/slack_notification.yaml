@@ -16,10 +16,6 @@ on:
         description: 'Job status'
         required: true
         type: string
-      title_link:
-        description: 'Notification title link'
-        required: true
-        type: string
       title:
         description: 'Notification title'
         required: true
@@ -57,8 +53,8 @@ jobs:
                 "author_name": "${{ github.actor }}",
                 "author_link": "https://github.com/${{ github.actor }}/",
                 "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-                "title": "${{ inputs.title }}",
-                "title_link": "${{ inputs.title_link }}",
+                "title": "${{ inputs.link_text }}",
+                "title_link": "https://zooniverse.org",
                 "fields": [
                     {
                         "title": "Status",
