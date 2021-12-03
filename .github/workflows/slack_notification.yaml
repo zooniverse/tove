@@ -16,8 +16,8 @@ on:
         description: 'Job status'
         required: true
         type: string
-      link_text:
-        description: 'Notification title'
+      title_link:
+        description: 'Notification title link'
         required: true
         type: string
     secrets:
@@ -53,8 +53,8 @@ jobs:
                 "author_name": "${{ github.actor }}",
                 "author_link": "https://github.com/${{ github.actor }}/",
                 "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-                "title": "${{ inputs.link_text }}",
-                "title_link": "https://zooniverse.org",
+                "title": "Tove Mystery deploy complete",
+                "title_link": "${{ inputs.tile_link }}",
                 "fields": [
                     {
                         "title": "Status",
