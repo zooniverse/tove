@@ -16,7 +16,7 @@ on:
         description: 'Job status'
         required: true
         type: string
-      title:
+      link_text:
         description: 'Notification title'
         required: true
         type: string
