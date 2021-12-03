@@ -21,6 +21,7 @@ jobs:
     needs: deploy_production
     if: always()
     with:
+      environment: production
       commit_id: ${{ github.sha }}
       job_name: Deploy to Production / deploy_app
       status: ${{ needs.deploy_production.result }}

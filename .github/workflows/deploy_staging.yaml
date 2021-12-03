@@ -21,6 +21,7 @@ jobs:
     needs: deploy_staging
     if: always()
     with:
+      environment: staging
       commit_id: ${{ github.sha }}
       job_name: Deploy to Staging / deploy_app
       status: ${{ needs.deploy_staging.result }}
