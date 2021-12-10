@@ -72,4 +72,3 @@ jobs:
       title_link: "https://github.com/zooniverse/tove/actions/${{ github.run_id }}"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
