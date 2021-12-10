@@ -17,7 +17,7 @@ jobs:
       creds: ${{ secrets.AZURE_AKS }}
   slack_notification:
     name: Slack notification
-    uses: zooniverse/tove/.github/workflows/slack_notification.yaml@production-release
+    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
     needs: deploy_production
     if: always()
     with:
