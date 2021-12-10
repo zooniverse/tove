@@ -1,50 +1,13 @@
-name: Run Tests
+name: Run Rspec
 
 on:
   pull_request:
   workflow_dispatch:
 
-env:
-  DATABASE_URL_TEST: postgresql://postgres:postgres@localhost/tove_test
-  RAILS_ENV: test
-
 jobs:
-  tests:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:11
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-        - 5432:5432
-        options:
-          --health-cmd pg_isready
-          --health-interval 10ms
-          --health-timeout 500ms
-          --health-retries 15
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-        options: --entrypoint redis-server
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check for focused specs
-        run: ./scripts/no_focus.sh
-
-      - name: Setup Ruby and install gems
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6.5
-          bundler-cache: true
-
-      - name: Setup test database
-        run: bin/rails db:create
-
-      - name: Run tests
-        run: bundle exec rspec
+  run_rspec:
+    name: Run Rspec Tests
+    uses: zooniverse/ci-cd/.github/workflows/run_rspec.yaml@main
+    with:
+      db_name: tove_test
+      ruby_version: 2.6.5

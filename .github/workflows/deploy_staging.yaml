@@ -17,14 +17,14 @@ jobs:
       creds: ${{ secrets.AZURE_AKS }}
   slack_notification:
     name: Slack notification
-    uses: zooniverse/tove/.github/workflows/slack_notification.yaml@production-release
+    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
     needs: deploy_staging
     if: always()
     with:
-      environment: staging
       commit_id: ${{ github.sha }}
       job_name: Deploy to Staging / deploy_app
       status: ${{ needs.deploy_staging.result }}
+      title: "Tove Production deploy complete"
       title_link: "https://alice.preview.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
