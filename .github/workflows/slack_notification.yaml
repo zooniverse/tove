@@ -4,10 +4,6 @@ on:
   # Run this workflow from other workflows
   workflow_call:
     inputs:
-      environment:
-        description: 'environment to report about'
-        required: true
-        type: string
       commit_id:
         description: 'HEAD commit hash'
         required: true
@@ -18,6 +14,10 @@ on:
         type: string
       status:
         description: 'Job status'
+        required: true
+        type: string
+      title:
+        description: 'Notification title'
         required: true
         type: string
       title_link:
@@ -57,7 +57,7 @@ jobs:
                 "author_name": "${{ github.actor }}",
                 "author_link": "https://github.com/${{ github.actor }}/",
                 "author_icon": "https://github.com/${{ github.actor }}.png?size=40",
-                "title": "Tove ${{ inputs.environment }} deploy complete",
+                "title": "${{ inputs.title }}",
                 "title_link": "${{ inputs.title_link }}",
                 "fields": [
                     {
