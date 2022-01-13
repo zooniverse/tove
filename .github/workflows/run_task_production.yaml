@@ -1,4 +1,4 @@
-name: Run Task (Production)
+name: Run Production Task
 
 on:
   workflow_dispatch:
@@ -9,65 +9,25 @@ on:
         default: 'routes'
 
 jobs:
-  run_task_production:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set the target AKS cluster
-        uses: Azure/aks-set-context@v1
-        with:
-          creds: '${{ secrets.AZURE_AKS }}'
-          cluster-name: microservices
-          resource-group: kubernetes
-
-      - name: Set environment variables
-        run: |
-          echo "DEPLOYED_IMAGE_TAG=$(kubectl get deployment tove-production-app -o=jsonpath='{$.spec.template.spec.containers[:1].image}' | cut -d':' -f 2)" >> $GITHUB_ENV
-          echo "JOB_NAME=tove-task-production-${{ github.run_number }}" >> $GITHUB_ENV
-
-      - name: Modify & apply template
-        run: |
-          sed "s/__IMAGE_TAG__/$DEPLOYED_IMAGE_TAG/g" ./kubernetes/job-task-production.tmpl \
-            | sed "s/__JOB_NAME__/$JOB_NAME/g" \
-            | sed "s/__TASK_NAME__/${{ github.event.inputs.task }}/g" \
-            | kubectl apply -f -
-
-      - name: Wait for completion or failure
-        run: |
-          kubectl wait --for=condition=complete --timeout=86400s job/$JOB_NAME & completion_pid=$!
-          kubectl wait --for=condition=failed --timeout=86400s job/$JOB_NAME && exit 1 & failure_pid=$!
-          wait -n $completion_pid $failure_pid
-          exit_code=$?
-          echo "JOB_EXIT_CODE=$exit_code" >> $GITHUB_ENV
-          exit $exit_code
-
-      - name: Log output
-        if: always()
-        run: |
-          echo "Job Description:"
-          kubectl describe job/$JOB_NAME
-          echo "Pod Logs:"
-          kubectl logs $(kubectl get pods --selector=job-name=$JOB_NAME -o=jsonpath='{$.items[*].metadata.name}')
-
-      - name: Clean up job if successful
-        if: always()
-        run: |
-          if [ $JOB_EXIT_CODE -eq 0 ]
-          then
-            kubectl delete job $JOB_NAME
-          fi
+  run_production_task:
+    name: Run Production Task
+    uses: zooniverse/ci-cd/.github/workflows/run_task.yaml@main
+    with:
+      app_name: tove
+      task_name: ${{ github.event.inputs.task }}
+      environment: production
+    secrets:
+      creds: ${{ secrets.AZURE_AKS }}
 
   slack_notification:
     name: Slack notification
     uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
-    needs: deploy_staging
+    needs: run_production_task
     if: always()
     with:
       commit_id: ${{ github.sha }}
-      job_name: Run Task (Production) / run_task_production
-      status: ${{ needs.deploy_staging.result }}
+      job_name: Run Production Task / run_production_task
+      status: ${{ needs.run_production_task.result }}
       title: "Tove Production task complete"
       title_link: "https://github.com/zooniverse/tove/actions/${{ github.run_id }}"
     secrets:
