@@ -9,8 +9,10 @@ on:
 jobs:
   deploy_staging:
     name: Deploy to Staging
-    uses: zooniverse/tove/.github/workflows/deploy_app.yaml@production-release
+    uses: zooniverse/ci-cd/.github/workflows/deploy_app.yaml@main
     with:
+      app_name: tove
+      repo_name: tove
       commit_id: ${{ github.sha }}
       environment: staging
     secrets:
