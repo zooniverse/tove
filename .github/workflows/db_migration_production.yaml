@@ -9,7 +9,6 @@ jobs:
     uses: zooniverse/ci-cd/.github/workflows/db_migration.yaml@main
     with:
       app_name: tove
-      commit_id: ${{ github.sha }}
       environment: production
     secrets:
       creds: ${{ secrets.AZURE_AKS }}
