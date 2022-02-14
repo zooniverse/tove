@@ -23,7 +23,7 @@ jobs:
     if: always()
     with:
       commit_id: ${{ github.sha }}
-      job_name: Staging DB Migration / db_migration_production
+      job_name: Staging DB Migration / db_migration_staging
       status: ${{ needs.db_migration_staging.result }}
       title: "Tove Staging database migration complete"
       title_link: "https://alice.preview.zooniverse.org"
