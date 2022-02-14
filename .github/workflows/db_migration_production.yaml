@@ -1,6 +1,9 @@
 name: Production DB Migration
 
 on:
+  push:
+    tags:
+      - production-release
   workflow_dispatch:
 
 jobs:
