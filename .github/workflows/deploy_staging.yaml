@@ -41,11 +41,11 @@ jobs:
   deploy_slack_notification:
     name: Slack notification
     uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
-    needs: db_migration_staging
+    needs: deploy_staging
     if: always()
     with:
       commit_id: ${{ github.sha }}
-      job_name: Deploy to Staging / deploy_app
+      job_name: Deploy to Staging / deploy_staging
       status: ${{ needs.deploy_staging.result }}
       title: "Tove Staging deploy complete"
       title_link: "https://alice.preview.zooniverse.org"
