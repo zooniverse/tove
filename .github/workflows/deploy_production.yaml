@@ -7,9 +7,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  db_migration_production:
+    name: Production DB Migration
+    uses: zooniverse/ci-cd/.github/workflows/db_migration.yaml@main
+    with:
+      app_name: tove
+      environment: production
+      commit_id: ${{ github.sha }}
+    secrets:
+      creds: ${{ secrets.AZURE_AKS }}
+
   deploy_production:
     name: Deploy to Production
     uses: zooniverse/ci-cd/.github/workflows/deploy_app.yaml@main
+    needs: db_migration_production
     with:
       app_name: tove
       repo_name: tove
@@ -17,8 +28,9 @@ jobs:
       environment: production
     secrets:
       creds: ${{ secrets.AZURE_AKS }}
-  slack_notification:
-    name: Slack notification
+
+  deploy_slack_notification:
+    name: Deploy Slack notification
     uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
     needs: deploy_production
     if: always()
@@ -27,6 +39,20 @@ jobs:
       job_name: Deploy to Production / deploy_app
       status: ${{ needs.deploy_production.result }}
       title: "Tove Production deploy complete"
+      title_link: "https://alice.zooniverse.org"
+    secrets:
+      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  migration_slack_notification:
+    name: Migration Slack notification
+    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
+    needs: db_migration_production
+    if: always()
+    with:
+      commit_id: ${{ github.sha }}
+      job_name: Production DB Migration / db_migration_production
+      status: ${{ needs.db_migration_production.result }}
+      title: "Tove Production database migration complete"
       title_link: "https://alice.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
