@@ -38,21 +38,7 @@ jobs:
       commit_id: ${{ github.sha }}
       job_name: Deploy to Production / deploy_app
       status: ${{ needs.deploy_production.result }}
-      title: "Tove Production deploy complete"
-      title_link: "https://alice.zooniverse.org"
-    secrets:
-      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  migration_slack_notification:
-    name: Migration Slack notification
-    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
-    needs: db_migration_production
-    if: always()
-    with:
-      commit_id: ${{ github.sha }}
-      job_name: Production DB Migration / db_migration_production
-      status: ${{ needs.db_migration_production.result }}
-      title: "Tove Production database migration complete"
+      title: "Tove Production migration & deploy complete"
       title_link: "https://alice.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
