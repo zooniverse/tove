@@ -45,23 +45,9 @@ jobs:
     if: always()
     with:
       commit_id: ${{ github.sha }}
-      job_name: Deploy to Staging / deploy_staging
+      job_name: Deploy to Staging / deploy_app
       status: ${{ needs.deploy_staging.result }}
-      title: "Tove Staging deploy complete"
-      title_link: "https://alice.preview.zooniverse.org"
-    secrets:
-      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  migration_slack_notification:
-    name: Slack notification
-    uses: zooniverse/ci-cd/.github/workflows/slack_notification.yaml@main
-    needs: db_migration_staging
-    if: always()
-    with:
-      commit_id: ${{ github.sha }}
-      job_name: Staging DB Migration / db_migration_staging
-      status: ${{ needs.db_migration_staging.result }}
-      title: "Tove Staging database migration complete"
+      title: "Tove Staging migration & deploy complete"
       title_link: "https://alice.preview.zooniverse.org"
     secrets:
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
