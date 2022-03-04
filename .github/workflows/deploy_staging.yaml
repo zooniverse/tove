@@ -7,9 +7,18 @@ on:
   workflow_dispatch:
 
 jobs:
+  build_and_push_image:
+    name: Build and Push Image
+    uses: zooniverse/ci-cd/.github/workflows/build_and_push_image.yaml@main
+    with:
+      repo_name: tove
+      commit_id: ${{ github.sha }}
+      latest: true
+
   db_migration_staging:
     name: Staging DB Migration
     uses: zooniverse/ci-cd/.github/workflows/db_migration.yaml@main
+    needs: build_and_push_image
     with:
       app_name: tove
       environment: staging
@@ -20,7 +29,7 @@ jobs:
   deploy_staging:
     name: Deploy to Staging
     uses: zooniverse/ci-cd/.github/workflows/deploy_app.yaml@main
-    needs: db_migration_staging
+    needs: [build_and_push_image, db_migration_staging]
     with:
       app_name: tove
       repo_name: tove
