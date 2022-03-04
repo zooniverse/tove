@@ -140,7 +140,7 @@ GEM
     nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
-    panoptes-client (1.1.0)
+    panoptes-client (1.1.1)
       deprecate
       faraday
       faraday-panoptes (~> 0.3.0)
