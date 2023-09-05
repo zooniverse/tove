@@ -99,7 +99,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    faraday (0.17.4)
+    faraday (0.17.6)
       multipart-post (>= 1.2, < 3)
     faraday-panoptes (0.3.0)
       faraday (~> 0.9)
@@ -139,7 +139,7 @@ GEM
     mini_portile2 (2.8.1)
     minitest (5.17.0)
     msgpack (1.5.1)
-    multipart-post (2.1.1)
+    multipart-post (2.3.0)
     net-imap (0.3.4)
       date
       net-protocol
@@ -153,10 +153,10 @@ GEM
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    panoptes-client (1.1.1)
+    panoptes-client (1.2.1)
       deprecate
       faraday
-      faraday-panoptes (~> 0.3.0)
+      faraday-panoptes (~> 0.3)
       jwt (~> 1.5.0)
     pg (1.2.3)
     pry (0.13.1)
