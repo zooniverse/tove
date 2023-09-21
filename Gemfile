@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem 'rails', '~> 6.1'
 gem 'pg', '>= 0.18', '< 2.0'
-gem 'puma', '~> 5.6'
+gem 'puma', '~> 6.4'
 
 gem 'panoptes-client'
 gem 'pundit'
