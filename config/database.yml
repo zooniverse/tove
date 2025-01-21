@@ -16,8 +16,10 @@ test:
 
 staging:
   <<: *default
+  sslmode: require
   url: <%= Rails.application.credentials.db_url %>
 
 production:
   <<: *default
+  sslmode: require
   url: <%= Rails.application.credentials.db_url %>
