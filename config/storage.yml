@@ -7,13 +7,13 @@ local:
   root: <%= Rails.root.join("storage") %>
 
 staging:
-  service: AzureStorage
+  service: AzureBlob
   storage_account_name: <%= Rails.application.credentials.dig(:azure, :storage_account_name) %>
   storage_access_key: <%= Rails.application.credentials.dig(:azure, :storage_access_key) %>
   container: 'staging'
 
 production:
-  service: AzureStorage
+  service: AzureBlob
   storage_account_name: <%= Rails.application.credentials.dig(:azure, :storage_account_name) %>
   storage_access_key: <%= Rails.application.credentials.dig(:azure, :storage_access_key) %>
   container: 'production'

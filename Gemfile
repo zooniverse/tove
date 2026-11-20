@@ -9,8 +9,7 @@ gem 'panoptes-client'
 gem 'pundit'
 
 # Connect to Azure Storage with Rails Active Storage
-gem 'azure-storage'
-gem 'azure-storage-blob'
+gem 'azure-blob'
 
 gem 'rubyzip', '~> 2.3.0'
 
@@ -18,7 +17,10 @@ gem 'rubyzip', '~> 2.3.0'
 # ransack (filtration), and some RSpec matchers along with some
 # boilerplate for pagination and error handling
 # https://github.com/stas/jsonapi.rb
-gem 'jsonapi.rb'
+# pinned to 1.7.0 to keep changes in scope but TODO is update to latest version
+gem 'jsonapi.rb', '1.7.0'
+# install ransack version less than 4 due to breaking change where ransackable_attributes need to be declared
+gem 'ransack', ' < 4'
 
 # gem 'redis', '~> 4.0'
 
