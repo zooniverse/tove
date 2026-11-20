@@ -4,8 +4,10 @@ RSpec.describe CaesarController, type: :controller do
     let(:tagged_logger_double) { double }
 
     it 'instantiates an importer and calls #process' do
-      expect(CaesarImporter).to receive(:new).and_call_original
-      expect_any_instance_of(CaesarImporter).to receive(:process)
+      importer = instance_double(CaesarImporter)
+
+      expect(CaesarImporter).to receive(:new).and_return(importer)
+      expect(importer).to receive(:process)
       post :import, as: :json, body: File.read(Rails.root.join("spec/fixtures/caesar_payload.json"))
     end
 
