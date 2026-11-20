@@ -41,10 +41,10 @@ class PanoptesApi
   end
 
   def client
-    @client ||= Panoptes::Client.new({
+    @client ||= Panoptes::Client.new(
       env: env,
       auth: @auth
-    })
+    )
   end
 
   def token_created_at
