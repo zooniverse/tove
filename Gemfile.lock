@@ -60,7 +60,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
-    azure-blob (0.9.0)
+    azure-blob (0.8.0)
       cgi
       rexml
     base64 (0.3.0)
@@ -324,7 +324,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  azure-blob
+  azure-blob (~> 0.8.0)
   bootsnap (>= 1.4.2)
   coveralls (~> 0.8.23)
   factory_bot_rails

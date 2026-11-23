@@ -9,7 +9,8 @@ gem 'panoptes-client'
 gem 'pundit'
 
 # Connect to Azure Storage with Rails Active Storage
-gem 'azure-blob'
+# Pin azure-blob to version compatible with current rails 6.1
+gem 'azure-blob', '~> 0.8.0'
 
 gem 'rubyzip', '~> 2.3.0'
 
