@@ -10,4 +10,4 @@ jobs:
     uses: zooniverse/ci-cd/.github/workflows/run_rspec.yaml@main
     with:
       db_name: tove_test
-      ruby_version: 2.6.5
+      ruby_version: 3.3
