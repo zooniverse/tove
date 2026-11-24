@@ -1,4 +1,4 @@
-FROM ruby:2.6
+FROM ruby:3.3
 WORKDIR /app
 ENV PORT=80
 ARG RAILS_ENV
